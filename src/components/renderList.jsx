@@ -12,16 +12,20 @@ import { convertCustomaryToMetric } from '../utilities/convertUnitSystem';
 import { convertMetricToCustomary } from '../utilities/convertUnitSystem';
 import { findUnitSystem } from '../utilities/convertUnitSystem';
 import GroceryList from './renderGroceryList.jsx';
+import UnitSystemToggle from './form';
+import Form from 'react-bootstrap/Form';
+
 const DisplayList = () => {
 
     const [recipes, setRecipes] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [groceries, setGroceries] = useState({});
-    const [unitSystem, setUnitSystem] = useState('customary');
     const [currentComponent, setComponent] = useState(false);
+    const [unitSystem, setUnitSystem] = useState('customary');
+
     useEffect(() => {
-        const convertUnitSystem = unitSystem === 'customary'? convertMetricToCustomary: convertCustomaryToMetric;
-        const dataInOneUnitSystem = data.map(recipe => {
+        let convertUnitSystem = unitSystem === 'customary'? convertMetricToCustomary: convertCustomaryToMetric;
+        let dataInOneUnitSystem = data.map(recipe => {
           if (findUnitSystem(recipe) !==  unitSystem) {
             recipe.ingredients = convertUnitSystem(recipe.ingredients);
           }
@@ -29,7 +33,7 @@ const DisplayList = () => {
         })
         setRecipes(dataInOneUnitSystem);
         setFavorites(recipes.filter(item => item.favorite));
-    }, [unitSystem, data]);
+    },[data, unitSystem]);
 
     const handleDeleteRecipes = (id) => {
         let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
@@ -43,7 +47,10 @@ const DisplayList = () => {
         recipe.favorite = false;
         setFavorites([...favorites, recipe])
     };
-    
+    const handleUnitSystemToggle = (e)=> {
+        let value = e.target.checked;
+        setUnitSystem(() => value ?'metric': 'customary');
+    }
     const createIngredientsList = ()=> {
             
         // extract ingredients from recipes as ingredient's array
@@ -210,15 +217,17 @@ const DisplayList = () => {
      return  (
         <React.Fragment>
             <ul className={styles.card}>
-                { currentComponent ? <GroceryList groceries={groceries}/> :
-                <>
+                { currentComponent ? <GroceryList groceries={groceries}/>
+                :
+               <React.Fragment>
+                <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle}/>
                 {recipes.map(item =>
                     <RenderListItem key={item.name} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
 
                 )}
                 <Button variant="success"  onClick={createIngredientsList}>Generate List</Button>
 
-                </>}
+                </React.Fragment>}
             </ul>
         </React.Fragment>
         ) 
