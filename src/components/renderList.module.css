@@ -7,4 +7,6 @@
     margin: 0 auto;
     line-height: 25px;
     background-color: lemonchiffon;
+    min-height: 80vh;
+
 }

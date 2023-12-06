@@ -13,27 +13,28 @@ import { convertMetricToCustomary } from '../utilities/convertUnitSystem';
 import { findUnitSystem } from '../utilities/convertUnitSystem';
 import GroceryList from './renderGroceryList.jsx';
 import UnitSystemToggle from './form';
-import Form from 'react-bootstrap/Form';
+import DropdownComponent from './dropdown';
+
 
 const DisplayList = () => {
 
-    const [recipes, setRecipes] = useState([]);
+    const [recipes, setRecipes] = useState(data);
     const [favorites, setFavorites] = useState([]);
     const [groceries, setGroceries] = useState({});
-    const [currentComponent, setComponent] = useState(false);
+    const [currentComponent, setComponent] = useState('dropdown');
     const [unitSystem, setUnitSystem] = useState('customary');
 
-    useEffect(() => {
-        let convertUnitSystem = unitSystem === 'customary'? convertMetricToCustomary: convertCustomaryToMetric;
-        let dataInOneUnitSystem = data.map(recipe => {
-          if (findUnitSystem(recipe) !==  unitSystem) {
-            recipe.ingredients = convertUnitSystem(recipe.ingredients);
-          }
-            return recipe;
-        })
-        setRecipes(dataInOneUnitSystem);
-        setFavorites(recipes.filter(item => item.favorite));
-    },[data, unitSystem]);
+    // useEffect(() => {
+    //     let convertUnitSystem = unitSystem === 'customary'? convertMetricToCustomary: convertCustomaryToMetric;
+    //     let dataInOneUnitSystem = data.map(recipe => {
+    //       if (findUnitSystem(recipe) !==  unitSystem) {
+    //         recipe.ingredients = convertUnitSystem(recipe.ingredients);
+    //       }
+    //         return recipe;
+    //     })
+    //     setRecipes(dataInOneUnitSystem);
+    //     setFavorites(recipes.filter(item => item.favorite));
+    // },[data, unitSystem]);
 
     const handleDeleteRecipes = (id) => {
         let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
@@ -50,6 +51,18 @@ const DisplayList = () => {
     const handleUnitSystemToggle = (e)=> {
         let value = e.target.checked;
         setUnitSystem(() => value ?'metric': 'customary');
+    }
+    const handleSelectMenu = (eventKey)=> {
+       let count = eventKey;
+       const indices = new Set();
+       while (indices.size < count && indices.size < data.length) {
+        let randomIndex = Math.floor(Math.random() * data.length);
+        indices.add(randomIndex);
+       }
+       const selectedRecipes = [...indices].map(index => data[index] );
+       setRecipes(selectedRecipes);
+       setComponent('recipes');
+
     }
     const createIngredientsList = ()=> {
             
@@ -210,24 +223,27 @@ const DisplayList = () => {
         })
 
         setGroceries(groceryList);
-        setComponent(true);
+        setComponent('grocery list');
     
         
     };
      return  (
         <React.Fragment>
             <ul className={styles.card}>
-                { currentComponent ? <GroceryList groceries={groceries}/>
-                :
-               <React.Fragment>
-                <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle}/>
-                {recipes.map(item =>
-                    <RenderListItem key={item.name} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
+                { currentComponent === 'grocery list' ? <GroceryList groceries={groceries}/>
+                : currentComponent === 'dropdown' ? 
+                  <DropdownComponent handleSelectMenu={handleSelectMenu}/>
+                : currentComponent === 'recipes'? 
+                <React.Fragment>
+                  <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle}/>
+                    {recipes.map(item =>
+                        <RenderListItem key={item.name} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
 
-                )}
-                <Button variant="success"  onClick={createIngredientsList}>Generate List</Button>
+                    )}
+                    <Button variant="success"  onClick={createIngredientsList}>Generate List</Button>
 
-                </React.Fragment>}
+                </React.Fragment>: null
+                }
             </ul>
         </React.Fragment>
         ) 
