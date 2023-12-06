@@ -13,7 +13,7 @@ import { convertMetricToCustomary } from '../utilities/convertUnitSystem';
 import { findUnitSystem } from '../utilities/convertUnitSystem';
 import GroceryList from './renderGroceryList.jsx';
 import UnitSystemToggle from './form';
-import DropdownComponent from './dropdown';
+import DropdownComponent from './dropdownForRecipes';
 
 
 const DisplayList = () => {
@@ -23,18 +23,22 @@ const DisplayList = () => {
     const [groceries, setGroceries] = useState({});
     const [currentComponent, setComponent] = useState('dropdown');
     const [unitSystem, setUnitSystem] = useState('customary');
-
-    // useEffect(() => {
-    //     let convertUnitSystem = unitSystem === 'customary'? convertMetricToCustomary: convertCustomaryToMetric;
-    //     let dataInOneUnitSystem = data.map(recipe => {
-    //       if (findUnitSystem(recipe) !==  unitSystem) {
-    //         recipe.ingredients = convertUnitSystem(recipe.ingredients);
-    //       }
-    //         return recipe;
-    //     })
-    //     setRecipes(dataInOneUnitSystem);
-    //     setFavorites(recipes.filter(item => item.favorite));
-    // },[data, unitSystem]);
+    const  convertUnitSystemOfRecipes = async (selectedSystem, dataArray)=> {
+        
+        setUnitSystem(selectedSystem);
+        let convertUnitSystem = selectedSystem === 'customary'? convertMetricToCustomary: convertCustomaryToMetric;
+        let dataInOneUnitSystem = await  dataArray.map(data => {
+            if (findUnitSystem(data) !==  selectedSystem) {
+              data.ingredients = convertUnitSystem(data.ingredients);
+            }
+              return data;
+          })
+        setRecipes(dataInOneUnitSystem);
+    };
+    useEffect(() => {
+        convertUnitSystemOfRecipes(unitSystem, data);
+        setFavorites(recipes.filter(item => item.favorite));
+    },[data]);
 
     const handleDeleteRecipes = (id) => {
         let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
@@ -48,9 +52,10 @@ const DisplayList = () => {
         recipe.favorite = false;
         setFavorites([...favorites, recipe])
     };
+   
     const handleUnitSystemToggle = (e)=> {
-        let value = e.target.checked;
-        setUnitSystem(() => value ?'metric': 'customary');
+        let selectedSystem = e.target.checked? 'metric': 'customary';
+        convertUnitSystemOfRecipes(selectedSystem, recipes);
     }
     const handleSelectMenu = (eventKey)=> {
        let count = eventKey;

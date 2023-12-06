@@ -109,7 +109,7 @@ export const convertMetricToCustomary = (ingredients)=> {
         return;
       
      }
-    let result = convertUnitHelper(parseFloat(ingredient.amount), ingredient.unit, conversionFactors);
+    let result = convertUnitHelper(parseFloat(numericQuantity(ingredient.amount)), ingredient.unit, conversionFactors);
     const addIngredients = ingredient.type === 'dry'? addDryIngredients: addWetIngredients
     let updatedResult = addIngredients([result], 'customary');
     if (updatedResult.amount !== 0) {
