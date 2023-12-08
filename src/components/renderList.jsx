@@ -16,7 +16,8 @@ import UnitSystemToggle from './form';
 import RecipesDropdown from './dropdownForRecipes';
 import CategoriesDropdown from './dropdownForCategories';
 import FinalList from './renderFinalList';
-
+import { FaPlus } from "react-icons/fa";
+import RecipeForm from './addRecipeForm';
 const DisplayList = () => {
 
     const [recipes, setRecipes] = useState(data);
@@ -260,6 +261,9 @@ const DisplayList = () => {
 
 
     };
+    const handleAddRecipe = ()=> {
+
+    }
     
     return (
         <React.Fragment>
@@ -275,7 +279,11 @@ const DisplayList = () => {
 
                         </React.Fragment>)
                         : currentComponent === 'dropdown' ?
-                            <RecipesDropdown handleSelectMenu={handleSelectMenu} />
+                            (<div style={{display: 'flex', justifyContent: "space-evenly"}}>
+                               <RecipesDropdown handleSelectMenu={handleSelectMenu} />
+                               {/* <Button onClick={handleAddRecipe} variant="danger">Add Recipe &nbsp;<FaPlus/></Button> */}
+                               <RecipeForm addRecipe={handleAddRecipe} unitSystem={unitSystem}/>
+                            </div>)
                             : currentComponent === 'recipes' ?
                                 <React.Fragment>
                                     <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
