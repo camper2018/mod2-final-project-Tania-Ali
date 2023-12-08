@@ -24,7 +24,7 @@ const DisplayList = () => {
     const [groceries, setGroceries] = useState({});
     const [currentComponent, setComponent] = useState('dropdown');
     const [unitSystem, setUnitSystem] = useState('customary');
-    const [selectedCategory, setSelectedCategory] = useState('fresh produce');
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
     const [itemsCountInCategories, setItemCount] = useState(0);
     const handleCategorySelect = (eventKey) => {
@@ -32,17 +32,19 @@ const DisplayList = () => {
     };
     const handleCategorization = (e) => {
         let id = e.target.id;
-        if (id) {
+        if (id && selectedCategory) {
             let categoryContainer = categories[selectedCategory];
             setCategories({ ...categories, [selectedCategory]: [...categoryContainer, groceries[id]] });
             e.target.style.display = 'none';
             setItemCount((prop) => prop + 1);
+        } else {
+            alert('Please select a category to add items in!')
         }
 
     }
     const handleFinalList = () => {
         if (itemsCountInCategories < Object.keys(groceries).length) {
-            alert("Please select a category for all items");
+            alert("Please select category for all items");
         } else {
             // render final list based on categories array
             setComponent('final list');
@@ -258,13 +260,14 @@ const DisplayList = () => {
 
 
     };
+    
     return (
         <React.Fragment>
             <ul className={styles.card}>
                 {currentComponent === 'final list' ? <FinalList categories={categories} />
                     : currentComponent === 'grocery list' ? (
                         <React.Fragment>
-                            <CategoriesDropdown categories={categories} selectCategory={handleCategorySelect} />
+                            <CategoriesDropdown selectedCategory={selectedCategory} categories={categories} handleCategorySelect={handleCategorySelect} />
                             <br />
 
                             <GroceryList categorize={handleCategorization} groceries={groceries} />
