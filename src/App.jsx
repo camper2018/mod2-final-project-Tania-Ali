@@ -7,7 +7,7 @@ import DisplayList from './components/renderList';
 function App() {
   return (
     <div className="App">
-      <h1>Grocery Bot</h1>
+      <h1>Grocery Helper</h1>
       <DisplayList/>
     </div>
   );

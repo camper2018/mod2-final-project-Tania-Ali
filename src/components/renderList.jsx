@@ -262,8 +262,15 @@ const DisplayList = () => {
 
 
     };
-    const handleAddRecipe = (e, isFavorite)=> {
+    // const handleAddRecipeErrors = (form) => {
+    //     if (form.name.value === '' || form.ingredients)
+    // }
+    const handleAddRecipe = (e, isFavorite, errors)=> {
         e.preventDefault();
+        if (errors.name || errors.itemName || errors.ItemAmount){
+            alert("Error Saving Recipe!")
+            return ;
+        }
         let form = e.target;
         console.log(recipeId, "recipeId");
         let ingredients;
@@ -271,9 +278,9 @@ const DisplayList = () => {
            ingredients = [
             { 
                 name:(form.ingredientName.value).trim(),
-                unit: (form.ingredientUnit.value).trim(),
-                amount: form.ingredientAmount.value,
-                type: (form.ingredientUnit.value).trim(),  
+                unit: (form.ingredientUnit.value).split(" ")[0].trim(),
+                amount: (form.ingredientAmount.value)? form.ingredientAmount.value.trim(): '0',
+                type:  (form.ingredientUnit.value).split(" ")[1].trim(), 
              }
            ]
         } else {
@@ -281,12 +288,13 @@ const DisplayList = () => {
             { 
                 name:(item.value).trim(),
                 unit: ([...form.ingredientUnit][i].value.split(" ")[0]).trim(),
-                amount: [...form.ingredientAmount][i].value,
+                amount: ([...form.ingredientAmount][i].value)? [...form.ingredientAmount][i].value.trim(): '0',
                 type: ([...form.ingredientUnit][i].value.split(" ")[1]).trim(),
              
             }
             ));
         }
+        console.log(ingredients)
         const recipe = {
           id: recipeId,
           name: (form.name.value).trim(),
