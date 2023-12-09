@@ -1,5 +1,5 @@
 import data from '../data';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,  useId } from 'react';
 import styles from './renderList.module.css';
 import RenderListItem from './renderListItem';
 import Button from 'react-bootstrap/Button';
@@ -28,6 +28,7 @@ const DisplayList = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
     const [itemsCountInCategories, setItemCount] = useState(0);
+    const recipeId = useId();
     const handleCategorySelect = (eventKey) => {
         setSelectedCategory(eventKey);
     };
@@ -261,7 +262,40 @@ const DisplayList = () => {
 
 
     };
-    const handleAddRecipe = ()=> {
+    const handleAddRecipe = (e, isFavorite)=> {
+        e.preventDefault();
+        let form = e.target;
+        console.log(recipeId, "recipeId");
+        let ingredients;
+        if(form.ingredientName[0] === undefined){
+           ingredients = [
+            { 
+                name:(form.ingredientName.value).trim(),
+                unit: (form.ingredientUnit.value).trim(),
+                amount: form.ingredientAmount.value,
+                type: (form.ingredientUnit.value).trim(),  
+             }
+           ]
+        } else {
+            ingredients = [...form.ingredientName].map((item, i)=> (
+            { 
+                name:(item.value).trim(),
+                unit: ([...form.ingredientUnit][i].value.split(" ")[0]).trim(),
+                amount: [...form.ingredientAmount][i].value,
+                type: ([...form.ingredientUnit][i].value.split(" ")[1]).trim(),
+             
+            }
+            ));
+        }
+        const recipe = {
+          id: recipeId,
+          name: (form.name.value).trim(),
+          method: (form.method.value).trim(),
+          tags :(form.tags.value).split(","),
+          ingredients : ingredients,
+          favorite: isFavorite
+        }
+        data.push(recipe);
 
     }
     

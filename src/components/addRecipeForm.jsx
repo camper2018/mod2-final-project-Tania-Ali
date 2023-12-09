@@ -25,25 +25,25 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
         setFavorite(false);
     }
     let customaryHTML = [];
-    let customaryHTMLDry = Object.keys(dryConversionFactors).map(factor => (<option value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
-    let customaryHTMLWet = Object.keys(wetConversionFactors).map(factor => (<option value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
+    let customaryHTMLDry = Object.keys(dryConversionFactors).map(factor => (<option key={factor + ' dry'} value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
+    let customaryHTMLWet = Object.keys(wetConversionFactors).map(factor => (<option key={factor + ' dry'} value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
     // customaryHTML = customaryHTMLDry.join("") + customaryHTMLWet.join("");
     customaryHTML.push(customaryHTMLDry);
     customaryHTML.push(customaryHTMLWet);
     let metricHTML = [];
-    const metricHTMLDry = Object.keys(metricDryConversionFactors).map(factor => (<option value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
-    const metricHTMLWet = Object.keys(metricWetConversionFactors).map(factor => (<option value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
+    const metricHTMLDry = Object.keys(metricDryConversionFactors).map(factor => (<option key={factor + ' dry'} value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
+    const metricHTMLWet = Object.keys(metricWetConversionFactors).map(factor => (<option key= {factor + ' dry'} value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
     metricHTML.push(metricHTMLDry, metricHTMLWet);
     let optionsHTML = unitSystem === 'customary' ? customaryHTML : metricHTML;
     const [htmlForAddItem, setHTML] = useState([]);
     // const htmlForAddItem = [];
     const handleAddFormEl = () => {
-        // console.log('clicked');
         let html = (<div className='d-flex mt-3'>
             <Form.Control
                 type="text"
                 placeholder="Name"
                 autoFocus
+                name="ingredientName"
 
             />
             <Form.Control
@@ -51,9 +51,10 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
                 placeholder="Amount"
                 autoFocus
                 className='mx-1'
+                name="ingredientAmount"
             />
 
-            <Form.Select aria-label="select unit for ingredient">
+            <Form.Select aria-label="select unit for ingredient" name="ingredientUnit">
                 <option>Select Unit</option>
                 {optionsHTML}
             </Form.Select>
@@ -78,13 +79,19 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
 
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
+                    <Form onSubmit={(e) => { 
+                        addRecipe(e, isFavorite);
+                        handleClose();
+                        }} 
+                        id="addRecipeForm"
+                    >
                         <Form.Group className="mb-3" controlId="recipeForm.ControlInput1">
                             <Form.Label>Name</Form.Label>
                             <Form.Control
                                 type="text"
                                 placeholder="Enter Recipe Name"
                                 autoFocus
+                                name="name"
                             />
                         </Form.Group>
                         <Form.Group
@@ -92,7 +99,7 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
                             controlId="recipeForm.ControlTextarea1"
                         >
                             <Form.Label>Method</Form.Label>
-                            <Form.Control as="textarea" />
+                            <Form.Control as="textarea" autoFocus name="method"/>
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="recipeForm.ControlInput2">
                             <Form.Label>Tag/ Tags</Form.Label>
@@ -100,17 +107,19 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
                                 type="text"
                                 placeholder="vegan, gluten-free, dairy-free, seafood,egg-free"
                                 autoFocus
+                                name="tags"
                             />
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="recipeForm.ControlInput3">
                             <Form.Label>Ingredients</Form.Label>
                             <Button className='float-end' variant="secondary" onClick={handleAddFormEl}>ADD</Button>
 
-                            <div className='d-flex mt-3'>
+                            <div className='d-flex mt-3' name="ingredients">
                                 <Form.Control
                                     type="text"
                                     placeholder="Name"
                                     autoFocus
+                                    name="ingredientName"
 
                                 />
                                 <Form.Control
@@ -118,9 +127,10 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
                                     placeholder="Amount"
                                     autoFocus
                                     className='mx-1'
+                                    name="ingredientAmount"
                                 />
 
-                                <Form.Select aria-label="select unit for ingredient">
+                                <Form.Select aria-label="select unit for ingredient" name="ingredientUnit">
                                     <option>Select Unit</option>
                                     {optionsHTML}
                                 </Form.Select>
@@ -134,10 +144,11 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
                     <Button variant="secondary" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button variant="primary" onClick={handleClose}>
+                    <Button type="submit" variant="primary" form="addRecipeForm">
                         Save
                     </Button>
                 </Modal.Footer>
+
             </Modal>
         </React.Fragment>);
 }

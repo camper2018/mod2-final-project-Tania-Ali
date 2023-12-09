@@ -1,6 +1,6 @@
 const recipes = [
     {
-        id: 1,
+        id: "1",
         name: "Lasagna",
         favorite: false,
         ingredients: [
@@ -40,7 +40,7 @@ const recipes = [
 
     },
     {
-        id: 2,
+        id: "2",
         name: "Chicken Tikka Masala",
         favorite: true,
         ingredients: [
@@ -73,7 +73,7 @@ const recipes = [
     },
 
     {
-        id: 3,
+        id: "3",
         name: "Pizza",
         favorite: false,
         ingredients: [
@@ -114,7 +114,7 @@ const recipes = [
 
     },
     {   
-        id: 4,
+        id: "4",
         name: "Biryani",
         favorite: true,
         ingredients: [
@@ -167,7 +167,7 @@ const recipes = [
         Turn out into bowl - or onto platter. Garnish with remaining onion and coriander with yoghurt on the side (see Note 7 for Minted Yoghurt)`
     },
     {
-        id: 5,
+        id: "5",
         name: "Chinese Rice",
         favorite: true,
         ingredients: [  
@@ -188,7 +188,7 @@ const recipes = [
         Serve hot and enjoy!`
     },
     // {
-    //     id: 6,
+    //     id: "6",
     //     name: "Christmas pie",
 
     //     ingredients: [
@@ -215,7 +215,7 @@ const recipes = [
 
     // },
     {
-        id: 7,
+        id: "7",
         name: "Lasagna 2",
         favorite: false,
         ingredients: [
@@ -255,7 +255,7 @@ const recipes = [
 
     },
     {
-        id: 8,
+        id: "8",
         name: "Chicken Tikka Masala 2",
         favorite: true,
         ingredients: [
@@ -287,7 +287,7 @@ const recipes = [
         `
     },
     {
-        id: 9,
+        id: "9",
         name: "Pizza 2",
         favorite: false,
         ingredients: [
@@ -328,7 +328,7 @@ const recipes = [
 
     },
     {
-        id: 10,
+        id: "10",
         name: "Biryani 2",
         favorite: true,
         ingredients: [
@@ -381,7 +381,7 @@ const recipes = [
         Turn out into bowl - or onto platter. Garnish with remaining onion and coriander with yoghurt on the side (see Note 7 for Minted Yoghurt)`
     },
     // {
-    //     id: 11,
+    //     id: "11",
     //     name: "Christmas pie 2",
 
     //     ingredients: [
@@ -408,7 +408,7 @@ const recipes = [
 
     // },
     {
-        id: 12,
+        id: "12",
         name: "Chinese Rice2",
         favorite: true,
         ingredients: [  
@@ -429,7 +429,7 @@ const recipes = [
         Serve hot and enjoy!`
     },
     {
-        id: 13,
+        id: "13",
         name: "Lasagna3",
         favorite: false,
         ingredients: [
@@ -469,7 +469,7 @@ const recipes = [
 
     },
     {
-        id: 14,
+        id: "14",
         name: "Chicken Tikka Masala3",
         favorite: true,
         ingredients: [
@@ -502,7 +502,7 @@ const recipes = [
     },
 
     {
-        id: 15,
+        id: "15",
         name: "Pizza3",
         favorite: false,
         ingredients: [
@@ -543,7 +543,7 @@ const recipes = [
 
     },
     {   
-        id: 16,
+        id: "16",
         name: "Biryani3",
         favorite: true,
         ingredients: [
