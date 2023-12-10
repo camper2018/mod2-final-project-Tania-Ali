@@ -595,5 +595,6 @@ const recipes = [
         Aim to serve it so you get nice patches of yellow rice, white rice, the curry stained rice + chicken (rather than all mixed up). To do this, use a large spoon and dig deep into the pot, and try to scoop up as much as you can in one scoop.
         Turn out into bowl - or onto platter. Garnish with remaining onion and coriander with yoghurt on the side (see Note 7 for Minted Yoghurt)`
     },
-]
-export default recipes;
+];
+// localStorage.setItem("data", JSON.stringify(recipes));
+// export default recipes;

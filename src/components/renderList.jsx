@@ -1,4 +1,4 @@
-import data from '../data';
+// import data from '../data';
 import React, { useState, useEffect, useId } from 'react';
 import styles from './renderList.module.css';
 import RenderListItem from './renderListItem';
@@ -16,10 +16,9 @@ import UnitSystemToggle from './form';
 import RecipesDropdown from './dropdownForRecipes';
 import CategoriesDropdown from './dropdownForCategories';
 import FinalList from './renderFinalList';
-import { FaPlus } from "react-icons/fa";
 import RecipeForm from './addRecipeForm';
 const DisplayList = () => {
-
+    const data = JSON.parse(localStorage.getItem("data"));
     const [recipes, setRecipes] = useState(data);
     const [favorites, setFavorites] = useState([]);
     const [groceries, setGroceries] = useState({});
@@ -66,21 +65,39 @@ const DisplayList = () => {
         setRecipes(dataInOneUnitSystem);
     };
     useEffect(() => {
-        convertUnitSystemOfRecipes(unitSystem, data);
+        convertUnitSystemOfRecipes(unitSystem, recipes);
         setFavorites(recipes.filter(item => item.favorite));
-    }, [data]);
+    }, []);
 
     const handleDeleteRecipes = (id) => {
         let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
         setRecipes(filteredRecipes);
     };
+    /*    Local Storage functions   */
+    const addToStorage = (obj) => {
+        // add new item to the local storage data array
+        let data = JSON.parse(localStorage.getItem("data"));
+        data.push(obj);
+        localStorage.setItem("data", JSON.stringify(data));
+    }
+    const updateLocalStorage = (obj) => {
+        const data = JSON.parse(localStorage.getItem('data'));
+        const updatedData = data.filter(item => item.id !== obj.id);
+        updatedData.push(obj);
+        localStorage.setItem("data", JSON.stringify(updatedData));
+    }
+    /************************************ */
     const handleAddToFavorites = (recipe) => {
         recipe.favorite = true;
         setFavorites([...favorites, recipe]);
+        // update local storage
+        updateLocalStorage(recipe);
+       
     };
     const handleRemoveFromFavorites = (recipe) => {
         recipe.favorite = false;
         setFavorites([...favorites, recipe])
+        updateLocalStorage(recipe);
     };
 
     const handleUnitSystemToggle = (e) => {
@@ -274,7 +291,6 @@ const DisplayList = () => {
             return;
         }
         let form = e.target;
-        console.log(recipeId, "recipeId");
         let ingredients;
         if (form.ingredientName[0] === undefined) {
             ingredients = [
@@ -296,7 +312,6 @@ const DisplayList = () => {
                 }
             ));
         }
-        console.log(ingredients)
         const recipe = {
             id: recipeId,
             name: (form.name.value).trim(),
@@ -305,7 +320,10 @@ const DisplayList = () => {
             ingredients: ingredients,
             favorite: isFavorite
         }
-        data.push(recipe);
+        
+        setRecipes([...recipes, recipe]);
+        // add new recipe to the local storage
+        addToStorage(recipe);
 
     }
 
