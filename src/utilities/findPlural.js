@@ -8,9 +8,10 @@ export const isPlural = (word)=> {
 
   if (pluralRegex.test(word)) {
     // Remove 's' at the end
+    word = word.toLowerCase();
     const singularForm = word.replace(/s\b/, ''); 
     // return true if the word is plural or the word ends with leaves e.g Basil leaves.
-    return word !== singularForm && word !== `${singularForm} leaves`;
+    return word !== singularForm && word !== `${singularForm.split(" ")[0]} leaves`;
   }
   return false;
 }

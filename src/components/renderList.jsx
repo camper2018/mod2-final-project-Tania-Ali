@@ -295,16 +295,17 @@ const DisplayList = () => {
         if (form.ingredientName[0] === undefined) {
             ingredients = [
                 {
-                    name: (form.ingredientName.value).trim(),
+                    name: ((form.ingredientName.value).trim()).toLowerCase(),
                     unit: (form.ingredientUnit.value).split(" ")[0].trim(),
                     amount: (form.ingredientAmount.value) ? form.ingredientAmount.value.trim() : '0',
                     type: (form.ingredientUnit.value).split(" ")[1].trim(),
                 }
             ]
+            
         } else {
             ingredients = [...form.ingredientName].map((item, i) => (
                 {
-                    name: (item.value).trim(),
+                    name: ((item.value).trim()).toLowerCase(),
                     unit: ([...form.ingredientUnit][i].value.split(" ")[0]).trim(),
                     amount: ([...form.ingredientAmount][i].value) ? [...form.ingredientAmount][i].value.trim() : '0',
                     type: ([...form.ingredientUnit][i].value.split(" ")[1]).trim(),

@@ -38,8 +38,8 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
             conversionFactorsForDry = metricDryConversionFactors;
             conversionFactorsForWet = metricWetConversionFactors;
         }
-        let htmlForDry = Object.keys(conversionFactorsForDry).map((factor, i) => (<option key={factor + 'dry' + i} value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
-        let htmlForWet = Object.keys(conversionFactorsForWet).map((factor, j) => (<option key={factor + 'wet' + j} value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
+        let htmlForDry = Object.keys(conversionFactorsForDry).map((factor, i) => (<option key={factor + 'dry' + i} value={factor + " " + "dry"}>{factor}&nbsp; *dry</option>));
+        let htmlForWet = Object.keys(conversionFactorsForWet).map((factor, j) => (<option key={factor + 'wet' + j} value={factor + " " + "wet"}>{factor}&nbsp; *liquid</option>));
         html.push(htmlForDry, htmlForWet);
         return html;
 
@@ -158,7 +158,7 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
                                     />
                                     <Form.Control.Feedback type="invalid">{errors.itemAmount}</Form.Control.Feedback>
                                     <Form.Select aria-label="select unit for ingredient" name="ingredientUnit">
-                                        <option key="none dry" value="none dry">Select Unit</option>
+                                        <option key="none dry" value={"none" + " " + "dry"}>Select Unit</option>
                                         {optionsHTML}
                                     </Form.Select>
                                     {htmlForAddItem.length > 1 &&

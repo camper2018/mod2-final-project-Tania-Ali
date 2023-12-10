@@ -79,18 +79,18 @@ export const findUnitSystem = (recipe) => {
     let count = 0;
     let found = true;
     let unitSystem;
-    while(found) {
+    while( found && count < recipe.ingredients.length) {
        if (recipe.ingredients[count].unit in metricDryConversionFactors || recipe.ingredients[0].unit in metricWetConversionFactors){
          unitSystem = 'customary';
          found = false;
        } else if (recipe.ingredients[count].unit in customaryDryConversionFactors || recipe.ingredients[0].unit in customaryWetConversionFactors){
          unitSystem = 'metric';
          found = false;
-       } else [
+       } else {
         count++
-       ]
+       }
     }
-    return unitSystem;
+    return unitSystem? unitSystem: 'customary';
 }
 /**************** Convert Metric units to Customary units ******************/
 export const convertMetricToCustomary = (ingredients)=> {
@@ -121,46 +121,5 @@ export const convertMetricToCustomary = (ingredients)=> {
     return ingredient; 
     })
  }
-// examples
-// const ingredients =  [
-//     { name: "sugar", amount:  "1" , unit: "tsp", type: "dry"},
-//     { name: "dry yeast", amount: "2", unit: "tsp",type: "dry"},
-//     { name: "all-purpose-flour", amount: "7", unit: "cup", type: "dry"},
-//     { name: "extra virgin olive oil", amount: "1", unit: "tbsp",type: "wet"},
-//     { name: "garam masala", amount: "6", unit: "tbsp", type: "dry"},
-//     { name: "salt", amount:"500", unit: "tsp", type: "dry"},
-//     { name: "samolina flour", amount: "1/4", unit: "cup", type: "dry"},
-//     { name: "tomatoes", amount: "28", unit: "oz", type: "dry"},
-//     { name: "tomato sauce", amount: "2", unit: "tbsp", type: "dry"},
-//     { name: "mozzarella cheese", amount: "1/2", unit: "lb", type: "dry"},
-//     { name: "butter", amount: "200", unit: "tbsp", type: "dry"},
-//     { name: "onion", amount: "1", unit: "none", type: "dry"},
-//     { name: "garlic paste", amount: "1.5", unit: "tbsp",type: "wet"},
-//     { name: "tomato puree", amount: "14", unit: "oz", type: "dry"},
-//     { name: "red chili powder", amount: "1", unit: "tsp",type: "dry"},
-//     { name: "heavy cream", amount: "1.25", unit: "cup",type: 'wet'},
-//     { name: "brown sugar", amount: "1", unit: "tsp", type: "dry"},
-//     { name: "cilantro", amount: "4", unit: "tbsp",type: "dry"},
-// ];
 
-// const value = convertCustomaryToMetric(ingredients);
-// console.log(value);
-// const metricIngredients = [
- 
-//         { name: "olive oil", amount:  "15" , unit: "mL", type: 'wet'},
-//         { name: "butter", amount: "400", unit: "g", type: "dry"},
-//         { name: "onion", amount: "1", unit: "none", type: "dry"},
-//         { name: "sausage meat", amount: "1000", unit: "g", type: "dry"},
-//         { name: "lemon juice", amount: "250", unit: "mL", type: "wet"},
-//         { name: "bread crumbs", amount:"100", unit: "g", type: "dry"},
-//         { name: "dried apricots", amount: "85", unit: "g", type: "dry"},
-//         { name: "chestnut", amount: "50", unit: "g", type: "dry"},
-//         { name: "dried thyme", amount: "1", unit: "tsp", type: "dry"},
-//         { name: "cranberry", amount:"100", unit: "g", type: "dry"},
-//         { name: "boneless chicken breast", amount: "500", unit: "g", type: "dry"},
-//         { name: "shortcrust pastry", amount: "500", unit: "g", type: "dry"},
-//         { name: "egg", amount: "1", unit: "none", type: "dry"},
-// ];
-// const value = convertMetricToCustomary(metricIngredients);
-// console.log(value);
 
