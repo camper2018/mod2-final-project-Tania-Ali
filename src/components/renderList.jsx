@@ -88,14 +88,19 @@ const DisplayList = () => {
         convertUnitSystemOfRecipes(selectedSystem, recipes);
     }
     const handleSelectMenu = (eventKey) => {
-        let count = eventKey;
-        const indices = new Set();
-        while (indices.size < count && indices.size < data.length) {
-            let randomIndex = Math.floor(Math.random() * data.length);
-            indices.add(randomIndex);
+        if (eventKey === 'favorites'){
+           setRecipes([...favorites]);
+        } else {
+            let count = eventKey;
+            const indices = new Set();
+            while (indices.size < count && indices.size < data.length) {
+                let randomIndex = Math.floor(Math.random() * data.length);
+                indices.add(randomIndex);
+            }
+            const selectedRecipes = [...indices].map(index => data[index]);
+            setRecipes(selectedRecipes);
         }
-        const selectedRecipes = [...indices].map(index => data[index]);
-        setRecipes(selectedRecipes);
+       
         setComponent('recipes');
 
     }
@@ -262,9 +267,6 @@ const DisplayList = () => {
 
 
     };
-    // const handleAddRecipeErrors = (form) => {
-    //     if (form.name.value === '' || form.ingredients)
-    // }
     const handleAddRecipe = (e, isFavorite, errors) => {
         e.preventDefault();
         if (errors.name || errors.itemName || errors.ItemAmount) {
