@@ -18,6 +18,7 @@ import CategoriesDropdown from './dropdownForCategories';
 import FinalList from './renderFinalList';
 import RecipeForm from './addRecipeForm';
 import { v4 as uuidv4 } from 'uuid';
+import RecipeDetail from './recipeDetail';
 
 const DisplayList = () => {
     const data = JSON.parse(localStorage.getItem("data"));
@@ -99,7 +100,9 @@ const DisplayList = () => {
     };
     const handleRemoveFromFavorites = (recipe) => {
         recipe.favorite = false;
-        setFavorites([...favorites, recipe])
+        let updatedFavorites = favorites.filter(item => item.id !== recipe.id)
+        // setFavorites([...favorites, recipe])
+        setFavorites(updatedFavorites);
         updateLocalStorage(recipe);
     };
 
@@ -329,13 +332,14 @@ const DisplayList = () => {
             ingredients: ingredients,
             favorite: isFavorite
         }
-        
+        if (recipe.favorite){
+          setFavorites([...favorites, recipe]);
+        }
         setRecipes([...recipes, recipe]);
         // add new recipe to the local storage
         addToStorage(recipe);
 
     }
-
     return (
         <React.Fragment>
             <ul className={styles.card}>
@@ -361,7 +365,7 @@ const DisplayList = () => {
                                 <React.Fragment>
                                     <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                                     {recipes.map(item =>
-                                        <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
+                                        <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites}component={currentComponent} />
                                     )}
                                     <Button variant="success" onClick={createIngredientsList}>Generate List</Button>
 
