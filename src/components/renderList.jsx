@@ -1,5 +1,5 @@
 import data from '../data';
-import React, { useState, useEffect,  useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import styles from './renderList.module.css';
 import RenderListItem from './renderListItem';
 import Button from 'react-bootstrap/Button';
@@ -265,48 +265,48 @@ const DisplayList = () => {
     // const handleAddRecipeErrors = (form) => {
     //     if (form.name.value === '' || form.ingredients)
     // }
-    const handleAddRecipe = (e, isFavorite, errors)=> {
+    const handleAddRecipe = (e, isFavorite, errors) => {
         e.preventDefault();
-        if (errors.name || errors.itemName || errors.ItemAmount){
+        if (errors.name || errors.itemName || errors.ItemAmount) {
             alert("Error Saving Recipe!")
-            return ;
+            return;
         }
         let form = e.target;
         console.log(recipeId, "recipeId");
         let ingredients;
-        if(form.ingredientName[0] === undefined){
-           ingredients = [
-            { 
-                name:(form.ingredientName.value).trim(),
-                unit: (form.ingredientUnit.value).split(" ")[0].trim(),
-                amount: (form.ingredientAmount.value)? form.ingredientAmount.value.trim(): '0',
-                type:  (form.ingredientUnit.value).split(" ")[1].trim(), 
-             }
-           ]
+        if (form.ingredientName[0] === undefined) {
+            ingredients = [
+                {
+                    name: (form.ingredientName.value).trim(),
+                    unit: (form.ingredientUnit.value).split(" ")[0].trim(),
+                    amount: (form.ingredientAmount.value) ? form.ingredientAmount.value.trim() : '0',
+                    type: (form.ingredientUnit.value).split(" ")[1].trim(),
+                }
+            ]
         } else {
-            ingredients = [...form.ingredientName].map((item, i)=> (
-            { 
-                name:(item.value).trim(),
-                unit: ([...form.ingredientUnit][i].value.split(" ")[0]).trim(),
-                amount: ([...form.ingredientAmount][i].value)? [...form.ingredientAmount][i].value.trim(): '0',
-                type: ([...form.ingredientUnit][i].value.split(" ")[1]).trim(),
-             
-            }
+            ingredients = [...form.ingredientName].map((item, i) => (
+                {
+                    name: (item.value).trim(),
+                    unit: ([...form.ingredientUnit][i].value.split(" ")[0]).trim(),
+                    amount: ([...form.ingredientAmount][i].value) ? [...form.ingredientAmount][i].value.trim() : '0',
+                    type: ([...form.ingredientUnit][i].value.split(" ")[1]).trim(),
+
+                }
             ));
         }
         console.log(ingredients)
         const recipe = {
-          id: recipeId,
-          name: (form.name.value).trim(),
-          method: (form.method.value).trim(),
-          tags :(form.tags.value).split(","),
-          ingredients : ingredients,
-          favorite: isFavorite
+            id: recipeId,
+            name: (form.name.value).trim(),
+            method: (form.method.value).trim(),
+            tags: (form.tags.value).split(","),
+            ingredients: ingredients,
+            favorite: isFavorite
         }
         data.push(recipe);
 
     }
-    
+
     return (
         <React.Fragment>
             <ul className={styles.card}>
@@ -321,11 +321,13 @@ const DisplayList = () => {
 
                         </React.Fragment>)
                         : currentComponent === 'dropdown' ?
-                            (<div style={{display: 'flex', justifyContent: "space-evenly"}}>
-                               <RecipesDropdown handleSelectMenu={handleSelectMenu} />
-                               {/* <Button onClick={handleAddRecipe} variant="danger">Add Recipe &nbsp;<FaPlus/></Button> */}
-                               <RecipeForm addRecipe={handleAddRecipe} unitSystem={unitSystem}/>
-                            </div>)
+                            (<React.Fragment>
+                                <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
+                                <div style={{ display: 'flex', justifyContent: "space-evenly" }}>
+                                    <RecipesDropdown handleSelectMenu={handleSelectMenu} />
+                                    <RecipeForm addRecipe={handleAddRecipe} unitSystem={unitSystem} />
+                                </div>
+                            </React.Fragment>)
                             : currentComponent === 'recipes' ?
                                 <React.Fragment>
                                     <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />

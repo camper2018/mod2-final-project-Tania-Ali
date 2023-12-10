@@ -26,17 +26,25 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
     };
     const handleRemoveFromFavorites = () => {
         setFavorite(false);
+    };
+    const createOptionHTMLForUnits = (unitSystem) => {
+        const html = [];
+        let conversionFactorsForDry;
+        let conversionFactorsForWet;
+        if (unitSystem === 'customary'){
+           conversionFactorsForDry = dryConversionFactors;
+           conversionFactorsForWet = wetConversionFactors;
+        } else {
+            conversionFactorsForDry = metricDryConversionFactors;
+            conversionFactorsForWet = metricWetConversionFactors;
+        }
+        let htmlForDry = Object.keys(conversionFactorsForDry).map((factor, i) => (<option key={factor + 'dry' + i} value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
+        let htmlForWet = Object.keys(conversionFactorsForWet).map((factor, j) => (<option key={factor + 'wet' + j} value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
+        html.push(htmlForDry, htmlForWet);
+        return html;
+
     }
-    let customaryHTML = [];
-    let customaryHTMLDry = Object.keys(dryConversionFactors).map((factor, i) => (<option key={factor + 'dry' + i} value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
-    let customaryHTMLWet = Object.keys(wetConversionFactors).map((factor, j) => (<option key={factor + 'wet' + j} value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
-    customaryHTML.push(customaryHTMLDry);
-    customaryHTML.push(customaryHTMLWet);
-    let metricHTML = [];
-    const metricHTMLDry = Object.keys(metricDryConversionFactors).map((factor, i) => (<option key={factor + 'dry' + i} value={factor + ' dry'}>{factor}&nbsp; *dry</option>));
-    const metricHTMLWet = Object.keys(metricWetConversionFactors).map((factor, j) => (<option key={factor + 'wet' + j} value={factor + ' wet'}>{factor}&nbsp; *liquid</option>));
-    metricHTML.push(metricHTMLDry, metricHTMLWet);
-    let optionsHTML = unitSystem === 'customary' ? customaryHTML : metricHTML;
+    const optionsHTML = createOptionHTMLForUnits(unitSystem);
 
 
     const handleAddFormEl = () => {
