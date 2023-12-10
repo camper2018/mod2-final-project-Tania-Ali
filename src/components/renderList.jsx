@@ -1,5 +1,5 @@
 // import data from '../data';
-import React, { useState, useEffect, useId } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './renderList.module.css';
 import RenderListItem from './renderListItem';
 import Button from 'react-bootstrap/Button';
@@ -17,9 +17,11 @@ import RecipesDropdown from './dropdownForRecipes';
 import CategoriesDropdown from './dropdownForCategories';
 import FinalList from './renderFinalList';
 import RecipeForm from './addRecipeForm';
+import { v4 as uuidv4 } from 'uuid';
+
 const DisplayList = () => {
     const data = JSON.parse(localStorage.getItem("data"));
-    const [recipes, setRecipes] = useState(data);
+    const [recipes, setRecipes] = useState(data? data : []);
     const [favorites, setFavorites] = useState([]);
     const [groceries, setGroceries] = useState({});
     const [currentComponent, setComponent] = useState('dropdown');
@@ -27,7 +29,7 @@ const DisplayList = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
     const [itemsCountInCategories, setItemCount] = useState(0);
-    const recipeId = useId();
+
     const handleCategorySelect = (eventKey) => {
         setSelectedCategory(eventKey);
     };
@@ -65,8 +67,8 @@ const DisplayList = () => {
         setRecipes(dataInOneUnitSystem);
     };
     useEffect(() => {
-        convertUnitSystemOfRecipes(unitSystem, recipes);
-        setFavorites(recipes.filter(item => item.favorite));
+          convertUnitSystemOfRecipes(unitSystem, recipes);
+          setFavorites(recipes.filter(item => item.favorite));
     }, []);
 
     const handleDeleteRecipes = (id) => {
@@ -75,14 +77,15 @@ const DisplayList = () => {
     };
     /*    Local Storage functions   */
     const addToStorage = (obj) => {
-        // add new item to the local storage data array
-        let data = JSON.parse(localStorage.getItem("data"));
-        data.push(obj);
-        localStorage.setItem("data", JSON.stringify(data));
+        // add new item to the local storage data array 
+        // if local storage is empty, the data would be undefined
+        const dataCopy = data ? data : [];
+        dataCopy.push(obj);
+        localStorage.setItem("data", JSON.stringify(dataCopy));
     }
     const updateLocalStorage = (obj) => {
-        const data = JSON.parse(localStorage.getItem('data'));
-        const updatedData = data.filter(item => item.id !== obj.id);
+        const dataCopy = data ? data : [];
+        const updatedData = dataCopy.filter(item => item.id !== obj.id);
         updatedData.push(obj);
         localStorage.setItem("data", JSON.stringify(updatedData));
     }
@@ -110,11 +113,16 @@ const DisplayList = () => {
         } else {
             let count = eventKey;
             const indices = new Set();
-            while (indices.size < count && indices.size < data.length) {
-                let randomIndex = Math.floor(Math.random() * data.length);
+            // while (indices.size < count && indices.size < data.length) {
+            //     let randomIndex = Math.floor(Math.random() * data.length);
+            //     indices.add(randomIndex);
+            // }
+            // const selectedRecipes = [...indices].map(index => data[index]);
+            while (indices.size < count && indices.size < recipes.length) {
+                let randomIndex = Math.floor(Math.random() * recipes.length);
                 indices.add(randomIndex);
             }
-            const selectedRecipes = [...indices].map(index => data[index]);
+            const selectedRecipes = [...indices].map(index => recipes[index]);
             setRecipes(selectedRecipes);
         }
        
@@ -282,7 +290,6 @@ const DisplayList = () => {
         setGroceries(groceryList);
         setComponent('grocery list');
 
-
     };
     const handleAddRecipe = (e, isFavorite, errors) => {
         e.preventDefault();
@@ -291,6 +298,7 @@ const DisplayList = () => {
             return;
         }
         let form = e.target;
+        const recipeId = uuidv4();
         let ingredients;
         if (form.ingredientName[0] === undefined) {
             ingredients = [
@@ -314,7 +322,7 @@ const DisplayList = () => {
             ));
         }
         const recipe = {
-            id: recipeId,
+            id : recipeId,
             name: (form.name.value).trim(),
             method: (form.method.value).trim(),
             tags: (form.tags.value).split(","),
@@ -353,7 +361,7 @@ const DisplayList = () => {
                                 <React.Fragment>
                                     <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                                     {recipes.map(item =>
-                                        <RenderListItem key={item.name} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
+                                        <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
                                     )}
                                     <Button variant="success" onClick={createIngredientsList}>Generate List</Button>
 
