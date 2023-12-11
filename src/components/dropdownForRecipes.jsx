@@ -5,7 +5,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 const RecipesDropdown = ({ handleSelectMenu }) => {
   return (
     <Dropdown>
-      <DropdownButton id="dropdown-basic-button" title="Select Recipes From" variant="success" onSelect={handleSelectMenu}>
+      <DropdownButton className="mx-2" id="dropdown-basic-button" title="Select Recipes For" variant="success" onSelect={handleSelectMenu}>
         <Dropdown.Item eventKey="0">none</Dropdown.Item>
         <Dropdown.Item eventKey="1">1 Day</Dropdown.Item>
         <Dropdown.Item eventKey="2">2 Days</Dropdown.Item>

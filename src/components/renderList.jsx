@@ -18,11 +18,11 @@ import CategoriesDropdown from './dropdownForCategories';
 import FinalList from './renderFinalList';
 import RecipeForm from './addRecipeForm';
 import { v4 as uuidv4 } from 'uuid';
-import RecipeDetail from './recipeDetail';
+import SearchComponent from './searchBar';
 
 const DisplayList = () => {
     const data = JSON.parse(localStorage.getItem("data"));
-    const [recipes, setRecipes] = useState(data? data : []);
+    const [recipes, setRecipes] = useState(data ? data : []);
     const [favorites, setFavorites] = useState([]);
     const [groceries, setGroceries] = useState({});
     const [currentComponent, setComponent] = useState('dropdown');
@@ -30,6 +30,7 @@ const DisplayList = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
     const [itemsCountInCategories, setItemCount] = useState(0);
+    const [searchedRecipes, setSearchedRecipes] = useState([]);
 
     const handleCategorySelect = (eventKey) => {
         setSelectedCategory(eventKey);
@@ -68,11 +69,13 @@ const DisplayList = () => {
         setRecipes(dataInOneUnitSystem);
     };
     useEffect(() => {
-          convertUnitSystemOfRecipes(unitSystem, recipes);
-          setFavorites(recipes.filter(item => item.favorite));
+        convertUnitSystemOfRecipes(unitSystem, recipes);
+        setFavorites(recipes.filter(item => item.favorite));
     }, []);
 
     const handleDeleteRecipes = (id) => {
+        let filteredSearchedRecipes = searchedRecipes.filter(recipe => recipe.id !== id);
+        setSearchedRecipes(filteredSearchedRecipes);
         let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
         setRecipes(filteredRecipes);
     };
@@ -96,12 +99,11 @@ const DisplayList = () => {
         setFavorites([...favorites, recipe]);
         // update local storage
         updateLocalStorage(recipe);
-       
+
     };
     const handleRemoveFromFavorites = (recipe) => {
         recipe.favorite = false;
         let updatedFavorites = favorites.filter(item => item.id !== recipe.id)
-        // setFavorites([...favorites, recipe])
         setFavorites(updatedFavorites);
         updateLocalStorage(recipe);
     };
@@ -111,16 +113,11 @@ const DisplayList = () => {
         convertUnitSystemOfRecipes(selectedSystem, recipes);
     }
     const handleSelectMenu = (eventKey) => {
-        if (eventKey === 'favorites'){
-           setRecipes([...favorites]);
+        if (eventKey === 'favorites') {
+            setRecipes([...favorites]);
         } else {
             let count = eventKey;
             const indices = new Set();
-            // while (indices.size < count && indices.size < data.length) {
-            //     let randomIndex = Math.floor(Math.random() * data.length);
-            //     indices.add(randomIndex);
-            // }
-            // const selectedRecipes = [...indices].map(index => data[index]);
             while (indices.size < count && indices.size < recipes.length) {
                 let randomIndex = Math.floor(Math.random() * recipes.length);
                 indices.add(randomIndex);
@@ -128,7 +125,7 @@ const DisplayList = () => {
             const selectedRecipes = [...indices].map(index => recipes[index]);
             setRecipes(selectedRecipes);
         }
-       
+
         setComponent('recipes');
 
     }
@@ -312,7 +309,7 @@ const DisplayList = () => {
                     type: (form.ingredientUnit.value).split(" ")[1].trim(),
                 }
             ]
-            
+
         } else {
             ingredients = [...form.ingredientName].map((item, i) => (
                 {
@@ -325,20 +322,34 @@ const DisplayList = () => {
             ));
         }
         const recipe = {
-            id : recipeId,
+            id: recipeId,
             name: (form.name.value).trim(),
             method: (form.method.value).trim(),
             tags: (form.tags.value).split(","),
             ingredients: ingredients,
             favorite: isFavorite
         }
-        if (recipe.favorite){
-          setFavorites([...favorites, recipe]);
+        if (recipe.favorite) {
+            setFavorites([...favorites, recipe]);
         }
         setRecipes([...recipes, recipe]);
         // add new recipe to the local storage
         addToStorage(recipe);
 
+    }
+    const handleSearch = (e) => {
+        e.preventDefault();
+        const searchTerm = e.target.elements['search'].value;
+        const filteredList = data.filter(recipe => {
+            let nameString = '';
+            nameString += recipe.name.toLowerCase().trim() + ' ';
+            // Tags are arrays
+            recipe.tags.forEach(tag => {
+                nameString += tag.toLowerCase().trim() + ' '
+            })
+            return nameString.match(searchTerm.toLowerCase().trim());
+        });
+        setSearchedRecipes(filteredList);
     }
     return (
         <React.Fragment>
@@ -355,17 +366,25 @@ const DisplayList = () => {
                         </React.Fragment>)
                         : currentComponent === 'dropdown' ?
                             (<React.Fragment>
-                                <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
-                                <div style={{ display: 'flex', justifyContent: "space-evenly" }}>
+                                <div className="d-flex justify-content-between align-items-center my-4">
+                                    <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
+                                    <SearchComponent handleSearch={handleSearch} />
+                                </div>
+                                <div className="d-flex justify-content-center align-items-center ">
                                     <RecipesDropdown handleSelectMenu={handleSelectMenu} />
                                     <RecipeForm addRecipe={handleAddRecipe} unitSystem={unitSystem} />
                                 </div>
+                                <ul>
+                                    {searchedRecipes.map(recipe => (
+                                        <RenderListItem key={recipe.id} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} component={currentComponent} />
+                                    ))}
+                                </ul>
                             </React.Fragment>)
                             : currentComponent === 'recipes' ?
                                 <React.Fragment>
                                     <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                                     {recipes.map(item =>
-                                        <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites}component={currentComponent} />
+                                        <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} component={currentComponent} />
                                     )}
                                     <Button variant="success" onClick={createIngredientsList}>Generate List</Button>
 

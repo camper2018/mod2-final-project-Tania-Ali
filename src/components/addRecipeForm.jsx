@@ -83,7 +83,7 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
     }
     return (
         <React.Fragment>
-            <Button variant="danger" onClick={handleShow}>
+            <Button variant="danger" onClick={handleShow} className="mx-2">
                 Add Recipe&nbsp;
                 <FaPlus />
             </Button>

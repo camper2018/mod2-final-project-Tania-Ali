@@ -3,6 +3,7 @@ const recipes = [
         id: "1",
         name: "Lasagna",
         favorite: false,
+        tags: ["high-calorie"],
         ingredients: [
             { name: "sweet Italian sausage", amount: "1", unit: "lb", type: "dry" },
             { name: "ground beef", amount: "3/4", unit: "lb", type: "dry" },
@@ -43,6 +44,7 @@ const recipes = [
         id: "2",
         name: "Chicken Tikka Masala",
         favorite: true,
+        tags: ["hot", "delicious"],
         ingredients: [
             { name: "chicken", amount: "1 2/3", unit: "lb", type: "dry" },
             { name: "yogurt", amount: "3/4", unit: "lb", type: "dry" },
@@ -76,6 +78,7 @@ const recipes = [
         id: "3",
         name: "Pizza",
         favorite: false,
+        tags: [],
         ingredients: [
             { name: "sugar", amount:  "1" , unit: "tsp", type: "dry"},
             { name: "dry yeast", amount: "2", unit: "tsp",type: "dry"},
@@ -117,6 +120,7 @@ const recipes = [
         id: "4",
         name: "Biryani",
         favorite: true,
+        tags: ["Party-food"],
         ingredients: [
             { name: "onion", amount: "7", unit: "oz", type: "dry"},
             { name: "bay leaf", amount:  "2" , unit: "none", type: "dry"},
@@ -170,6 +174,7 @@ const recipes = [
         id: "5",
         name: "Chinese Rice",
         favorite: true,
+        tags: ["vegetarian"],
         ingredients: [  
             { name: "baby carrot", amount:  "2/3" , unit: "cup", type: "dry"},
             { name: "green pea", amount: "1/2", unit: "cup", type: "dry"},
@@ -218,6 +223,7 @@ const recipes = [
         id: "7",
         name: "Lasagna 2",
         favorite: false,
+        tags: [],
         ingredients: [
             { name: "sweet Italian sausage", amount: "1", unit: "lb", type: "dry"},
             { name: "ground beef", amount: "3/4", unit: "lb", type: "dry"},
@@ -258,6 +264,7 @@ const recipes = [
         id: "8",
         name: "Chicken Tikka Masala 2",
         favorite: true,
+        tags: ["spicy", "indian"],
         ingredients: [
             { name: "chicken", amount:  "1 3/4" , unit: "lb", type: "dry"},
             { name: "yogurt", amount: "3/4", unit: "lb", type: "dry"},
@@ -290,6 +297,7 @@ const recipes = [
         id: "9",
         name: "Pizza 2",
         favorite: false,
+        tags: [],
         ingredients: [
             { name: "sugar", amount:  "1" , unit: "tsp", type: "dry"},
             { name: "dry yeast", amount: "2", unit: "tsp",type: "dry"},
@@ -331,6 +339,7 @@ const recipes = [
         id: "10",
         name: "Biryani 2",
         favorite: true,
+        tags: [],
         ingredients: [
             { name: "onion", amount: "7", unit: "oz", type: "dry"},
             { name: "bay leaf", amount:  "2" , unit: "none", type: "dry"},
@@ -411,6 +420,7 @@ const recipes = [
         id: "12",
         name: "Chinese Rice2",
         favorite: true,
+        tags: [],
         ingredients: [  
             { name: "baby carrot", amount:  "2/3" , unit: "cup", type: "dry"},
             { name: "green pea", amount: "1/2", unit: "cup", type: "dry"},
@@ -432,6 +442,7 @@ const recipes = [
         id: "13",
         name: "Lasagna3",
         favorite: false,
+        tags: [],
         ingredients: [
             { name: "sweet Italian sausage", amount: "1", unit: "lb", type: "dry" },
             { name: "ground beef", amount: "3/4", unit: "lb", type: "dry" },
@@ -472,6 +483,7 @@ const recipes = [
         id: "14",
         name: "Chicken Tikka Masala3",
         favorite: true,
+        tags: ["spicy"],
         ingredients: [
             { name: "chicken", amount: "1 2/3", unit: "lb", type: "dry" },
             { name: "yogurt", amount: "3/4", unit: "lb", type: "dry" },
@@ -505,6 +517,7 @@ const recipes = [
         id: "15",
         name: "Pizza3",
         favorite: false,
+        tags :["high-calorie"],
         ingredients: [
             { name: "sugar", amount:  "1" , unit: "tsp", type: "dry"},
             { name: "dry yeast", amount: "2", unit: "tsp",type: "dry"},
@@ -546,6 +559,7 @@ const recipes = [
         id: "16",
         name: "Biryani3",
         favorite: true,
+        tags: [],
         ingredients: [
             { name: "onion", amount: "7", unit: "oz", type: "dry"},
             { name: "bay leaf", amount:  "2" , unit: "none", type: "dry"},

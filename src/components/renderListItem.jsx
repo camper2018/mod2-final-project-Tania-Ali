@@ -2,6 +2,7 @@ import { FaTrashCan } from "react-icons/fa6";
 import { CiStar } from "react-icons/ci";
 import { FaStar } from "react-icons/fa";
 import RecipeDetail from './recipeDetail';
+
 const RenderListItem = ({ item, isFavorite, deleteItem, addToFavorites, removeFromFavorites, component={component} }) => (
     <div style={{ padding: "10px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "darkgreen", fontWeight: "bold", border: "2px solid black", margin: "5px" }}>
         <li style={{ listStyleType: "none" }}>
