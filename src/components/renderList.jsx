@@ -29,33 +29,27 @@ const DisplayList = () => {
     const [unitSystem, setUnitSystem] = useState('customary');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
-    const [itemsCountInCategories, setItemCount] = useState(0);
     const [searchedRecipes, setSearchedRecipes] = useState([]);
 
     const handleCategorySelect = (eventKey) => {
         setSelectedCategory(eventKey);
     };
     const handleCategorization = (e) => {
-        let id = e.target.id;
-        if (id && selectedCategory) {
+        let name = e.target.id;
+        if (name && selectedCategory) {
             let categoryContainer = categories[selectedCategory];
-            setCategories({ ...categories, [selectedCategory]: [...categoryContainer, groceries[id]] });
-            e.target.style.display = 'none';
-            setItemCount((prop) => prop + 1);
+            setCategories({ ...categories, [selectedCategory]: [...categoryContainer, groceries[name]] });
+            let updatedGroceries = {...groceries};
+            delete updatedGroceries[name];
+            setGroceries(updatedGroceries);
         } else {
             alert('Please select a category to add items in!')
         }
 
     }
     const handleFinalList = () => {
-        if (itemsCountInCategories < Object.keys(groceries).length) {
-            alert("Please select category for all items");
-        } else {
-            // render final list based on categories array
-            setComponent('final list');
-        }
-
-
+        // render final list based on categories array
+        setComponent('final list');
     }
     const convertUnitSystemOfRecipes = async (selectedSystem, dataArray) => {
         setUnitSystem(selectedSystem);
@@ -351,6 +345,20 @@ const DisplayList = () => {
         });
         setSearchedRecipes(filteredList);
     }
+    const handleDecategorization = (e) => {
+        let name = e.target.id;
+        let category = e.target.getAttribute('data-category');
+        if (name && category) {
+            let categoryContainer = categories[category];
+            let updatedContainer = categoryContainer.filter(item => item.name !== name);
+            setCategories({ ...categories, [category]: updatedContainer });
+            let item = JSON.parse(e.target.getAttribute('data-item'));
+            let updatedGroceries = {...groceries,[item.name]: item};
+            setGroceries(updatedGroceries);
+        }
+
+
+    }
     return (
         <React.Fragment>
             <ul className={styles.card}>
@@ -359,8 +367,13 @@ const DisplayList = () => {
                         <React.Fragment>
                             <CategoriesDropdown selectedCategory={selectedCategory} categories={categories} handleCategorySelect={handleCategorySelect} />
                             <br />
-
-                            <GroceryList categorize={handleCategorization} groceries={groceries} />
+                            <div className="d-flex justify-content-around">
+                               
+                                   <GroceryList categorize={handleCategorization} groceries={groceries} />
+                                <div>
+                                   <FinalList categories={categories} decategorize={handleDecategorization}/>
+                                </div>
+                            </div>
                             <Button variant="success" onClick={handleFinalList}>Done</Button>
 
                         </React.Fragment>)

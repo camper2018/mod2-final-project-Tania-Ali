@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { FaBookOpen } from "react-icons/fa";
-const RecipeDetail = ({recipe, addToFavorites, removeFromFavorites})=>  {
+const RecipeDetail = ({recipe})=>  {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -38,23 +38,6 @@ const RecipeDetail = ({recipe, addToFavorites, removeFromFavorites})=>  {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          {/* {recipe.favorite && component === 'search'? 
-          (<Button variant="danger" onClick={() => {
-            handleClose();
-            removeFromFavorites(recipe);
-          }}>
-            Remove from Favorites
-          </Button>)
-          : 
-          component === 'search' && (<Button variant="success" onClick={() => {
-            handleClose();
-            addToFavorites(recipe);
-          }}>
-            Add to Favorites
-          </Button>)
-        
-          } */}
-        
         </Modal.Footer>
       </Modal>
     </>
