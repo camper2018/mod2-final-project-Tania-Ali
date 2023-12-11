@@ -374,6 +374,7 @@ const DisplayList = () => {
                                     <RecipesDropdown handleSelectMenu={handleSelectMenu} />
                                     <RecipeForm addRecipe={handleAddRecipe} unitSystem={unitSystem} />
                                 </div>
+                                <br/>
                                 <ul>
                                     {searchedRecipes.map(recipe => (
                                         <RenderListItem key={recipe.id} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} component={currentComponent} />
