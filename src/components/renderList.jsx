@@ -359,9 +359,10 @@ const DisplayList = () => {
 
 
     }
+    const ulClass = currentComponent === 'grocery list'?  `${styles.card}`: `${styles.card} + ${styles.card2}`;
     return (
         <React.Fragment>
-            <ul className={styles.card}>
+            <ul className={ulClass}>
                 {currentComponent === 'final list' ? <FinalList categories={categories} />
                     : currentComponent === 'grocery list' ? (
                         <React.Fragment>
