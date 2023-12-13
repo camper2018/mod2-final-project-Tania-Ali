@@ -12,13 +12,15 @@ import { metricWetConversionFactors } from '../utilities/addWetIngredients';
 import { isPlural } from '../utilities/findPlural';
 import { numericQuantity } from 'numeric-quantity';
 import { IoMdClose } from "react-icons/io";
+import { v4 as uuidv4 } from 'uuid';
 
 const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
+    const uuid = uuidv4();
     const [show, setShow] = useState(false);
     const [isFavorite, setFavorite] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const [htmlForAddItem, setHTML] = useState([{ item: "" }]);
+    const [htmlForAddItem, setHTML] = useState([{ id: uuid }]);
     const [errors, setErrors] = useState({});
 
     const handleAddToFavorite = () => {
@@ -31,9 +33,9 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
         const html = [];
         let conversionFactorsForDry;
         let conversionFactorsForWet;
-        if (unitSystem === 'customary'){
-           conversionFactorsForDry = dryConversionFactors;
-           conversionFactorsForWet = wetConversionFactors;
+        if (unitSystem === 'customary') {
+            conversionFactorsForDry = dryConversionFactors;
+            conversionFactorsForWet = wetConversionFactors;
         } else {
             conversionFactorsForDry = metricDryConversionFactors;
             conversionFactorsForWet = metricWetConversionFactors;
@@ -47,20 +49,22 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
     const optionsHTML = createOptionHTMLForUnits(unitSystem);
     const createOptionHTMLForCategory = () => {
         return Object.keys(categories).map(category => (
-          <option key={category} value={category}>{category}</option>)
+            <option key={category} value={category}>{category}</option>)
         );
-        
+
     };
     const optionsHTMLForCategory = createOptionHTMLForCategory();
 
     const handleAddFormEl = () => {
         // adds a form field for taking user input for adding an ingredient / item to the recipe ingredients.
-        setHTML([...htmlForAddItem, { item: "" }]);
+        const id = uuidv4();
+        setHTML([...htmlForAddItem, { id: id }]);
     }
-    const handleRemoveFormEl = (index) => {
+    const handleRemoveFormEl = (id) => {
         // removes a form field for taking user input for adding an ingredient / item to the recipe ingredients.
-        const htmlList = [...htmlForAddItem];
-        htmlList.splice(index, 1);
+        // const htmlList = [...htmlForAddItem];
+        // htmlList.splice(index, 1);
+        const htmlList = htmlForAddItem.filter(html => html.id !== id);
         setHTML(htmlList);
     }
     const handleItemName = (e) => {
@@ -144,8 +148,8 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                         <Form.Group className="mb-3" controlId="recipeForm.ControlInput3">
                             <Form.Label>Ingredients</Form.Label>
                             <Button className='float-end' variant="secondary" onClick={handleAddFormEl}>ADD</Button>
-                            {htmlForAddItem.map((html, i) => (
-                                <div key={i} className='d-flex mt-3' name="ingredients">
+                            {htmlForAddItem.map(html => (
+                                <div key={html.id} className='d-flex mt-3' name="ingredients" >
                                     <Form.Control
                                         type="text"
                                         placeholder="Name"
@@ -173,10 +177,8 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                                     </Form.Select>
                                     {htmlForAddItem.length > 1 &&
                                         <div className="ms-2 border border-danger rounded" >
-                                            <IoMdClose size={36} onClick={() => handleRemoveFormEl(i)} />
+                                            <IoMdClose size={36} onClick={() => handleRemoveFormEl(html.id)} />
                                         </div>}
-
-
                                 </div>
                             ))
 
