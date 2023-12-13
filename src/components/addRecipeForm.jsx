@@ -98,7 +98,7 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                 <FaPlus />
             </Button>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal size="lg" show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <div>
                         {isFavorite ? <FaStar size={30} fill={"orange"} onClick={handleRemoveFromFavorites} /> :
@@ -168,20 +168,20 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                                     />
                                     <Form.Control.Feedback type="invalid">{errors.itemAmount}</Form.Control.Feedback>
                                     <Form.Select aria-label="select unit for ingredient" name="ingredientUnit">
-                                        <option key="none dry" value={"none" + " " + "dry"}>Select Unit</option>
+                                        <option key="none dry" value={"none" + " " + "dry"}>Unit</option>
                                         {optionsHTML}
                                     </Form.Select>
                                     <Form.Select aria-label="select category for ingredient" name="ingredientCategory">
-                                        <option key="none" value="none">Select Category</option>
+                                        <option key="none" value="none">Category</option>
                                         {optionsHTMLForCategory}
                                     </Form.Select>
+
                                     {htmlForAddItem.length > 1 &&
                                         <div className="ms-2 border border-danger rounded" >
                                             <IoMdClose size={36} onClick={() => handleRemoveFormEl(html.id)} />
                                         </div>}
                                 </div>
                             ))
-
                             }
                         </Form.Group>
                     </Form>

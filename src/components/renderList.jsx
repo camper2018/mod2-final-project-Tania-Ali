@@ -22,7 +22,6 @@ const DisplayList = () => {
     const data = JSON.parse(localStorage.getItem("data"));
     const [recipes, setRecipes] = useState(data ? data : []);
     const [favorites, setFavorites] = useState([]);
-    const [groceries, setGroceries] = useState({});
     const [currentComponent, setComponent] = useState('dropdown');
     const [unitSystem, setUnitSystem] = useState('customary');
     const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
@@ -82,7 +81,6 @@ const DisplayList = () => {
 
     const handleUnitSystemToggle = (e) => {
         let selectedSystem = e.target.checked ? 'metric' : 'customary';
-        // convertUnitSystemOfRecipes(selectedSystem, recipes);
         if (searchedRecipes.length !== 0){
             convertUnitSystemOfRecipes(selectedSystem, searchedRecipes);
         } else {
@@ -107,7 +105,6 @@ const DisplayList = () => {
 
     }
     const createIngredientsList = (recipes) => {
-        console.log("recipes,: *****", recipes);
         // extract ingredients from recipes as ingredient's array
         const ingredients = recipes.reduce((accumulator, recipe) => {
             return accumulator.concat(recipe.ingredients);
@@ -265,7 +262,7 @@ const DisplayList = () => {
 
         })
 
-        setGroceries(groceryList);
+        // setGroceries(groceryList);
         let updatedCategories = { ...categories };
         for (let itemName in groceryList) {
             let item = groceryList[itemName]
@@ -319,7 +316,6 @@ const DisplayList = () => {
             ingredients: ingredients,
             favorite: isFavorite
         }
-        console.log(recipe, "recipe")
         if (recipe.favorite) {
             setFavorites([...favorites, recipe]);
         }
@@ -327,6 +323,29 @@ const DisplayList = () => {
         // add new recipe to the local storage
         addToStorage(recipe);
 
+    }
+    const handleAddItem = (e)=> {
+        e.preventDefault();
+        const category = e.target.ingredientCategory.value;
+        const item = {
+            name: e.target.ingredientName.value,
+            amount: parseFloat(e.target.ingredientAmount.value),
+            unit: e.target.ingredientUnit.value? e.target.ingredientUnit.value: "none",
+            category: category
+        }
+        e.target.ingredientCategory.value = "";
+        e.target.ingredientName.value = "";
+        e.target.ingredientAmount.value = "";
+        e.target.ingredientUnit.value = "";
+       const updatedCategories = {...categories};
+   
+    let index =  Object.keys(updatedCategories).indexOf(category);
+    if (index !== -1){
+        updatedCategories[category].push(item);
+    } else {
+        updatedCategories[category] = [item];
+    }
+    setCategories(updatedCategories);
     }
     const handleSearch = (e) => {
         e.preventDefault();
@@ -341,7 +360,6 @@ const DisplayList = () => {
             return nameString.match(searchTerm.toLowerCase().trim());
         });
         e.target.elements['search'].value = "";
-        // setSearchedRecipes(filteredList);
         setSearchedRecipes([...searchedRecipes, ...filteredList]);
 
 
@@ -349,7 +367,7 @@ const DisplayList = () => {
     return (
         <React.Fragment>
             <ul className={styles.card}>
-                {currentComponent === 'final list' ? <FinalList categories={categories} />
+                {currentComponent === 'final list' ? <FinalList categories={categories} addItem={handleAddItem}/>
                     : currentComponent === 'dropdown' ?
                         (<React.Fragment>
                             <div className="d-flex justify-content-between align-items-center my-4">
