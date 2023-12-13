@@ -13,7 +13,7 @@ import { isPlural } from '../utilities/findPlural';
 import { numericQuantity } from 'numeric-quantity';
 import { IoMdClose } from "react-icons/io";
 
-const RecipeForm = ({ unitSystem, addRecipe }) => {
+const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
     const [show, setShow] = useState(false);
     const [isFavorite, setFavorite] = useState(false);
     const handleClose = () => setShow(false);
@@ -45,7 +45,13 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
 
     }
     const optionsHTML = createOptionHTMLForUnits(unitSystem);
-
+    const createOptionHTMLForCategory = () => {
+        return Object.keys(categories).map(category => (
+          <option key={category} value={category}>{category}</option>)
+        );
+        
+    };
+    const optionsHTMLForCategory = createOptionHTMLForCategory();
 
     const handleAddFormEl = () => {
         // adds a form field for taking user input for adding an ingredient / item to the recipe ingredients.
@@ -161,6 +167,10 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
                                         <option key="none dry" value={"none" + " " + "dry"}>Select Unit</option>
                                         {optionsHTML}
                                     </Form.Select>
+                                    <Form.Select aria-label="select category for ingredient" name="ingredientCategory">
+                                        <option key="none" value="none">Select Category</option>
+                                        {optionsHTMLForCategory}
+                                    </Form.Select>
                                     {htmlForAddItem.length > 1 &&
                                         <div className="ms-2 border border-danger rounded" >
                                             <IoMdClose size={36} onClick={() => handleRemoveFormEl(i)} />
@@ -169,6 +179,7 @@ const RecipeForm = ({ unitSystem, addRecipe }) => {
 
                                 </div>
                             ))
+
                             }
                         </Form.Group>
                     </Form>

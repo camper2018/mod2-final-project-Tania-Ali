@@ -11,10 +11,8 @@ import { addWetIngredients } from '../utilities/addWetIngredients';
 import { convertCustomaryToMetric } from '../utilities/convertUnitSystem';
 import { convertMetricToCustomary } from '../utilities/convertUnitSystem';
 import { findUnitSystem } from '../utilities/convertUnitSystem';
-import GroceryList from './renderGroceryList.jsx';
 import UnitSystemToggle from './form';
 import RecipesDropdown from './dropdownForRecipes';
-import CategoriesDropdown from './dropdownForCategories';
 import FinalList from './renderFinalList';
 import RecipeForm from './addRecipeForm';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,30 +25,10 @@ const DisplayList = () => {
     const [groceries, setGroceries] = useState({});
     const [currentComponent, setComponent] = useState('dropdown');
     const [unitSystem, setUnitSystem] = useState('customary');
-    const [selectedCategory, setSelectedCategory] = useState(null);
     const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
     const [searchedRecipes, setSearchedRecipes] = useState([]);
 
-    const handleCategorySelect = (eventKey) => {
-        setSelectedCategory(eventKey);
-    };
-    const handleCategorization = (e) => {
-        let name = e.target.id;
-        if (name && selectedCategory) {
-            let categoryContainer = categories[selectedCategory];
-            setCategories({ ...categories, [selectedCategory]: [...categoryContainer, groceries[name]] });
-            let updatedGroceries = {...groceries};
-            delete updatedGroceries[name];
-            setGroceries(updatedGroceries);
-        } else {
-            alert('Please select a category to add items in!')
-        }
 
-    }
-    const handleFinalList = () => {
-        // render final list based on categories array
-        setComponent('final list');
-    }
     const convertUnitSystemOfRecipes = async (selectedSystem, dataArray) => {
         setUnitSystem(selectedSystem);
         let convertUnitSystem = selectedSystem === 'customary' ? convertMetricToCustomary : convertCustomaryToMetric;
@@ -104,7 +82,12 @@ const DisplayList = () => {
 
     const handleUnitSystemToggle = (e) => {
         let selectedSystem = e.target.checked ? 'metric' : 'customary';
-        convertUnitSystemOfRecipes(selectedSystem, recipes);
+        // convertUnitSystemOfRecipes(selectedSystem, recipes);
+        if (searchedRecipes.length !== 0){
+            convertUnitSystemOfRecipes(selectedSystem, searchedRecipes);
+        } else {
+            convertUnitSystemOfRecipes(selectedSystem, recipes);
+        }
     }
     const handleSelectMenu = (eventKey) => {
         if (eventKey === 'favorites') {
@@ -123,8 +106,8 @@ const DisplayList = () => {
         setComponent('recipes');
 
     }
-    const createIngredientsList = () => {
-
+    const createIngredientsList = (recipes) => {
+        console.log("recipes,: *****", recipes);
         // extract ingredients from recipes as ingredient's array
         const ingredients = recipes.reduce((accumulator, recipe) => {
             return accumulator.concat(recipe.ingredients);
@@ -136,7 +119,7 @@ const DisplayList = () => {
 
             let selectedSystem = unitSystem;
             // convert amount in fractions into float numbers as well as strings into numbers.
-            const { name, amount, unit, type, } = ingredient;
+            const { name, amount, unit, type, category } = ingredient;
             const ingredientAmount = numericQuantity(amount);
 
             // if duplicate ingredients, add their amounts with same units and then do unit conversion
@@ -144,7 +127,7 @@ const DisplayList = () => {
             if (name in groceryList) {
 
                 // duplicate ingredient found
-                let duplicates = [groceryList[name], { name, amount: ingredientAmount, unit, type }];
+                let duplicates = [groceryList[name], { name, amount: ingredientAmount, unit, type, category }];
                 let getUnitSystem = type === 'dry' ? getUnitSystemForDry : getUnitSystemForWet;
                 let addIngredients = type === 'dry' ? addDryIngredients : addWetIngredients;
 
@@ -162,7 +145,7 @@ const DisplayList = () => {
                             // units are valid
                             // Add their amounts
                             // After adding amounts, pass through add ingredients function to update amount to appropriate unit.
-                            let result = addIngredients([{ name, amount: addedAmount, unit, type }], selectedSystem);
+                            let result = addIngredients([{ name, amount: addedAmount, unit, type, category }], selectedSystem);
                             groceryList[name].amount = result.amount;
                             groceryList[name].unit = result.unit;
                         }
@@ -223,7 +206,7 @@ const DisplayList = () => {
                         const validUnitItems = [];
                         const invalidUnitItems = [];
                         addedIngredientsAmounts.forEach((amount, i) => {
-                            let item = { amount: amount, unit: addedIngredientsUnits[i], type: type };
+                            let item = { amount: amount, unit: addedIngredientsUnits[i], type: type, category: category };
                             // check for valid unit system to separate out items with valid and invalid units
                             // Only items with valid units will be processes using add ingredients function to prevent bugs.
 
@@ -274,7 +257,8 @@ const DisplayList = () => {
                     name: name,
                     amount: ingredientAmount,
                     unit: unit,
-                    type: type
+                    type: type,
+                    category: category
 
                 }
             }
@@ -282,7 +266,17 @@ const DisplayList = () => {
         })
 
         setGroceries(groceryList);
-        setComponent('grocery list');
+        let updatedCategories = { ...categories };
+        for (let itemName in groceryList) {
+            let item = groceryList[itemName]
+            if (item.category in updatedCategories) {
+                updatedCategories[item.category].push(item);
+            } else {
+                updatedCategories[item.category] = [item];
+            }
+        }
+        setCategories(updatedCategories);
+        setComponent('final list');
 
     };
     const handleAddRecipe = (e, isFavorite, errors) => {
@@ -301,6 +295,7 @@ const DisplayList = () => {
                     unit: (form.ingredientUnit.value).split(" ")[0].trim(),
                     amount: (form.ingredientAmount.value) ? form.ingredientAmount.value.trim() : '0',
                     type: (form.ingredientUnit.value).split(" ")[1].trim(),
+                    category: form.ingredientCategory.value
                 }
             ]
 
@@ -311,6 +306,7 @@ const DisplayList = () => {
                     unit: ([...form.ingredientUnit][i].value.split(" ")[0]).trim(),
                     amount: ([...form.ingredientAmount][i].value) ? [...form.ingredientAmount][i].value.trim() : '0',
                     type: ([...form.ingredientUnit][i].value.split(" ")[1]).trim(),
+                    category: [...form.ingredientCategory][i].value
 
                 }
             ));
@@ -323,6 +319,7 @@ const DisplayList = () => {
             ingredients: ingredients,
             favorite: isFavorite
         }
+        console.log(recipe, "recipe")
         if (recipe.favorite) {
             setFavorites([...favorites, recipe]);
         }
@@ -343,67 +340,44 @@ const DisplayList = () => {
             })
             return nameString.match(searchTerm.toLowerCase().trim());
         });
-        setSearchedRecipes(filteredList);
-    }
-    const handleDecategorization = (e) => {
-        let name = e.target.id;
-        let category = e.target.getAttribute('data-category');
-        if (name && category) {
-            let categoryContainer = categories[category];
-            let updatedContainer = categoryContainer.filter(item => item.name !== name);
-            setCategories({ ...categories, [category]: updatedContainer });
-            let item = JSON.parse(e.target.getAttribute('data-item'));
-            let updatedGroceries = {...groceries,[item.name]: item};
-            setGroceries(updatedGroceries);
-        }
+        e.target.elements['search'].value = "";
+        // setSearchedRecipes(filteredList);
+        setSearchedRecipes([...searchedRecipes, ...filteredList]);
 
 
     }
-    const ulClass = currentComponent === 'grocery list'?  `${styles.card}`: `${styles.card} + ${styles.card2}`;
     return (
         <React.Fragment>
-            <ul className={ulClass}>
+            <ul className={styles.card}>
                 {currentComponent === 'final list' ? <FinalList categories={categories} />
-                    : currentComponent === 'grocery list' ? (
-                        <React.Fragment>
-                            <CategoriesDropdown selectedCategory={selectedCategory} categories={categories} handleCategorySelect={handleCategorySelect} />
-                            <br />
-                            <div className="d-flex justify-content-around">
-                               
-                                   <GroceryList categorize={handleCategorization} groceries={groceries} />
-                                <div>
-                                   <FinalList categories={categories} decategorize={handleDecategorization}/>
-                                </div>
+                    : currentComponent === 'dropdown' ?
+                        (<React.Fragment>
+                            <div className="d-flex justify-content-between align-items-center my-4">
+                                <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
+                                <SearchComponent handleSearch={handleSearch} />
                             </div>
-                            <Button variant="success" onClick={handleFinalList}>Done</Button>
-
+                            <div className="d-flex justify-content-center align-items-center ">
+                                <RecipesDropdown handleSelectMenu={handleSelectMenu} />
+                                <RecipeForm addRecipe={handleAddRecipe} unitSystem={unitSystem} categories={categories} />
+                            </div>
+                            <br />
+                            <ul>
+                                {searchedRecipes.map(recipe => (
+                                    <RenderListItem key={recipe.id} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} component={currentComponent} />
+                                ))}
+                            </ul>
+                            {searchedRecipes.length ? <Button variant="success" onClick={()=> createIngredientsList(searchedRecipes)
+                             }>Generate List</Button> : null}
                         </React.Fragment>)
-                        : currentComponent === 'dropdown' ?
-                            (<React.Fragment>
-                                <div className="d-flex justify-content-between align-items-center my-4">
-                                    <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
-                                    <SearchComponent handleSearch={handleSearch} />
-                                </div>
-                                <div className="d-flex justify-content-center align-items-center ">
-                                    <RecipesDropdown handleSelectMenu={handleSelectMenu} />
-                                    <RecipeForm addRecipe={handleAddRecipe} unitSystem={unitSystem} />
-                                </div>
-                                <br/>
-                                <ul>
-                                    {searchedRecipes.map(recipe => (
-                                        <RenderListItem key={recipe.id} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} component={currentComponent} />
-                                    ))}
-                                </ul>
-                            </React.Fragment>)
-                            : currentComponent === 'recipes' ?
-                                <React.Fragment>
-                                    <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
-                                    {recipes.map(item =>
-                                        <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} component={currentComponent} />
-                                    )}
-                                    <Button variant="success" onClick={createIngredientsList}>Generate List</Button>
+                        : currentComponent === 'recipes' ?
+                            <React.Fragment>
+                                <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
+                                {recipes.map(item =>
+                                    <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} component={currentComponent} />
+                                )}
+                                <Button variant="success" onClick={()=> createIngredientsList(recipes)}>Generate List</Button>
 
-                                </React.Fragment> : null
+                            </React.Fragment> : null
                 }
             </ul>
         </React.Fragment>

@@ -1,11 +1,12 @@
 import React from 'react';
-const FinalList = ({ categories , decategorize}) => {
+import styles from './renderFinalList.module.css';
+const FinalList = ({ categories }) => {
     return (
         <React.Fragment>
             {
                 Object.keys(categories).map((category) =>
                     categories[category].length > 0 ?
-                        (<ul key={category} style={{width: "30vw"}} onClick={(e)=> decategorize(e)}>
+                        (<ul key={category}>
                             <h5>{category}</h5>
                             {categories[category].map((item, i) => {
                                 let jsx = '';
@@ -14,7 +15,7 @@ const FinalList = ({ categories , decategorize}) => {
     
                                 }
                              return    (
-                                <li key={item + i} id={item.name} data-category={category} data-item={JSON.stringify(item)} style={{ listStyleType: "none", padding: "10px", color: "darkgreen", fontWeight: "bold", border: "2px solid black", margin: "5px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <li className={styles.li} key={item + i} id={item.name} data-category={category} data-item={JSON.stringify(item)}>
                                     <span>{item.name}</span>
                                     <span  key={item.name + i}>
                                      {Array.isArray(item.amount)? jsx: (<span>{parseFloat((item.amount).toFixed(1))}&nbsp;{item.unit === 'none' ? item.name : item.unit}</span>)}
