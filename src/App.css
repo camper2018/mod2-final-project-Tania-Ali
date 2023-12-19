@@ -1,8 +1,3 @@
-* {
-  box-sizing: border-box;
-  margin: 0 auto; 
-  padding: 0;
-}
 
 .heading1{
   color: blue;
@@ -43,12 +38,6 @@ overflow-y: scroll;
   background-color: lemonchiffon;
   margin: 0px 25vw; 
   padding: 20px 30px;
-
-}
-.background{
-  background-image: url('./assets/grocery-background-image.jpg');
-  background-position: center;
-  background-size: cover;
 
 }
 @media only screen and (max-width: 1200px) {

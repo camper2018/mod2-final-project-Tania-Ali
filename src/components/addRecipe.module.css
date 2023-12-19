@@ -1,9 +1,59 @@
-.modal {
-    color: darkgreen;
+body{
+    background-image: url('../assets/grocery-background-image.jpg');
+    background-position: center;
+    background-size: cover;
+}
+.container {
+    height: 100vh;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.header {
+   display: flex;
+   padding: 25px 0px;
+}
+
+.header h3{
+    color: darkgreen; 
+}
+.btnContainer{
+    display: flex;
+    justify-content: flex-end;
+}
+.btnContainer button:first-child{
+    margin: 5px;
 }
 .btnSubmit {
-  background-color: rgb(245, 66, 35);
+  background-color: rgb(3, 144, 3);
+  margin: 5px;
 }
-.btnSumbit:hover{
+.btnSubmit:hover{
     background-color: grey;
+}
+.addIngredientBtn {
+    float: right;
+}
+
+.form {
+   width: 90vw;
+   background-color: white;
+   padding: 0px 10px;
+}
+.ingredientsContainer{
+    display: flex;
+    margin-top: 20px;
+    
+}
+@media only screen and (max-width: 650px) {
+    .ingredientsContainer{
+        display: block;
+        margin-top: 20px;
+    }
+    .deleteIcon{
+      display: none;
+    }
+    
 }

@@ -22,7 +22,7 @@ const RecipesDropdown = ({ handleSelectMenu }) => {
         <Dropdown.Item eventKey="21">3 Weeks</Dropdown.Item>
         <Dropdown.Item eventKey="30">1 Month</Dropdown.Item>
         <Dropdown.Divider />
-        <Dropdown.Item eventKey="favorites">Favorites</Dropdown.Item>
+        <Dropdown.Item className="text-primary" eventKey="favorites">Favorites</Dropdown.Item>
       </DropdownButton>
     </Dropdown>
   );

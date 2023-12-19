@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
-import { FaPlus } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
 import { CiStar } from "react-icons/ci";
 import { dryConversionFactors } from '../utilities/addDryIngredients';
@@ -16,12 +14,10 @@ import { IoMdClose } from "react-icons/io";
 import { v4 as uuidv4 } from 'uuid';
 import styles from './addRecipe.module.css';
 
+
 const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
     const uuid = uuidv4();
-    const [show, setShow] = useState(false);
     const [isFavorite, setFavorite] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
     const [htmlForAddItem, setHTML] = useState([{ id: uuid }]);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
@@ -96,31 +92,24 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
 
     return (
         <React.Fragment>
-            <Button variant="danger" onClick={handleShow} className="my-2">
-            {/* <Button variant="danger" onClick={() => {navigate('/add-recipe') }} className="my-2"> */}
-                Add Recipe&nbsp;
-                <FaPlus />
-            </Button>
 
-            <Modal className={styles.modal} size="lg" show={show} onHide={()=> {handleClose(); navigate('/')}}>
-                <Modal.Header closeButton>
-                    <div>
-                        {isFavorite ? <FaStar size={30} fill={"orange"} onClick={handleRemoveFromFavorites} /> :
-                            <CiStar size={34} onClick={handleAddToFavorite} />
-                        }
+            <div className={styles.container}>
+                <div className={styles.form}>
+                    <div className={styles.header}>
+                        <span className="me-1">
+                            {isFavorite ? <FaStar size={30} fill={"orange"} onClick={handleRemoveFromFavorites} /> :
+                                <CiStar size={34} onClick={handleAddToFavorite} />
+                            }
+                        </span>
+                        <span className="ms-1"><h3>Create Your Recipe Here</h3></span>
                     </div>
-                    <Modal.Title style={{ margin: "0 auto" }}>Create Your Recipe Here</Modal.Title>
-
-                </Modal.Header>
-                <Modal.Body>
                     <Form onSubmit={(e) => {
                         addRecipe(e, isFavorite, errors);
-                        handleClose();
                         navigate('/');
                     }}
                         id="addRecipeForm"
                     >
-                        <Form.Group className="mb-3" controlId="recipeForm.ControlInput1">
+                        <Form.Group className="my-3" controlId="recipeForm.ControlInput1">
                             <Form.Label>Name</Form.Label>
                             <Form.Control
                                 type="text"
@@ -132,9 +121,9 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                                 onBlur={handleName}
 
                             />
-
+                            <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
                         </Form.Group>
-                        <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+                        
                         <Form.Group
                             className="mb-3"
                             controlId="recipeForm.ControlTextarea1"
@@ -152,12 +141,13 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="recipeForm.ControlInput3">
                             <Form.Label>Ingredients</Form.Label>
-                            <Button className='float-end ' variant="secondary" onClick={handleAddFormEl}>ADD</Button>
+                            <Button className={styles.addIngredientBtn} variant="secondary" onClick={handleAddFormEl}>ADD</Button>
                             {htmlForAddItem.map(html => (
-                                <div key={html.id} className='d-flex mt-3' name="ingredients" >
+                                <div key={html.id} className={styles.ingredientsContainer} name="ingredients" >
                                     <Form.Control
                                         type="text"
                                         placeholder="Name"
+                                        className='m-1'
                                         name="ingredientName"
                                         isInvalid={!!errors.itemName}
                                         onBlur={handleItemName}
@@ -166,41 +156,43 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Amount"
-                                        className='mx-1'
+                                        className='m-1'
                                         name="ingredientAmount"
                                         isInvalid={!!errors.itemAmount}
                                         onBlur={handleItemAmount}
                                     />
                                     <Form.Control.Feedback type="invalid">{errors.itemAmount}</Form.Control.Feedback>
-                                    <Form.Select aria-label="select unit for ingredient" name="ingredientUnit">
+                                    <Form.Select aria-label="select unit for ingredient" name="ingredientUnit"  className='m-1'>
                                         <option key="none dry" value={"none" + " " + "dry"}>Unit</option>
                                         {optionsHTML}
                                     </Form.Select>
-                                    <Form.Select aria-label="select category for ingredient" name="ingredientCategory">
+                                    <Form.Select aria-label="select category for ingredient" name="ingredientCategory"  className='m-1'>
                                         <option key="none" value="none">Category</option>
                                         {optionsHTMLForCategory}
                                     </Form.Select>
 
                                     {htmlForAddItem.length > 1 &&
-                                        <div className="ms-2 border border-danger rounded" >
-                                            <IoMdClose size={36} onClick={() => handleRemoveFormEl(html.id)} />
+                                        <div className="text-center m-3 px-1 border border-danger rounded " onClick={() => handleRemoveFormEl(html.id)} >
+                                            Delete
+                                            <IoMdClose fill="red" className={styles.deleteIcon} size={36} onClick={() => handleRemoveFormEl(html.id)} />
                                         </div>}
                                 </div>
                             ))
                             }
                         </Form.Group>
+                        
                     </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button className={styles.btnClose} variant="secondary" onClick={()=> {handleClose(); navigate('/')}}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" className={styles.btnSubmit} variant="primary" form="addRecipeForm">
-                        Save
-                    </Button>
-                </Modal.Footer>
+                    <div className={styles.btnContainer}>
+                        <Button className={styles.btnClose} variant="secondary" onClick={() => {navigate('/') }}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" className={styles.btnSubmit} variant="primary" form="addRecipeForm">
+                            Save
+                        </Button>
+                    </div>
+                </div>
 
-            </Modal>
+            </div>
         </React.Fragment>);
 }
 

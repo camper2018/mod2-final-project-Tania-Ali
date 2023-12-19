@@ -583,5 +583,5 @@ const recipes = [
         Turn out into bowl - or onto platter. Garnish with remaining onion and coriander with yoghurt on the side (see Note 7 for Minted Yoghurt)`
     },
 ];
-// localStorage.setItem("data", JSON.stringify(recipes));
+localStorage.setItem("data", JSON.stringify(recipes));
 export default recipes;

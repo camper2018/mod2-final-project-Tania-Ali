@@ -1,5 +1,5 @@
 
-import data from './data';
+// import data from './data';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
@@ -54,11 +54,11 @@ const App = () => {
     updatedData.push(obj);
     localStorage.setItem("data", JSON.stringify(updatedData));
   }
-  /************************************ */
-  const convertUnitSystemOfRecipes = async (selectedSystem, dataArray) => {
+  
+  const convertUnitSystemOfRecipes = (selectedSystem, dataArray) => {
     setUnitSystem(selectedSystem);
     let convertUnitSystem = selectedSystem === 'customary' ? convertMetricToCustomary : convertCustomaryToMetric;
-    let dataInOneUnitSystem = await dataArray.map(data => {
+    let dataInOneUnitSystem = dataArray.map(data => {
       if (findUnitSystem(data) !== selectedSystem) {
         data.ingredients = convertUnitSystem(data.ingredients);
       }
@@ -403,14 +403,12 @@ const App = () => {
             path="/ingredients-list"
             element={
               (<React.Fragment>
-                <div className="background">
                 <center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
                 <div className="final-list">
                   <FinalList
                     categories={categories}
                     addItem={handleAddItem}
                   />
-                </div>
                 </div>
               </React.Fragment>)
             }
