@@ -1,16 +1,15 @@
 import Form from 'react-bootstrap/Form';
-import Styles from './form.module.css';
+import styles from './toggleSwitch.module.css';
 const UnitSystemToggle = ({unitSystem, toggleUnitSystem})=>{
     return (
-      <Form>
+      <Form className="m-auto">
         <Form.Check
-          className={Styles.switch}
+          className={styles.switch}
           type="switch"
           id="custom-switch"
           label={unitSystem.toUpperCase()}
           onChange={toggleUnitSystem}
         />
-       
       </Form>
     );
   }

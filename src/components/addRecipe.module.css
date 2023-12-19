@@ -1,0 +1,9 @@
+.modal {
+    color: darkgreen;
+}
+.btnSubmit {
+  background-color: rgb(245, 66, 35);
+}
+.btnSumbit:hover{
+    background-color: grey;
+}

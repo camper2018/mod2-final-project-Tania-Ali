@@ -36,7 +36,7 @@ const FinalList = ({ categories, addItem }) => {
     }
     return (
         <React.Fragment>
-            <Button variant="success" className="my-4" onClick={()=> setShowForm(true)} style={{display: `${showAddButton? "inline": "none"}`}}>Add Item</Button>
+            <center><Button variant="success" className="my-4" onClick={()=> setShowForm(true)} style={{ display: `${showAddButton? "flex": "none"}`}}>Add Item</Button></center>
 
             <Form style={{display: `${showForm? "block" : "none"}`}} onSubmit={(e) => {
                 addItem(e); 
@@ -84,8 +84,8 @@ const FinalList = ({ categories, addItem }) => {
             {
                 Object.keys(categories).map((category) =>
                     categories[category].length > 0 ?
-                        (<ul key={category}>
-                            <h5>{category}</h5>
+                        (<div className={styles.listContainer} key={category}>
+                            <center><h5>{category}</h5></center>
                             {categories[category].map((item, i) => {
                                 let jsx = '';
                                 if (Array.isArray(item.amount)) {
@@ -95,25 +95,25 @@ const FinalList = ({ categories, addItem }) => {
                                 return (
                                     <li className={styles.li} key={item + i} id={item.name} data-category={category} data-item={JSON.stringify(item)}>
                                         <span>{item.name}</span>
-                                        <span key={item.name + i}>
+                                        <span key={item.name + i} className={styles.itemAmount}>
                                             {Array.isArray(item.amount) ? jsx : (<span>{parseFloat((item.amount).toFixed(1))}&nbsp;{item.unit === 'none' ? item.name : item.unit}</span>)}
                                         </span>
                                     </li>
                                 )
                             })
                             }
-                        </ul>)
+                        </div>)
                         :
                         null
                 )
             }
             <br/>
-            <Button style={{display: `${showAddButton? "inline": "none"}`}} variant="success" onClick={async ()=> {
+            <center><Button style={{ display: `${showAddButton? "inline": "none"}`}} variant="success" onClick={async ()=> {
                 await setShowForm(false);
                 await setShowButton(false);
                 window.print();
                 
-            }}>Print</Button>
+            }}>Print</Button></center>
         </React.Fragment>
     )
 

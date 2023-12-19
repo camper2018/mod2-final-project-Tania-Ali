@@ -1,0 +1,50 @@
+.container {
+    background-color: black;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+}
+.logo {
+    float: left;
+    margin-left: 0;
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    background-color: white;
+    padding: 5px 0px;
+    color: darkgreen;
+    width: 130px;
+    height: 80px;
+    background-color: black;
+}
+.icon {
+  color: darkgreen;
+}
+.searchContainer {
+    padding-bottom: 5px;
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 10px;
+    
+}
+.btnContainer{
+    width: 174px;
+    margin-right: 0;
+    margin-top: 5px;
+}
+@media only screen and (max-width: 840px) {
+    .searchContainer {
+        width: 80%;
+    }
+}
+@media only screen and (max-width: 280px) {
+    .searchContainer {
+        width: 80%;
+    }
+    .container {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 0;
+    }
+}

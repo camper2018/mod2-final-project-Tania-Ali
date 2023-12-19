@@ -8,7 +8,7 @@ const RenderListItem = ({ item, isFavorite, deleteItem, addToFavorites, removeFr
         <li className={styles.li}>
             {item.name}
         </li>
-        <div>
+        <div className={styles.iconsContainer}>
             <RecipeDetail recipe={item} addToFavorites={addToFavorites} removeFromFavorites={removeFromFavorites}/>
             {isFavorite ? <FaStar size={28} style={{ marginRight: '15px' }} onClick={() => removeFromFavorites(item)} /> :
                 <CiStar size={30} style={{ marginRight: '15px' }} onClick={() => addToFavorites(item)} />

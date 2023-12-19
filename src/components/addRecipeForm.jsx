@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -13,6 +14,7 @@ import { isPlural } from '../utilities/findPlural';
 import { numericQuantity } from 'numeric-quantity';
 import { IoMdClose } from "react-icons/io";
 import { v4 as uuidv4 } from 'uuid';
+import styles from './addRecipe.module.css';
 
 const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
     const uuid = uuidv4();
@@ -22,7 +24,7 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
     const handleShow = () => setShow(true);
     const [htmlForAddItem, setHTML] = useState([{ id: uuid }]);
     const [errors, setErrors] = useState({});
-
+    const navigate = useNavigate();
     const handleAddToFavorite = () => {
         setFavorite(true);
     };
@@ -91,14 +93,16 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
             setErrors({ ...errors, name: null });
         }
     }
+
     return (
         <React.Fragment>
-            <Button variant="danger" onClick={handleShow} className="mx-2">
+            <Button variant="danger" onClick={handleShow} className="my-2">
+            {/* <Button variant="danger" onClick={() => {navigate('/add-recipe') }} className="my-2"> */}
                 Add Recipe&nbsp;
                 <FaPlus />
             </Button>
 
-            <Modal size="lg" show={show} onHide={handleClose}>
+            <Modal className={styles.modal} size="lg" show={show} onHide={()=> {handleClose(); navigate('/')}}>
                 <Modal.Header closeButton>
                     <div>
                         {isFavorite ? <FaStar size={30} fill={"orange"} onClick={handleRemoveFromFavorites} /> :
@@ -112,6 +116,7 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                     <Form onSubmit={(e) => {
                         addRecipe(e, isFavorite, errors);
                         handleClose();
+                        navigate('/');
                     }}
                         id="addRecipeForm"
                     >
@@ -147,7 +152,7 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="recipeForm.ControlInput3">
                             <Form.Label>Ingredients</Form.Label>
-                            <Button className='float-end' variant="secondary" onClick={handleAddFormEl}>ADD</Button>
+                            <Button className='float-end ' variant="secondary" onClick={handleAddFormEl}>ADD</Button>
                             {htmlForAddItem.map(html => (
                                 <div key={html.id} className='d-flex mt-3' name="ingredients" >
                                     <Form.Control
@@ -187,10 +192,10 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
+                    <Button className={styles.btnClose} variant="secondary" onClick={()=> {handleClose(); navigate('/')}}>
                         Cancel
                     </Button>
-                    <Button type="submit" variant="primary" form="addRecipeForm">
+                    <Button type="submit" className={styles.btnSubmit} variant="primary" form="addRecipeForm">
                         Save
                     </Button>
                 </Modal.Footer>

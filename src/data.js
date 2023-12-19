@@ -192,33 +192,6 @@ const recipes = [
         Stir in cooked rice. Add soy sauce and toss rice to coat. Drizzle with sesame oil and toss again.
         Serve hot and enjoy!`
     },
-    // {
-    //     id: "6",
-    //     name: "Christmas pie",
-
-    //     ingredients: [
-    //         { name: "olive oil", amount:  "2" , unit: "mL", type: 'wet'},
-    //         { name: "butter", amount: "1", unit: "g", type: "dry"},
-    //         { name: "onion", amount: "1", unit: "none", type: "dry"},
-    //         { name: "sausage meat", amount: "500", unit: "g", type: "dry"},
-    //         { name: "lemon", amount: "1", unit: "none", type: "dry"},
-    //         { name: "bread crumbs", amount:"100", unit: "g", type: "dry"},
-    //         { name: "dried apricots", amount: "85", unit: "g", type: "dry"},
-    //         { name: "chestnut", amount: "50", unit: "g", type: "dry"},
-    //         { name: "dried thyme", amount: "1", unit: "g", type: "dry"},
-    //         { name: "cranberry", amount:"100", unit: "g", type: "dry"},
-    //         { name: "boneless chicken breast", amount: "500", unit: "g", type: "dry"},
-    //         { name: "shortcrust pastry", amount: "500", unit: "g", type: "dry"},
-    //         { name: "egg", amount: "1", unit: "none", type: "dry"},
-    //     ],
-    //     method: 
-    //       `Heat oven to 190C/fan 170C/gas 5. Heat 1 tbsp oil and the butter in a frying pan, then add the onion and fry for 5 mins until softened. Cool slightly. Tip the sausage meat, lemon zest, breadcrumbs, apricots, chestnuts and thyme into a bowl. Add the onion and cranberries, and mix everything together with your hands, adding plenty of pepper and a little salt.
-    //       Cut each chicken breast into three fillets lengthwise and season all over with salt and pepper. Heat the remaining oil in the frying pan, and fry the chicken fillets quickly until browned, about 6-8 mins.
-    //       Roll out two-thirds of the pastry to line a 20-23cm spring form or deep loose-based tart tin. Press in half the sausage mix and spread to level. Then add the chicken pieces in one layer and cover with the rest of the sausage. Press down lightly.
-    //       Roll out the remaining pastry. Brush the edges of the pastry with beaten egg and cover with the pastry lid. Pinch the edges to seal, then trim. Brush the top of the pie with egg, then roll out the trimmings to make holly leaf shapes and berries. Decorate the pie and brush again with egg.
-    //       Set the tin on a baking sheet and bake for 50-60 mins, then cool in the tin for 15 mins. Remove and leave to cool completely. Serve with a winter salad and pickles.`
-
-    // },
     {
         id: "7",
         name: "Lasagna 2",
@@ -611,4 +584,4 @@ const recipes = [
     },
 ];
 // localStorage.setItem("data", JSON.stringify(recipes));
-// export default recipes;
+export default recipes;

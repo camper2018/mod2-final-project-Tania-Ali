@@ -1,13 +1,17 @@
 .container {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
   color: darkgreen;
   font-weight: bold;
-  padding: 10px;
+  padding: 10px 0px;
   margin: 5px 0px;
   border: 2px solid black;
 }
 .li{
     list-style-type: none;
+    margin-left: 10px;
+}
+.iconsContainer{
+   margin-right: 10px;
 }
