@@ -2,7 +2,7 @@ import Form from 'react-bootstrap/Form';
 import styles from './toggleSwitch.module.css';
 const UnitSystemToggle = ({unitSystem, toggleUnitSystem})=>{
     return (
-      <Form className="m-auto">
+      <Form className={styles.container}>
         <Form.Check
           className={styles.switch}
           type="switch"

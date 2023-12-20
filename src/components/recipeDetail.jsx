@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { FaBookOpen } from "react-icons/fa";
+import styles from './recipeDetail.module.css';
 const RecipeDetail = ({recipe})=>  {
   const [show, setShow] = useState(false);
 
@@ -10,25 +11,25 @@ const RecipeDetail = ({recipe})=>  {
 
   return (
     <>
-      <FaBookOpen  size={30} onClick={handleShow} style={{ marginRight: '15px' }}/>
+      <FaBookOpen  size={30} onClick={handleShow} className={styles.bookIcon}/>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title style={{color: "darkgreen"}}>{recipe.name}</Modal.Title>
+          <Modal.Title className={styles.title}>{recipe.name}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{fontWeight: "500", color: "grey"}}>
-            <h6 style={{color: "tomato"}}>Ingredients</h6>
+        <Modal.Body className={styles.body}>
+            <h6 className={styles.subTitle}>Ingredients</h6>
             <ol>
                 {recipe.ingredients.map((item, i) => (
                     <li key={i}>
-                        <div className="d-flex justify-content-between">
+                        <div className={styles.list}>
                         <span>{item.name}</span>
-                        <span>{item.amount}&nbsp;&nbsp; {item.unit === 'none'? item.name: item.unit}</span>
+                        <span>{item.amount}&nbsp;&nbsp;&nbsp; {item.unit === 'none'? item.name: item.unit}</span>
                         </div>
                     </li>
                 ))
                 }
             </ol>
-            <h6 style={{color: "tomato"}}>Method</h6>
+            <h6 className={styles.subTitle}>Method</h6>
             {recipe.method?.split("\n").map((sentence, i) => 
                <p key={i}>{sentence}</p>
             )}

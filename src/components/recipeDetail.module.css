@@ -1,0 +1,19 @@
+.title{
+    color: darkgreen;
+}
+.subTitle {
+    color: tomato;
+}
+.bookIcon {
+    margin-right: 15px;
+}
+
+.body {
+    font-weight: 500;
+    color: grey;
+}
+.list{
+    display: flex;
+    justify-content: space-between;
+    padding: 4px;
+}

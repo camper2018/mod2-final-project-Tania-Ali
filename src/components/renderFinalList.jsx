@@ -36,7 +36,7 @@ const FinalList = ({ categories, addItem }) => {
     }
     return (
         <React.Fragment>
-            <center><Button variant="success" className="my-4" onClick={()=> setShowForm(true)} style={{ display: `${showAddButton? "flex": "none"}`}}>Add Item</Button></center>
+            <center><Button variant="success" className="my-3" onClick={()=> setShowForm(true)} style={{ display: `${showAddButton? "flex": "none"}`}}>Add Item</Button></center>
 
             <Form style={{display: `${showForm? "block" : "none"}`}} onSubmit={(e) => {
                 addItem(e); 
@@ -81,6 +81,7 @@ const FinalList = ({ categories, addItem }) => {
             </Form>
 
             <br />
+            <div style={showAddButton? {height: "80vh", overflowY: "scroll"}: { overflowY: "visible"}}>
             {
                 Object.keys(categories).map((category) =>
                     categories[category].length > 0 ?
@@ -107,6 +108,7 @@ const FinalList = ({ categories, addItem }) => {
                         null
                 )
             }
+            </div>
             <br/>
             <center><Button style={{ display: `${showAddButton? "inline": "none"}`}} variant="success" onClick={async ()=> {
                 await setShowForm(false);

@@ -7,10 +7,12 @@ const RenderRecipes = ({recipes, createIngredientsList, handleDeleteRecipes,hand
     const navigate = useNavigate();
     return (
         <React.Fragment>
+            <div className="h-75 overflow-scroll">
             {recipes.map(item =>
                 <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
             )}
-            <Button className="m-auto" variant="success" onClick={() => { 
+            </div>
+            <Button className="mt-2 mx-auto" variant="success" onClick={() => { 
                 createIngredientsList(recipes); 
                 navigate('/ingredients-list')
             }}>Generate List</Button>

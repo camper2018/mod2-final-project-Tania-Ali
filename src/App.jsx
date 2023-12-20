@@ -375,7 +375,7 @@ const App = () => {
                 handleRemoveFromFavorites={handleRemoveFromFavorites}
               />
               <div className="card">
-                <img className="home-img" src={logo}></img>
+                <img className="home-img m-auto" src={logo}></img>
             </div>
             </React.Fragment>}>
           </Route>
@@ -386,7 +386,6 @@ const App = () => {
                   <center> <h1 className="mt-3"><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
-                  <br />
                   <RenderRecipes
                     recipes={recipes}
                     createIngredientsList={createIngredientsList}
@@ -403,12 +402,14 @@ const App = () => {
             path="/ingredients-list"
             element={
               (<React.Fragment>
+                <div className="background">
                 <center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
                 <div className="final-list">
                   <FinalList
                     categories={categories}
                     addItem={handleAddItem}
                   />
+                </div>
                 </div>
               </React.Fragment>)
             }
@@ -433,7 +434,7 @@ const App = () => {
               </div>}
           ></Route>
           <Route path="/add-recipe" element={
-          <div style={{display: "flex", justifyContent:'center' }}>
+          <div className="d-flex justify-content-center" /* style={{display: "flex", justifyContent:'center' }}*/>
           <RecipeForm
             unitSystem={unitSystem}
             categories={categories}

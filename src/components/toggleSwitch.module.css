@@ -1,7 +1,14 @@
+.container{
+  margin: 20px auto;
+}
 .switch {
     color: tomato;
     font-weight: bolder;
+    font-size: 25px;
+}
+@media only screen and (max-width:500px){
+   .switch{
     font-size: 20px;
-    margin-top: 20px;
-  }
+   }
+}
   

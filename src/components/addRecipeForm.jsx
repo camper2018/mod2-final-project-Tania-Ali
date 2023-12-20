@@ -13,7 +13,7 @@ import { numericQuantity } from 'numeric-quantity';
 import { IoMdClose } from "react-icons/io";
 import { v4 as uuidv4 } from 'uuid';
 import styles from './addRecipe.module.css';
-
+import '../App.css';
 
 const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
     const uuid = uuidv4();
@@ -92,8 +92,8 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
 
     return (
         <React.Fragment>
-
-            <div className={styles.container}>
+            <div className={styles.container  + " background"}>
+            <div className={styles.subContainer}>
                 <div className={styles.form}>
                     <div className={styles.header}>
                         <span className="me-1">
@@ -192,6 +192,7 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                     </div>
                 </div>
 
+            </div>
             </div>
         </React.Fragment>);
 }
