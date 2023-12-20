@@ -374,7 +374,7 @@ const App = () => {
                 handleAddToFavorites={handleAddToFavorites} 
                 handleRemoveFromFavorites={handleRemoveFromFavorites}
               />
-              <div className="card">
+              <div className="card background">
                 <img className="home-img m-auto" src={logo}></img>
             </div>
             </React.Fragment>}>
@@ -382,7 +382,7 @@ const App = () => {
           <Route
             path="/recipes"
             element={
-              (<div className="card">
+              (<div className="card background">
                   <center> <h1 className="mt-3"><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
