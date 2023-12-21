@@ -418,8 +418,8 @@ const App = () => {
           <Route
             path="/search"
             element={
-              <div className="card">
-                  <center><h1 className="text-danger" >Recipedia</h1></center>
+              <div className="card background">
+                  <center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <br />
