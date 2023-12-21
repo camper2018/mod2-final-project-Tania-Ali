@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 import styles from './renderFinalList.module.css';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { isPlural } from '../utilities/findPlural';
 import { numericQuantity } from 'numeric-quantity';
-
+import { IoHome } from "react-icons/io5";
 
 const FinalList = ({ categories, addItem }) => {
     const [showForm, setShowForm] = useState(false);
     const [showAddButton, setShowButton] = useState(true);
     const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
     const handleItemName = (e) => {
         let name = e.target.value;
         if (isPlural(name)) {
@@ -36,6 +38,10 @@ const FinalList = ({ categories, addItem }) => {
     }
     return (
         <React.Fragment>
+            <Button variant="danger" onClick={()=> {
+                navigate('/');
+                window.location.reload();
+            }}><IoHome fill={"white"} size={25}/></Button>
             <center><Button variant="success" className="my-3" onClick={()=> setShowForm(true)} style={{ display: `${showAddButton? "flex": "none"}`}}>Add Item</Button></center>
 
             <Form style={{display: `${showForm? "block" : "none"}`}} onSubmit={(e) => {
