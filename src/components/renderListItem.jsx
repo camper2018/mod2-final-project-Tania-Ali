@@ -1,8 +1,9 @@
-import { FaTrashCan } from "react-icons/fa6";
 import { CiStar } from "react-icons/ci";
 import { FaStar } from "react-icons/fa";
+import { ImCross } from "react-icons/im";
 import RecipeDetail from './recipeDetail';
 import styles from './renderListItem.module.css';
+
 const RenderListItem = ({ item, isFavorite, deleteItem, addToFavorites, removeFromFavorites}) => (
     <div className={styles.container}>
         <li className={styles.li}>
@@ -13,10 +14,8 @@ const RenderListItem = ({ item, isFavorite, deleteItem, addToFavorites, removeFr
             {isFavorite ? <FaStar size={28} className={styles.starIcon} onClick={() => removeFromFavorites(item)} /> :
                 <CiStar size={30} className={styles.starIcon} onClick={() => addToFavorites(item)} />
             }
-            <FaTrashCan size={25} onClick={() => deleteItem(item.id)} />
+            <ImCross size={25} onClick={() => deleteItem(item.id)} />
         </div>
     </div>
-
-
 );
 export default RenderListItem;
