@@ -1,7 +1,8 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button'
-import { FaSearch } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
+import { IoMdAdd } from "react-icons/io";
+
 const SearchComponent = ({handleSearch}) => {
     const navigate = useNavigate();
   return (
@@ -17,7 +18,8 @@ const SearchComponent = ({handleSearch}) => {
               name="search"
             />
             <Button variant="success" type="submit" >
-                <FaSearch style={{fill: "white"}} size={21}/>
+                <IoMdAdd size={30}/>
+
             </Button>
     </Form>
   )

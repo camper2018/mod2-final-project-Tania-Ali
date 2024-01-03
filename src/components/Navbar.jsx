@@ -5,6 +5,7 @@ import styles from './Navbar.module.css';
 import Button from 'react-bootstrap/Button';
 import { FaPlus } from "react-icons/fa";
 import logo from '../assets/recipedia-icon.png';
+
 const Navbar = ({handleSearch, handleSelectMenu}) => {
     const navigate = useNavigate();
     return (

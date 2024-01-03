@@ -1,8 +1,9 @@
 
+// uncomment the line below temporarily to populate local storage with data from data.js
 // import data from './data';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
-import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { numericQuantity } from 'numeric-quantity';
 import { getUnitSystemForWet } from './utilities/addWetIngredients';
@@ -28,20 +29,15 @@ const App = () => {
   const [unitSystem, setUnitSystem] = useState('customary');
   const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
   const [searchedRecipes, setSearchedRecipes] = useState([]);
-  
   useEffect(() => {
-    convertUnitSystemOfRecipes(unitSystem, recipes);
-    setFavorites(recipes.filter(item => item.favorite));
-  }, []);
-
-  const handleDeleteRecipes = (id) => {
-    let filteredSearchedRecipes = searchedRecipes.filter(recipe => recipe.id !== id);
-    setSearchedRecipes(filteredSearchedRecipes);
-    let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
-    setRecipes(filteredRecipes);
-  };
-  /*    Local Storage functions   */
-  const addToStorage = (obj) => {
+    if (data) {
+      convertUnitSystemOfRecipes(unitSystem, data);
+      setFavorites(data.filter(item => item.favorite));
+    }
+  }, [unitSystem]);
+  
+   /********* Local Storage functions **********/
+   const addToStorage = (obj) => {
     // add new item to the local storage data array 
     // if local storage is empty, the data would be undefined
     const dataCopy = data ? data : [];
@@ -54,6 +50,15 @@ const App = () => {
     updatedData.push(obj);
     localStorage.setItem("data", JSON.stringify(updatedData));
   }
+  /************ Event handlers ***********/
+
+  const handleDeleteRecipes = (id) => {
+    let filteredSearchedRecipes = searchedRecipes.filter(recipe => recipe.id !== id);
+    setSearchedRecipes(filteredSearchedRecipes);
+    let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
+    setRecipes(filteredRecipes);
+  };
+ 
   
   const convertUnitSystemOfRecipes = (selectedSystem, dataArray) => {
     setUnitSystem(selectedSystem);
@@ -91,7 +96,7 @@ const App = () => {
   }
   const handleSelectMenu = (eventKey) => {
     if (eventKey === 'favorites') {
-      setRecipes([...favorites]);
+      setSearchedRecipes([...favorites]);
     } else {
       let count = eventKey;
       const indices = new Set();
@@ -100,7 +105,7 @@ const App = () => {
         indices.add(randomIndex);
       }
       const selectedRecipes = [...indices].map(index => recipes[index]);
-      setRecipes(selectedRecipes);
+      setSearchedRecipes(selectedRecipes);
     }
   }
   const createIngredientsList = (recipes) => {
@@ -346,7 +351,7 @@ const App = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     const searchTerm = e.target.elements['search'].value;
-    const filteredList = data.filter(recipe => {
+    const filteredList = recipes.filter(recipe => {
       let nameString = '';
       nameString += recipe.name.toLowerCase().trim() + ' ';
       // Tags are arrays
@@ -383,11 +388,11 @@ const App = () => {
             path="/recipes"
             element={
               (<div className="card background">
-                  <center> <h1 className="mt-3"><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center>
+                  <center className={"my-3"}> <h1><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <RenderRecipes
-                    recipes={recipes}
+                    recipes={searchedRecipes}
                     createIngredientsList={createIngredientsList}
                     handleDeleteRecipes={handleDeleteRecipes}
                     handleAddToFavorites={handleAddToFavorites}
@@ -403,7 +408,7 @@ const App = () => {
             element={
               (<React.Fragment>
                 <div className="background">
-                <center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
+                <center><h1 className="py-4 text-light"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
                 <div className="final-list">
                   <FinalList
                     categories={categories}
@@ -434,7 +439,7 @@ const App = () => {
               </div>}
           ></Route>
           <Route path="/add-recipe" element={
-          <div className="d-flex justify-content-center" /* style={{display: "flex", justifyContent:'center' }}*/>
+          <div className="d-flex justify-content-center">
           <RecipeForm
             unitSystem={unitSystem}
             categories={categories}

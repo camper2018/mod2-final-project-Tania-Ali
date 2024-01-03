@@ -1,6 +1,7 @@
 import Form from 'react-bootstrap/Form';
 import styles from './toggleSwitch.module.css';
-const UnitSystemToggle = ({unitSystem, toggleUnitSystem})=>{
+const UnitSystemToggle = ({unitSystem, toggleUnitSystem})=> {
+  
     return (
       <Form className={styles.container}>
         <Form.Check

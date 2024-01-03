@@ -31,6 +31,13 @@ const convertUnitHelper = (amount, unit, conversionFactors)=> {
     if (unit in conversionFactors) {
         const conversionInfo = conversionFactors[unit];
         const convertedValue = amount * conversionInfo.factor;
+        /* For future reference
+        If density of ingredient is known, it can be considered while converting volumes to weight or vice versa.
+        if unit is tsp | tbsp | cup 
+        convertedValue = amount * conversionInfo.factor * density in g/cm3;
+        else if unit is gm && conversionInfo.unit is tsp | tbsp | cup 
+        convertedValue = (amount * conversionInfo.factor)/density in g/cm3;
+        */
         return {
             amount: convertedValue,
             unit: conversionInfo.unit,
