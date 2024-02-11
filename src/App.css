@@ -16,6 +16,11 @@
   color: red;
   font-family: fantasy;
 }
+.home-img{
+  max-height: 600px;
+  width: 80vw;
+  max-width: 600px;
+}
 .card {
   display: flex;
   align-items: center;

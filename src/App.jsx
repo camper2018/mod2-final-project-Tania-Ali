@@ -59,7 +59,25 @@ const App = () => {
     setRecipes(filteredRecipes);
   };
  
-  
+  const categorize = (list)=> {
+    let updatedCategories = { ...categories };
+    for (let itemName in list) {
+      let item = list[itemName]
+      if (item.category in updatedCategories) {
+        updatedCategories[item.category].push(item);
+      } else {
+        updatedCategories[item.category] = [item];
+      }
+    }
+    return updatedCategories;
+    // setCategories(updatedCategories);
+  }
+  // gets the selected savedList from local storage and set categories to that list so that it can be displayed by FinalList component.
+  const handleSavedLists = (list)=> {
+    // console.log(categories, "categories");
+    console.log(list, "list")
+    setCategories(list);
+  }
   const convertUnitSystemOfRecipes = (selectedSystem, dataArray) => {
     setUnitSystem(selectedSystem);
     let convertUnitSystem = selectedSystem === 'customary' ? convertMetricToCustomary : convertCustomaryToMetric;
@@ -392,13 +410,14 @@ const App = () => {
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <RenderRecipes
-                    recipes={searchedRecipes}
+                    recipes={searchedRecipes || []}
                     createIngredientsList={createIngredientsList}
                     handleDeleteRecipes={handleDeleteRecipes}
                     handleAddToFavorites={handleAddToFavorites}
                     handleRemoveFromFavorites={handleRemoveFromFavorites}
-                    unitSystem={unitSystem}
-                    toggleUnitSystem={handleUnitSystemToggle}
+                    // unitSystem={unitSystem}
+                    // toggleUnitSystem={handleUnitSystemToggle}
+                    handleSavedLists={handleSavedLists}
                   />
                 </div>
               </div>)}
@@ -412,13 +431,35 @@ const App = () => {
                 <div className="final-list">
                   <FinalList
                     categories={categories}
+                    setCategories={setCategories}
                     addItem={handleAddItem}
+                    // handleSavedLists={handleSavedLists}
                   />
                 </div>
                 </div>
               </React.Fragment>)
             }
           ></Route>
+          <Route
+          path="/saved-lists"
+            element={
+              (<React.Fragment>
+                <div className="background">
+                <center><h1 className="py-4 text-light"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
+                <div className="final-list">
+                  <FinalList
+                    // categories={categorize({rice : { name: "rice", category: "Rice and Pasta", amount: 4, unit: "cups"}})}
+                    addItem={handleAddItem}
+                    categories={categories}
+                    setCategories={setCategories}
+                    // handleSavedLists={handleSavedLists}
+                    // categorize={()=> categorize(categorize({rice : { name: "rice", category: "Rice and Pasta", amount: 4, unit: "cups"}}))}
+                  />
+                </div>
+                </div>
+              </React.Fragment>)
+            }>
+          </Route>
 
           <Route
             path="/search"
@@ -429,11 +470,12 @@ const App = () => {
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <br />
                   <RenderRecipes
-                    recipes={searchedRecipes}
+                    recipes={searchedRecipes || []}
                     createIngredientsList={createIngredientsList}
                     handleDeleteRecipes={handleDeleteRecipes}
                     handleAddToFavorites={handleAddToFavorites}
                     handleRemoveFromFavorites={handleRemoveFromFavorites}
+                    handleSavedLists={handleSavedLists}
                   />
                 </div>
               </div>}

@@ -1,7 +1,7 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button'
 import { useNavigate } from 'react-router-dom';
-import { IoMdAdd } from "react-icons/io";
+import { MdFormatListBulletedAdd } from "react-icons/md";
 
 const SearchComponent = ({handleSearch}) => {
     const navigate = useNavigate();
@@ -12,13 +12,13 @@ const SearchComponent = ({handleSearch}) => {
         }>
             <Form.Control
               type="search"
-              placeholder="Search"
+              placeholder="Search a recipe"
               className="me-2"
-              aria-label="Search"
+              aria-label="Search a recipe"
               name="search"
             />
             <Button variant="success" type="submit" >
-                <IoMdAdd size={30}/>
+                <MdFormatListBulletedAdd size={30}/>
 
             </Button>
     </Form>

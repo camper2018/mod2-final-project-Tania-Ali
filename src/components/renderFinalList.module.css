@@ -5,12 +5,16 @@
     font-weight: bold;
     border: 2px solid black;
     margin-top: 5px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
 }
-.itemAmount{
+
+.itemAmount {
     float: right;
 }
-.listContainer{
-   align-self: center;
+
+.listContainer {
+    align-self: center;
 
 }
-
