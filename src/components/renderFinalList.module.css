@@ -18,3 +18,18 @@
     align-self: center;
 
 }
+
+.editableTextInput{
+    font-weight: 500;
+    font-size: 16px;
+    
+}
+
+.editableTextInput:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.categoryText{
+    font-size: 20px;
+}

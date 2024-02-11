@@ -14,12 +14,7 @@ const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, ha
     const [savedLists, setSavedLists] = useState(lists || []);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    useEffect(() => {
-        let data = localStorage.getItem("myList");
-        if (data){
-           setSavedLists(JSON.parse(data));
-        }
-    },[savedLists]);
+    let timerId;
     const handleDeleteSavedList = (e)  => {
       const title = e.target.parentNode.parentNode.parentNode.id;
       const filteredLists = savedLists.filter(list => list.title !== title);
@@ -32,8 +27,15 @@ const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, ha
         const updatedCategories = savedLists.filter(list => list.title === e.target.id.split(":")[0]);
         console.log(updatedCategories[0]?.categories, "categories");
         handleSavedLists({...(updatedCategories[0]?.categories)});
-        navigate('/saved-lists');
+        timerId = setTimeout(()=> {
+            navigate('/saved-lists');
+        }, 500);
     }
+    useEffect(()=> {
+        return () => {
+            clearTimeout(timerId);
+        }
+    },[handleSavedLists]);
     return (
         <React.Fragment>
             <Modal show={show} onHide={handleClose}>

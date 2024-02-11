@@ -6,15 +6,13 @@ import Button from 'react-bootstrap/Button';
 import { numericQuantity } from 'numeric-quantity';
 import { IoHome } from "react-icons/io5";
 import Modal from 'react-bootstrap/Modal';
-import { FaRegEdit } from "react-icons/fa";
-
-const FinalList = ({ categories, addItem}) => {
+import EditableTextItem from './editableTextItem';
+import { FaTrash } from "react-icons/fa";
+const FinalList = ({ categories, addItem, handleSavedLists}) => {
     const [showForm, setShowForm] = useState(false);
     const [showAddButton, setShowButton] = useState(true);
     const [errors, setErrors] = useState({});
-    // const [isEditing, setIsEditing] = useState(false);
     const [showListForm, setShowListForm] = useState(false);
-    // const [showEditForm, setShowEditForm] = useState(false);
     const handleClose = () => setShowListForm(false);
     const handleShow = () => setShowListForm(true);
 
@@ -56,9 +54,36 @@ const FinalList = ({ categories, addItem}) => {
             setErrors({...errors, duplicate: "Duplicate title! Please enter unique title"});
         }
     }
-    const handleEditItem = (item) =>{
-      console.log("item: ", item);
+    const handleEditCategory = (prev, current, id) =>{
+      const index = id.split("-")[1];
+      const categoriesCopy = {...categories};
+      const categoryList = categoriesCopy[prev];
+      delete categoriesCopy[prev];
+      categoriesCopy[current] = categoryList;
+      handleSavedLists(categoriesCopy);
     }
+    const handleEditItem = (prev, current, id)=> {
+        const categoriesCopy = {...categories};
+        const [type, category, index, subIdx] = id.split("-");
+        const targetValue = categoriesCopy[category][index];
+        if (type === "name"){
+          targetValue.name = current;
+          handleSavedLists(categoriesCopy);
+        } else {
+          if (Array.isArray(targetValue)){
+            targetValue[type][subIdx] = type === "amount" ? parseFloat(current): current;
+          } else {
+            targetValue[type] = type === "amount" ? parseFloat(current): current;
+          }
+        }
+        handleSavedLists(categoriesCopy);
+    }
+    const handleDeleteItem = (category, index) => {
+       const categoriesCopy = {...categories};
+       categories[category].splice(index, 1);
+       handleSavedLists(categoriesCopy);
+    }
+   
     return (
         <React.Fragment>
             <Modal show={showListForm} onHide={handleClose}>
@@ -89,7 +114,7 @@ const FinalList = ({ categories, addItem}) => {
                     </Modal.Footer>
                 </Form>
             </Modal>
-            <Button style={{ display: `${showAddButton ? "inline" : "none"}` }} variant="danger" onClick={() => {
+            <Button style={{ display: `${showAddButton ? "inline" : "none"}` }} variant="warning" onClick={() => {
                 navigate('/');
                 window.location.reload();
             }}><IoHome fill={"white"} size={25} /></Button>
@@ -140,24 +165,27 @@ const FinalList = ({ categories, addItem}) => {
             <br />
             <div style={showAddButton ? { height: "80vh", overflowY: "scroll" } : { overflowY: "visible" }}>
                 {
-                    Object?.keys(categories)?.map((category) =>
+                    Object?.keys(categories)?.map((category, i) =>
                         categories[category].length > 0 ?
                             (<div className={styles.listContainer} key={category}>
-                                <center><h5>{category}</h5></center>
+                              <center><EditableTextItem  id={"category" + i} key={category + i} initialText={category} className={styles.editableTextInput + " " + styles.categoryText} handleEdit={handleEditCategory}/></center>
                                 {categories[category].map((item, i) => {
                                     let jsx = '';
                                     if (Array.isArray(item.amount)) {
-                                        jsx = item.amount.map((number, j) => (<React.Fragment key={item.name + j}><span>&nbsp;{parseFloat(number.toFixed(1))}&nbsp;{(item.unit[j]) === 'none' ? item.name : item.unit[j]}</span> <span style={{ display: `${showAddButton ? "inline" : "none"}` }}><FaRegEdit fill={"orange"} size={25} onClick={()=> handleEditItem(item)}/></span></React.Fragment>));
-
+                                           jsx = item.amount.map((number, j)=> (<React.Fragment>&nbsp;&nbsp;&nbsp;<EditableTextItem id={"amount"+"-"+category+"-"+i+"-"+j} key={item.name + j} initialText={parseFloat((number.toFixed(1)))} handleEdit={handleEditItem} className={styles.editableTextInput}/>&nbsp;<EditableTextItem id={"unit"+"-"+category+"-"+i+"-"+j} key={item.unit + j} initialText={(item.unit[j]) === 'none' ? item.name : item.unit[j]} handleEdit={handleEditItem} className={styles.editableTextInput}/></React.Fragment>))
                                     }
                                     return (
+                                        
+
                                         <li className={styles.li} key={item + i} id={item.name} data-category={category} data-item={JSON.stringify(item)}>
-                                            <span>{item.name}</span>
+                                            <EditableTextItem initialText={item.name} id={"name"+"-"+category+"-"+i} handleEdit={handleEditItem} className={styles.editableTextInput}/>
                                             <span key={item.name + i} className={styles.itemAmount}>
-                                                {Array.isArray(item.amount) ? jsx : (<React.Fragment><span>{parseFloat((item.amount).toFixed(1))}&nbsp;{item.unit === 'none' ? item.name : item.unit}</span><span style={{ display: `${showAddButton ? "inline" : "none"}`}}><FaRegEdit fill={"orange"} size={25} onClick={()=> handleEditItem(item)} className="mx-3"/></span></React.Fragment>)}
+                                                {Array.isArray(item.amount) ? jsx : (<React.Fragment>&nbsp;&nbsp;&nbsp;<EditableTextItem key={"amount"+"-"+i} id={"amount"+"-"+category+"-"+i} initialText={parseFloat(((item.amount).toFixed(1)))} handleEdit={handleEditItem} className={styles.editableTextInput}/>&nbsp; <EditableTextItem key={"unit"+"-"+i} id={"unit"+"-"+category+"-"+i} initialText={item.unit === 'none' ? item.name : item.unit} handleEdit={handleEditItem} className={styles.editableTextInput}/></React.Fragment>)}
+                                                <FaTrash className="ms-3"size={22} fill={"red"} style={{ display: `${showAddButton ? "inline" : "none"}`}} onClick={()=> handleDeleteItem(category, i)}/>
                                             </span>
                                            
                                         </li>
+                                        
                                     )
                                 })
                                 }
