@@ -17,7 +17,7 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
     const handleShow = () => setShowListForm(true);
 
     const navigate = useNavigate();
-
+    // form error handlers
     const handleItemName = (e) => {
         let name = e.target.value;
         if (name === '') {
@@ -40,29 +40,26 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
             setErrors({ ...errors, itemCategory: null });
         }
     }
-    const handleSaveList = async (e) => {
+    // saves a grocery list
+    const handleSaveList = (e) => {
         e.preventDefault();
-        const myLists = await localStorage.getItem("myLists")? JSON.parse(localStorage.getItem("myLists")) : [];
+        const myLists = localStorage.getItem("myLists")? JSON.parse(localStorage.getItem("myLists")) : [];
         const isDuplicate = myLists.some(list => list.title === e.target[0].value);
         if (!isDuplicate) {
             myLists.push({ title: e.target[0].value, categories: categories });
-            await localStorage.setItem('myLists', JSON.stringify(myLists));
+            localStorage.setItem('myLists', JSON.stringify(myLists));
             setErrors({ ...errors, duplicate: null });
             handleClose();
+            navigate("/")
             location.reload();
         } else {
             setErrors({...errors, duplicate: "Duplicate title! Please enter unique title"});
         }
     }
-    const handleEditCategory = (prev, current, id) =>{
-      const index = id.split("-")[1];
-      const categoriesCopy = {...categories};
-      const categoryList = categoriesCopy[prev];
-      delete categoriesCopy[prev];
-      categoriesCopy[current] = categoryList;
-      handleSavedLists(categoriesCopy);
-    }
+   
+    // edits an item in the list 
     const handleEditItem = (prev, current, id)=> {
+        console.log("prev:", prev, "current:", current, "id:", id)
         const categoriesCopy = {...categories};
         const [type, category, index, subIdx] = id.split("-");
         const targetValue = categoriesCopy[category][index];
@@ -78,6 +75,7 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
         }
         handleSavedLists(categoriesCopy);
     }
+    // deletes an item in the list
     const handleDeleteItem = (category, index) => {
        const categoriesCopy = {...categories};
        categories[category].splice(index, 1);
@@ -117,7 +115,7 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
             <Button style={{ display: `${showAddButton ? "inline" : "none"}` }} variant="warning" onClick={() => {
                 navigate('/');
                 window.location.reload();
-            }}><IoHome fill={"white"} size={25} /></Button>
+            }}><IoHome fill="white" size={25} /></Button>
             <center><Button variant="success" className="my-3" onClick={() => setShowForm(true)} style={{ display: `${showAddButton ? "flex" : "none"}` }}>Add Item</Button></center>
 
             <Form style={{ display: `${showForm ? "block" : "none"}` }} onSubmit={(e) => {
@@ -168,22 +166,19 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
                     Object?.keys(categories)?.map((category, i) =>
                         categories[category].length > 0 ?
                             (<div className={styles.listContainer} key={category}>
-                              <center><EditableTextItem  id={"category" + i} key={category + i} initialText={category} className={styles.editableTextInput + " " + styles.categoryText} handleEdit={handleEditCategory}/></center>
+                              <center><h6 className={styles.categoryText}>{category}</h6></center>
                                 {categories[category].map((item, i) => {
                                     let jsx = '';
                                     if (Array.isArray(item.amount)) {
-                                           jsx = item.amount.map((number, j)=> (<React.Fragment>&nbsp;&nbsp;&nbsp;<EditableTextItem id={"amount"+"-"+category+"-"+i+"-"+j} key={item.name + j} initialText={parseFloat((number.toFixed(1)))} handleEdit={handleEditItem} className={styles.editableTextInput}/>&nbsp;<EditableTextItem id={"unit"+"-"+category+"-"+i+"-"+j} key={item.unit + j} initialText={(item.unit[j]) === 'none' ? item.name : item.unit[j]} handleEdit={handleEditItem} className={styles.editableTextInput}/></React.Fragment>))
+                                           jsx = item.amount.map((number, j)=> (<React.Fragment  key={item.name + i + j}>&nbsp;&nbsp;&nbsp;<EditableTextItem id={"amount"+"-"+category+"-"+i+"-"+j} initialText={parseFloat((number.toFixed(1)))} handleEdit={handleEditItem} className={styles.editableTextInput}/>&nbsp;<EditableTextItem id={"unit"+"-"+category+"-"+i+"-"+j} initialText={(item.unit[j]) === 'none' ? item.name : item.unit[j]} handleEdit={handleEditItem} className={styles.editableTextInput}/></React.Fragment>))
                                     }
                                     return (
-                                        
-
-                                        <li className={styles.li} key={item + i} id={item.name} data-category={category} data-item={JSON.stringify(item)}>
+                                        <li className={styles.li} key={category + item.name + i} id={item.name} data-category={category} data-item={JSON.stringify(item)}>
                                             <EditableTextItem initialText={item.name} id={"name"+"-"+category+"-"+i} handleEdit={handleEditItem} className={styles.editableTextInput}/>
-                                            <span key={item.name + i} className={styles.itemAmount}>
-                                                {Array.isArray(item.amount) ? jsx : (<React.Fragment>&nbsp;&nbsp;&nbsp;<EditableTextItem key={"amount"+"-"+i} id={"amount"+"-"+category+"-"+i} initialText={parseFloat(((item.amount).toFixed(1)))} handleEdit={handleEditItem} className={styles.editableTextInput}/>&nbsp; <EditableTextItem key={"unit"+"-"+i} id={"unit"+"-"+category+"-"+i} initialText={item.unit === 'none' ? item.name : item.unit} handleEdit={handleEditItem} className={styles.editableTextInput}/></React.Fragment>)}
-                                                <FaTrash className="ms-3"size={22} fill={"red"} style={{ display: `${showAddButton ? "inline" : "none"}`}} onClick={()=> handleDeleteItem(category, i)}/>
+                                            <span className={styles.itemAmount}>
+                                                {Array.isArray(item.amount) ? jsx : (<React.Fragment>&nbsp;&nbsp;&nbsp;<EditableTextItem id={"amount"+"-"+category+"-"+i} initialText={parseFloat(((item.amount).toFixed(1)))} handleEdit={handleEditItem} className={styles.editableTextInput}/>&nbsp; <EditableTextItem id={"unit"+"-"+category+"-"+i} initialText={item.unit === 'none' ? item.name : item.unit} handleEdit={handleEditItem} className={styles.editableTextInput}/></React.Fragment>)}
+                                                <FaTrash className="ms-3"size={22} fill="red" style={{ display: `${showAddButton ? "inline" : "none"}`}} onClick={()=> handleDeleteItem(category, i)}/>
                                             </span>
-                                           
                                         </li>
                                         
                                     )
@@ -196,14 +191,20 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
                 }
             </div>
             <br />
-            <center><Button style={{ display: `${showAddButton ? "inline" : "none"}` }} variant="success" onClick={async () => {
-                await setShowForm(false);
-                await setShowButton(false);
-                window.print();
-
-            }}>Print</Button>
-                <Button style={{ display: `${showAddButton ? "inline" : "none"}` }} variant="success" onClick={handleShow}>Save</Button>
-            </center>
+            <div className="d-flex w-100 justify-content-evenly">
+                <Button 
+                    style={{ width: "100px", display: `${showAddButton ? "inline" : "none"}` }} variant="success" 
+                    onClick={async (e) => {
+                    e.preventDefault();
+                    await setShowForm(false);
+                    await setShowButton(false);
+                    window.print();
+                    await setShowButton(true);
+                    
+                 }}>
+                Print</Button>
+                <Button style={{ width: "100px", display: `${showAddButton ? "inline" : "none"}` }} variant="success" onClick={handleShow}>Save</Button>
+            </div>
         </React.Fragment>
     )
 

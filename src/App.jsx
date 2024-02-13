@@ -33,11 +33,10 @@ const App = () => {
     if (data) {
       convertUnitSystemOfRecipes(unitSystem, data);
       setFavorites(data.filter(item => item.favorite));
+
     }
   }, [unitSystem]);
-  useEffect(()=> {
-    console.log("I am in useEffect:", categories)
-  }, [categories]);
+  
    /********* Local Storage functions **********/
    const addToStorage = (obj) => {
     // add new item to the local storage data array 
@@ -398,7 +397,7 @@ const App = () => {
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <RenderRecipes
-                    recipes={searchedRecipes || []}
+                    recipes={searchedRecipes}
                     createIngredientsList={createIngredientsList}
                     handleDeleteRecipes={handleDeleteRecipes}
                     handleAddToFavorites={handleAddToFavorites}
@@ -426,7 +425,7 @@ const App = () => {
               </React.Fragment>)
             }
           ></Route>
-          <Route
+          {/* <Route
           path="/saved-lists"
             element={
               (<React.Fragment>
@@ -443,7 +442,7 @@ const App = () => {
                 </div>
               </React.Fragment>)
             }>
-          </Route>
+          </Route> */}
 
           <Route
             path="/search"
@@ -454,7 +453,7 @@ const App = () => {
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <br />
                   <RenderRecipes
-                    recipes={searchedRecipes || []}
+                    recipes={searchedRecipes}
                     createIngredientsList={createIngredientsList}
                     handleDeleteRecipes={handleDeleteRecipes}
                     handleAddToFavorites={handleAddToFavorites}

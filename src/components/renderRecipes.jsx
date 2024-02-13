@@ -14,28 +14,22 @@ const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, ha
     const [savedLists, setSavedLists] = useState(lists || []);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    let timerId;
+    
     const handleDeleteSavedList = (e)  => {
-      const title = e.target.parentNode.parentNode.parentNode.id;
+      const title = e.currentTarget.getAttribute("data-attr");
       const filteredLists = savedLists.filter(list => list.title !== title);
       localStorage.setItem("myLists", JSON.stringify(filteredLists));
       setSavedLists(filteredLists);
       
     };
     const handleSelectSavedList = (e)=> {
-        console.log( e.target.id.split(":")[0]);
-        const updatedCategories = savedLists.filter(list => list.title === e.target.id.split(":")[0]);
-        console.log(updatedCategories[0]?.categories, "categories");
+        const value = e.currentTarget.getAttribute("data-attr");
+        const updatedCategories =  savedLists.filter(list => list.title === value.split(":")[0]);
         handleSavedLists({...(updatedCategories[0]?.categories)});
-        timerId = setTimeout(()=> {
-            navigate('/saved-lists');
-        }, 500);
+        navigate("/ingredients-list");
+        
     }
-    useEffect(()=> {
-        return () => {
-            clearTimeout(timerId);
-        }
-    },[handleSavedLists]);
+    
     return (
         <React.Fragment>
             <Modal show={show} onHide={handleClose}>
@@ -45,13 +39,16 @@ const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, ha
                 <Modal.Body className="me-4">
                     <ul>
                         {savedLists.map((list , i)=> {
-                            console.log(list, "list***");
                             return (
                             <div key={list.title} id={list.title} className={Styles.container +  " px-3"}>
                                 <li className={Styles.li} >{list.title}</li>
                                 <div>
-                                    <FaEnvelopeOpenText  id={list.title + ":" + i} className="me-4" size={24} onClick={handleSelectSavedList}/>
-                                    <FaTrash size={24} onClick={handleDeleteSavedList}/>
+                                    <Button className="btn-sm me-4" variant="link" data-attr={list.title + ":" + i} onClick={handleSelectSavedList}>
+                                      <FaEnvelopeOpenText fill="orange" size={24}/>
+                                    </Button>
+                                    <Button variant="link" data-attr={list.title} onClick={handleDeleteSavedList}>
+                                       <FaTrash size={24} fill="#5C4033"/>
+                                    </Button>
                                 </div>
                                
                             </div>
@@ -77,7 +74,7 @@ const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, ha
                 }}>Generate List</Button>
                 <Button variant="warning" onClick={() => {
                     handleShow();
-                }}>Saved List</Button>
+                }}>Get Saved List</Button>
             </div>
         </React.Fragment>
     )
