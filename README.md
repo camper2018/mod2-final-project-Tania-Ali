@@ -1,8 +1,18 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Project Description
 
-Currently, two official plugins are available:
+This project is built using React with Vite, react-bootstrap and css modules.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project is a full-stack grocery helper app that offers users to access recipes from the database and generate an organized grocery shopping list out the ingredients with just a few clicks. 
+
+Users can also add, edit or delete items from the final list. 
+
+Authenticated users can also manage their own recipes book and save grocery lists for future reference.
+
+
+
+
+
+
+
+
