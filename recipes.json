@@ -1404,5 +1404,23 @@
       }
     ],
     "favorite": false
+  },
+  {
+    "id": "19",
+    "name": "Pulao",
+    "method": "Test Pulao",
+    "tags": [
+      "yummy"
+    ],
+    "ingredients": [
+      {
+        "name": "rice",
+        "unit": "cup",
+        "amount": "4",
+        "type": "dry",
+        "category": "Pasta Flour and Rice"
+      }
+    ],
+    "favorite": false
   }
 ]

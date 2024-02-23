@@ -9,7 +9,28 @@ app.use(cors());
 
 app.use(express.json());
 
-// get recipe by search query from recipes.json file
+// get random recipes of the requested count or limit
+
+app.get('/recipes/:limit', async function (req, res) {
+  try {
+    const recipes = JSON.parse(fs.readFileSync('recipes.json', 'utf-8'));
+    const limit = parseInt(req.params.limit);
+    const randomIndices = new Set();
+    while (randomIndices.size < limit && randomIndices.size < recipes.length) {
+      let randomIndex = Math.floor(Math.random() * recipes.length);
+      randomIndices.add(randomIndex);
+    }
+    const randomlySelectedRecipes = [...randomIndices].map(index => recipes[index]);
+    res.status(200).json(randomlySelectedRecipes);
+  } catch (err) {
+    console.error('Error fetching recipes!', err);
+    res.status(500).json({ message: 'Error fetching recipes' })
+  }
+});
+
+// get a requested recipe based on search text
+// the text should either partially match recipe name or any of the recipe tag.
+
 app.get('/search/:searchTerm', async function (req, res) {
   try {
     const recipes = JSON.parse(fs.readFileSync('recipes.json', 'utf-8'));
@@ -34,18 +55,13 @@ app.post('/recipes', async function (req, res) {
   // adding a recipe to recipes.json file
   try {
     const recipes = JSON.parse(fs.readFileSync('recipes.json', 'utf-8'));
-    console.log(recipes, "recipes")
-    console.log(req.body, "req.body")
     const newRecipe = req.body;
     recipes.push(newRecipe);
     fs.writeFileSync('recipes.json', JSON.stringify(recipes, null, 2))
-    //  console.log("recipes:", recipes);
-    // const { make, model, year } = req.body;
-    res.status(201).json({ message: 'Recipe added successfully', newRecipe });
-    // res.json({ success: true, message: 'Car successfully created', data: null });
+    res.status(201).json({ message: `Recipe with the name ${newRecipe.name} added successfully`, data: null });
   } catch (err) {
-    console.error('Error adding recipe:', err);
-    res.status(500).json({ message: 'Error adding recipe' })
+    console.error('Error adding recipe:', err.message);
+    res.status(500).json({ message: `Error adding recipe with the name ${newRecipe}` })
   }
 });
 
