@@ -18,9 +18,9 @@ const RecipesDropdown = ({ handleSelectMenu }) => {
         <Dropdown.Item eventKey="5">5 Days</Dropdown.Item>
         <Dropdown.Item eventKey="6">6 Days</Dropdown.Item>
         <Dropdown.Item eventKey="7">1 Week</Dropdown.Item>
-        <Dropdown.Item eventKey="14">2 Weeks</Dropdown.Item>
-        <Dropdown.Item eventKey="21">3 Weeks</Dropdown.Item>
-        <Dropdown.Item eventKey="30">1 Month</Dropdown.Item>
+        {/* <Dropdown.Item eventKey="14">2 Weeks</Dropdown.Item> */}
+        {/* <Dropdown.Item eventKey="21">3 Weeks</Dropdown.Item> */}
+        {/* <Dropdown.Item eventKey="30">1 Month</Dropdown.Item> */}
         <Dropdown.Divider />
         <Dropdown.Item className="text-primary" eventKey="favorites">Favorites</Dropdown.Item>
       </DropdownButton>

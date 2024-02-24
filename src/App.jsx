@@ -99,18 +99,21 @@ const App = () => {
       convertUnitSystemOfRecipes(selectedSystem, recipes);
     }
   }
-  const handleSelectMenu = (eventKey) => {
+  const handleSelectMenu = async (eventKey) => {
     if (eventKey === 'favorites') {
       setSearchedRecipes([...favorites]);
     } else {
-      let count = eventKey;
-      const indices = new Set();
-      while (indices.size < count && indices.size < recipes.length) {
-        let randomIndex = Math.floor(Math.random() * recipes.length);
-        indices.add(randomIndex);
-      }
-      const selectedRecipes = [...indices].map(index => recipes[index]);
-      setSearchedRecipes(selectedRecipes);
+       try {
+        const response = await fetch(`http://localhost:5000/recipes/${eventKey}`)
+        if (response.ok){
+           const data = await response.json();
+           setSearchedRecipes(data);
+        } else {
+          console.log("Error:" , response.status);
+        }
+       } catch(error){
+         console.log("Error: ", error.message)
+       }
     }
   }
   const createIngredientsList = (recipes) => {
@@ -282,7 +285,8 @@ const App = () => {
     setCategories(updatedCategories);
 
   };
-  const handleAddRecipe = (e, isFavorite, errors) => {
+
+  const handleAddRecipe = async (e, isFavorite, errors) => {
     e.preventDefault();
     if (errors.name || errors.itemName || errors.ItemAmount) {
       alert("Error Saving Recipe!")
@@ -322,13 +326,25 @@ const App = () => {
       ingredients: ingredients,
       favorite: isFavorite
     }
-    if (recipe.favorite) {
-      setFavorites([...favorites, recipe]);
+    // save recipe
+    try {
+       const response = await fetch('http://localhost:5000/recipes', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(recipe)
+       })
+       if (response.ok){
+         const data = await response.json();
+         if (recipe.favorite) {
+          setFavorites([...favorites, recipe]);
+         }
+        setRecipes([...recipes, recipe]);
+       }
+    } catch(error){
+      console.error(error.message);
     }
-    setRecipes([...recipes, recipe]);
-    // add new recipe to the local storage
-    addToStorage(recipe);
-
   }
   const handleAddItem = (e) => {
     e.preventDefault();
@@ -353,20 +369,19 @@ const App = () => {
     }
     setCategories(updatedCategories);
   }
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     const searchTerm = e.target.elements['search'].value;
-    const filteredList = recipes.filter(recipe => {
-      let nameString = '';
-      nameString += recipe.name.toLowerCase().trim() + ' ';
-      // Tags are arrays
-      recipe.tags.forEach(tag => {
-        nameString += tag.toLowerCase().trim() + ' '
-      })
-      return nameString.match(searchTerm.toLowerCase().trim());
-    });
-    e.target.elements['search'].value = "";
-    setSearchedRecipes([...searchedRecipes, ...filteredList]);
+    try {
+       const response = await fetch(`http://localhost:5000/search/${searchTerm.trim()}`)
+       if (response.ok){
+         const data = await response.json();
+         e.target.elements['search'].value = "";
+         setSearchedRecipes([...searchedRecipes, ...data]);
+       }
+     } catch(error){
+       console.log("Error: ", error.message)
+     }
   }
 
   return (
@@ -425,25 +440,6 @@ const App = () => {
               </React.Fragment>)
             }
           ></Route>
-          {/* <Route
-          path="/saved-lists"
-            element={
-              (<React.Fragment>
-                <div className="background">
-                <center><h1 className="py-4 text-light"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
-                <div className="final-list">
-                  <FinalList
-                    addItem={handleAddItem}
-                    categories={categories}
-                    setCategories={setCategories}
-                    handleSavedLists={handleSavedLists}
-                  />
-                </div>
-                </div>
-              </React.Fragment>)
-            }>
-          </Route> */}
-
           <Route
             path="/search"
             element={

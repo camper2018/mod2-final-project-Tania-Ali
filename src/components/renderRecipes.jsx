@@ -63,8 +63,8 @@ const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, ha
             </Modal>
             <Button className="m-auto ms-0" variant="success" onClick={() => navigate('/')}><IoIosArrowBack size={18} /> Add More</Button>
             <div className="h-75 overflow-scroll">
-                {recipes.map(item =>
-                    <RenderListItem key={item.id} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
+                {recipes.map((item, i) =>
+                    <RenderListItem /*key={item.id} */ key={i} item={item} isFavorite={item.favorite} deleteItem={handleDeleteRecipes} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} />
                 )}
             </div>
             <div className="mt-2 d-flex justify-content-evenly w-100 mx-auto">
