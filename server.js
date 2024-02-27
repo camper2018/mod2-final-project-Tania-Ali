@@ -6,7 +6,6 @@ const port = process.env.PORT;
 const fs = require('fs');
 const db = require('./database');
 app.use(cors());
-
 app.use(express.json());
 
 // get random recipes of the requested count or limit
@@ -30,9 +29,9 @@ app.use(express.json());
 
 // get random recipes of the requested count or limit
 
-app.get('/recipes/:limit', async function (req, res) {
+app.get('/recipes/:limit?', async function (req, res) {
   try {
-    let limit = req.params.limit;
+    let limit = req.params.limit || '20';
     const sql = `SELECT
     r.id,
     r.name,
@@ -116,6 +115,37 @@ app.get('/search/:searchTerm', async function (req, res) {
     console.error('Error searching recipes!', err);
     res.status(500).json({ message: 'Error searching recipes' })
   }
+});
+
+// get recipe by id 
+app.get('/recipe/:id', async function (req, res) {
+   const recipeId = req.params.id;
+   const sql = `SELECT
+    r.id,
+    r.name,
+    r.favorite,
+    r.method,
+    JSON_ARRAYAGG(JSON_OBJECT('id', i.ingredient_id, 'name', i.ingredient_name, 'amount', i.amount, 'unit', i.unit, 'type', i.type, 'category', i.category)) AS ingredients,
+    (SELECT JSON_ARRAYAGG(t.tag_name) FROM (SELECT DISTINCT tag_name FROM tags WHERE recipe_id = r.id AND tag_name IS NOT NULL)t) AS tags
+    FROM recipes r
+    LEFT JOIN ingredients i ON r.id = i.recipe_id
+    LEFT JOIN tags t ON r.id = t.recipe_id
+    WHERE r.id = ?
+    GROUP BY r.id, r.name, r.favorite, r.method
+    ;`;
+
+    db.query(sql, [recipeId], (err, result)=> {
+      if(err){
+        console.error(`Error fetching recipe:`, err.message);
+        res.status(500).json({message: 'Server Error'});
+      } else {
+        if (result.length === 0){
+          res.status(404).json({message: 'Recipe not found'});
+        } else {
+          res.json(result[0]);
+        }
+      }
+    })
 });
 // save a recipe to recipes.json file
 
