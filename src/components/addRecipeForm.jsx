@@ -12,10 +12,10 @@ import { isPlural } from '../utilities/findPlural';
 import { numericQuantity } from 'numeric-quantity';
 import { IoMdClose } from "react-icons/io";
 import { v4 as uuidv4 } from 'uuid';
-import styles from './addRecipe.module.css';
+import styles from './addRecipeForm.module.css';
 import '../App.css';
-
-const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
+import UnitSystemToggle from './toggleSwitch';
+const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => {
     const uuid = uuidv4();
     const [isFavorite, setFavorite] = useState(false);
     const [htmlForAddItem, setHTML] = useState([{ id: uuid }]);
@@ -60,8 +60,6 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
     }
     const handleRemoveFormEl = (id) => {
         // removes a form field for taking user input for adding an ingredient / item to the recipe ingredients.
-        // const htmlList = [...htmlForAddItem];
-        // htmlList.splice(index, 1);
         const htmlList = htmlForAddItem.filter(html => html.id !== id);
         setHTML(htmlList);
     }
@@ -103,6 +101,7 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                         </span>
                         <span className="ms-1"><h3>Create Your Recipe Here</h3></span>
                     </div>
+                    <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={toggleUnitSystem} />
                     <Form onSubmit={(e) => {
                         addRecipe(e, isFavorite, errors);
                         navigate('/');
@@ -191,7 +190,6 @@ const RecipeForm = ({ unitSystem, addRecipe, categories }) => {
                         </Button>
                     </div>
                 </div>
-
             </div>
             </div>
         </React.Fragment>);

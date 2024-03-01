@@ -16,6 +16,14 @@
 .iconsContainer{
    margin-right: 10px;
 }
-.starIcon{
-    margin-right: 15px;
+
+.crossIcon{
+  color: red;
 }
+.crossIcon:hover{
+  color: tomato;
+}
+.starIcon:hover{
+  color: grey;
+}
+

@@ -3,7 +3,6 @@ import SearchComponent from './searchBar';
 import RecipesDropdown from './dropdownForRecipes';
 import styles from './Navbar.module.css';
 import Button from 'react-bootstrap/Button';
-import { FaPlus } from "react-icons/fa";
 import logo from '../assets/recipedia-icon.png';
 
 const Navbar = ({handleSearch, handleSelectMenu}) => {
@@ -22,9 +21,12 @@ const Navbar = ({handleSearch, handleSelectMenu}) => {
                 <div className="col-7 col-sm-7 offset-sm-3 col-md-3 offset-md-2">
                     <div className={"d-flex flex-column align-items-stretch justify-contents-between " + `${styles.btnContainer}`} >
                         <RecipesDropdown handleSelectMenu={handleSelectMenu} />
-                        <Button  variant="danger" onClick={() => {navigate('/add-recipe') }}>
+                        {/* <Button  variant="danger" onClick={() => {navigate('/add-recipe') }}>
                            Add Recipe&nbsp;
                            <FaPlus />
+                        </Button> */}
+                        <Button  variant="danger" onClick={() => {navigate('/my-recipes') }}>
+                           My Recipes
                         </Button>
                     </div>
                 </div>

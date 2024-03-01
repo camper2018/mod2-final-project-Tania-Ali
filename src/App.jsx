@@ -20,7 +20,8 @@ import { v4 as uuidv4 } from 'uuid';
 import RenderRecipes from './components/renderRecipes';
 import Navbar from './components/Navbar';
 import logo from './assets/recipedia-logo.png';
-
+import MyRecipes from './components/renderMyRecipes';
+import EditRecipeForm from './components/editRecipeForm';
 
 const App = () => {
   const data = JSON.parse(localStorage.getItem("data"));
@@ -36,9 +37,9 @@ const App = () => {
 
     }
   }, [unitSystem]);
-  
-   /********* Local Storage functions **********/
-   const addToStorage = (obj) => {
+
+  /********* Local Storage functions **********/
+  const addToStorage = (obj) => {
     // add new item to the local storage data array 
     // if local storage is empty, the data would be undefined
     const dataCopy = data ? data : [];
@@ -59,9 +60,9 @@ const App = () => {
     let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
     setRecipes(filteredRecipes);
   };
- 
+
   // gets the selected savedList from local storage and set categories to that list so that it can be displayed by FinalList component.
-  const handleSavedLists = (list)=> {
+  const handleSavedLists = (list) => {
     setCategories(list);
   }
 
@@ -103,17 +104,17 @@ const App = () => {
     if (eventKey === 'favorites') {
       setSearchedRecipes([...favorites]);
     } else {
-       try {
+      try {
         const response = await fetch(`http://localhost:5000/recipes/${eventKey}`)
-        if (response.ok){
-           const data = await response.json();
-           setSearchedRecipes(data);
+        if (response.ok) {
+          const data = await response.json();
+          setSearchedRecipes(data);
         } else {
-          console.log("Error:" , response.status);
+          console.log("Error:", response.status);
         }
-       } catch(error){
-         console.log("Error: ", error.message)
-       }
+      } catch (error) {
+        console.log("Error: ", error.message)
+      }
     }
   }
   const createIngredientsList = (recipes) => {
@@ -328,21 +329,21 @@ const App = () => {
     }
     // save recipe
     try {
-       const response = await fetch('http://localhost:5000/recipes', {
+      const response = await fetch('http://localhost:5000/recipes', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(recipe)
-       })
-       if (response.ok){
-         const data = await response.json();
-         if (recipe.favorite) {
+      })
+      if (response.ok) {
+        const data = await response.json();
+        if (recipe.favorite) {
           setFavorites([...favorites, recipe]);
-         }
+        }
         setRecipes([...recipes, recipe]);
-       }
-    } catch(error){
+      }
+    } catch (error) {
       console.error(error.message);
     }
   }
@@ -373,15 +374,15 @@ const App = () => {
     e.preventDefault();
     const searchTerm = e.target.elements['search'].value;
     try {
-       const response = await fetch(`http://localhost:5000/search/${searchTerm.trim()}`)
-       if (response.ok){
-         const data = await response.json();
-         e.target.elements['search'].value = "";
-         setSearchedRecipes([...searchedRecipes, ...data]);
-       }
-     } catch(error){
-       console.log("Error: ", error.message)
-     }
+      const response = await fetch(`http://localhost:5000/search/${searchTerm.trim()}`)
+      if (response.ok) {
+        const data = await response.json();
+        e.target.elements['search'].value = "";
+        setSearchedRecipes([...searchedRecipes, ...data]);
+      }
+    } catch (error) {
+      console.log("Error: ", error.message)
+    }
   }
 
   return (
@@ -396,19 +397,20 @@ const App = () => {
                 handleSearch={handleSearch}
                 handleSelectMenu={handleSelectMenu}
                 categories={categories}
-                handleAddToFavorites={handleAddToFavorites} 
+                handleAddToFavorites={handleAddToFavorites}
                 handleRemoveFromFavorites={handleRemoveFromFavorites}
               />
+
               <div className="card background">
                 <img className="home-img m-auto" src={logo}></img>
-            </div>
+              </div>
             </React.Fragment>}>
           </Route>
           <Route
             path="/recipes"
             element={
               (<div className="card background">
-                  <center className={"my-3"}> <h1><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center>
+                <center className={"my-3"}> <h1><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <RenderRecipes
@@ -427,15 +429,15 @@ const App = () => {
             element={
               (<React.Fragment>
                 <div className="background">
-                <center><h1 className="py-4 text-light"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
-                <div className="final-list">
-                  <FinalList
-                    categories={categories}
-                    setCategories={setCategories}
-                    addItem={handleAddItem}
-                    handleSavedLists={handleSavedLists}
-                  />
-                </div>
+                  <center><h1 className="py-4 text-light"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
+                  <div className="final-list">
+                    <FinalList
+                      categories={categories}
+                      setCategories={setCategories}
+                      addItem={handleAddItem}
+                      handleSavedLists={handleSavedLists}
+                    />
+                  </div>
                 </div>
               </React.Fragment>)
             }
@@ -444,7 +446,7 @@ const App = () => {
             path="/search"
             element={
               <div className="card background">
-                  <center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
+                <center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <br />
@@ -460,17 +462,43 @@ const App = () => {
               </div>}
           ></Route>
           <Route path="/add-recipe" element={
-          <div className="d-flex justify-content-center">
-          <RecipeForm
-            unitSystem={unitSystem}
-            categories={categories}
-            addRecipe={handleAddRecipe}
-          />
-          </div>
-          }>
-            
-          </Route>
+            <div>
+             {/* <div className="d-flex justify-content-center"> */}
+              <RecipeForm
+                unitSystem={unitSystem}
+                toggleUnitSystem={handleUnitSystemToggle}
+                categories={categories}
+                addRecipe={handleAddRecipe}
+              />
+            </div>
 
+          }>
+
+          </Route>
+          <Route path="/my-recipes" element={
+            <div className="card background">
+              <center><h1 className="py-4 fw-bold"><span className="heading1">My Recipes</span></h1></center>
+              <div className="page">
+                <MyRecipes
+                  handleAddToFavorites={handleAddToFavorites}
+                  handleRemoveFromFavorites={handleRemoveFromFavorites} />
+              </div>
+            </div>
+          }>
+          </Route>
+          <Route path="/edit-recipe/:id" element={
+            <div>
+              <EditRecipeForm
+                unitSystem={unitSystem}
+                toggleUnitSystem={handleUnitSystemToggle}
+                categories={categories}
+                addRecipe={handleAddRecipe}
+              />
+            </div>
+
+          }>
+
+          </Route>
         </Routes>
       </div>
     </BrowserRouter>
