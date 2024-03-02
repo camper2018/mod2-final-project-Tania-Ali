@@ -8,6 +8,76 @@ const db = require('./database');
 app.use(cors());
 app.use(express.json());
 
+// create database recipedia;
+app.get("/createdb",(req, res) => {
+  let sql = "CREATE DATABASE IF NOT EXISTS recipedia";
+  db.query(sql, (err) => {
+    if (err) {
+      throw err;
+    }
+    res.json("Database created");
+  });
+});
+// Create tables
+app.get("/createTableIngredients", (req, res) => {
+  let sql =
+  `CREATE TABLE IF NOT EXISTS ingredients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id INT,
+    name VARCHAR(255) NOT NULL,
+    amount VARCHAR(50) NOT NULL,
+    unit VARCHAR(50),
+    type VARCHAR(50),
+    category VARCHAR(50),
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+  )`
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      throw err;
+    }
+    res.send("Ingredients table created");
+
+  });
+
+});
+app.get("/createTableTags",(req, res) => {
+  let sql =
+  `CREATE TABLE IF NOT EXISTS tags(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id INT,
+    name VARCHAR(255) NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+  )`
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      throw err;
+    }
+    res.send("Tags table created");
+
+  });
+
+});
+app.get("/createTableRecipes", (req, res) => {
+  let sql =
+  `CREATE TABLE IF NOT EXISTS recipes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    favorite BOOLEAN NOT NULL DEFAULT false,
+    tags JSON,
+    method TEXT
+  )`
+  db.query(sql, (err, results) => {
+    if (err) {
+      throw err;
+    }
+    res.send("Recipes table created");
+
+  });
+
+});
+
 // get random recipes of the requested count or limit
 
 // app.get('/recipes/:limit', async function (req, res) {
@@ -119,8 +189,8 @@ app.get('/search/:searchTerm', async function (req, res) {
 
 // get recipe by id 
 app.get('/recipe/:id', async function (req, res) {
-   const recipeId = req.params.id;
-   const sql = `SELECT
+  const recipeId = req.params.id;
+  const sql = `SELECT
     r.id,
     r.name,
     r.favorite,
@@ -134,18 +204,18 @@ app.get('/recipe/:id', async function (req, res) {
     GROUP BY r.id, r.name, r.favorite, r.method
     ;`;
 
-    db.query(sql, [recipeId], (err, result)=> {
-      if(err){
-        console.error(`Error fetching recipe:`, err.message);
-        res.status(500).json({message: 'Server Error'});
+  db.query(sql, [recipeId], (err, result) => {
+    if (err) {
+      console.error(`Error fetching recipe:`, err.message);
+      res.status(500).json({ message: 'Server Error' });
+    } else {
+      if (result.length === 0) {
+        res.status(404).json({ message: 'Recipe not found' });
       } else {
-        if (result.length === 0){
-          res.status(404).json({message: 'Recipe not found'});
-        } else {
-          res.json(result[0]);
-        }
+        res.json(result[0]);
       }
-    })
+    }
+  })
 });
 // save a recipe to recipes.json file
 
@@ -248,20 +318,65 @@ app.put('/recipes/:id', async (req, res) => {
     }
   });
 });
+// app.put('/recipes/:id', async (req, res) => {
+//   const recipeId = req.params.id;
+//   const { name, favorite, method, ingredients, tags } = req.body;
+//   const updateRecipeQuery = `UPDATE recipes SET name = ?, favorite = ?, method = ? WHERE id = ?`;
+//   db.query(updateRecipeQuery, [name, favorite, method, recipeId], (err, result) => {
+//     if (err) {
+//       console.error('Error updating recipe:', err);
+//       res.status(500).json({ error: 'Internal server error' });
+//     } else {
+//       const updateIngredientsQuery = `
+//       UPDATE ingredients 
+//       SET 
+//         ingredient_name = ?, 
+//         amount = ?,
+//         unit = ?, 
+//         type = ?, 
+//         category = ? 
+//         WHERE recipe_id = ?
+//       `;
+//       ingredients.forEach(ingredient => {
+//         const ingredientValues = [ingredient.name, ingredient.amount, ingredient.unit.split(" ")[0], ingredient.type, ingredient.category, recipeId]
+//         console.log(ingredientValues, "*****************")
+//         db.query(updateIngredientsQuery, ingredientValues, (err) => {
+//           if (err) {
+//             console.error('Error inserting ingredients:', err);
+//             res.status(500).json({ error: 'Internal server error' });
+//           }
+//         })
+//       })
+//       const updateTagsQuery = `UPDATE tags SET tag_name = ? WHERE recipe_id = ?`
+//       tags.forEach(tag => {
+//         const tagValues = [tag, recipeId];
+//         db.query(updateTagsQuery, tagValues, (err) => {
+//           if (err) {
+//             console.error('Error inserting tags:', err);
+//             res.status(500).json({ error: 'Internal server error' });
+//           } else {
+//             res.status(200).json({ message: 'Recipe updated successfully ' + recipeId });
+//           }
+//         })
+
+//       })
+//     }
+//   });
+// });
 
 // Delete a recipe
-app.delete('/recipes/:id', async (req, res)=> {
+app.delete('/recipes/:id', async (req, res) => {
   const recipeId = req.params.id;
   const deleteRecipeQuery = 'DELETE FROM recipes WHERE id = ?';
-  db.query(deleteRecipeQuery, [recipeId], (err, result)=> {
-    if (err){
+  db.query(deleteRecipeQuery, [recipeId], (err, result) => {
+    if (err) {
       console.error('Error deleting recipe:', err);
-      res.status(500).json({error: 'Internal server error'});
+      res.status(500).json({ error: 'Internal server error' });
     } else {
-      if (result.affectedRows === 0){
-        res.status(404).json({error: 'Recipe not found!'});
+      if (result.affectedRows === 0) {
+        res.status(404).json({ error: 'Recipe not found!' });
       } else {
-        res.status(200).json({message: 'Recipe deleted successfully. ', recipeId})
+        res.status(200).json({ message: 'Recipe deleted successfully. ', recipeId })
       }
     }
   })
