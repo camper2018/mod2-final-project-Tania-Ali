@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // create database recipedia;
-app.get("/createdb",(req, res) => {
+app.get("/createdb", (req, res) => {
   let sql = "CREATE DATABASE IF NOT EXISTS recipedia";
   db.query(sql, (err) => {
     if (err) {
@@ -21,7 +21,7 @@ app.get("/createdb",(req, res) => {
 // Create tables
 app.get("/createTableIngredients", (req, res) => {
   let sql =
-  `CREATE TABLE IF NOT EXISTS ingredients (
+    `CREATE TABLE IF NOT EXISTS ingredients (
     id INT AUTO_INCREMENT PRIMARY KEY,
     recipe_id INT,
     name VARCHAR(255) NOT NULL,
@@ -41,9 +41,9 @@ app.get("/createTableIngredients", (req, res) => {
   });
 
 });
-app.get("/createTableTags",(req, res) => {
+app.get("/createTableTags", (req, res) => {
   let sql =
-  `CREATE TABLE IF NOT EXISTS tags(
+    `CREATE TABLE IF NOT EXISTS tags(
     id INT AUTO_INCREMENT PRIMARY KEY,
     recipe_id INT,
     name VARCHAR(255) NOT NULL,
@@ -61,7 +61,7 @@ app.get("/createTableTags",(req, res) => {
 });
 app.get("/createTableRecipes", (req, res) => {
   let sql =
-  `CREATE TABLE IF NOT EXISTS recipes (
+    `CREATE TABLE IF NOT EXISTS recipes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     favorite BOOLEAN NOT NULL DEFAULT false,
@@ -271,6 +271,7 @@ app.post('/recipes', async function (req, res) {
 app.put('/recipes/:id', async (req, res) => {
   const recipeId = req.params.id;
   const { name, favorite, method, ingredients, tags } = req.body;
+  console.log(tags, "tags")
 
   const updateRecipeQuery = `UPDATE recipes SET name = ?, favorite = ?, method = ? WHERE id = ?`;
   db.query(updateRecipeQuery, [name, favorite, method, recipeId], (err, result) => {
@@ -300,15 +301,28 @@ app.put('/recipes/:id', async (req, res) => {
                   res.status(500).json({ error: 'Internal server error' });
                 } else {
                   const insertTagsQuery = `INSERT INTO tags (tag_name, recipe_id) VALUES ?`;
-                  const tagValues = tags.map(tag => [tag, recipeId]);
-                  db.query(insertTagsQuery, [tagValues], (err) => {
-                    if (err) {
-                      console.error('Error inserting tags:', err);
-                      res.status(500).json({ error: 'Internal server error' });
-                    } else {
-                      res.status(200).json({ message: 'Recipe updated successfully ' + recipeId });
-                    }
-                  })
+
+                  const tagValues = tags?.map(tag => [tag, recipeId]);
+                  if (tagValues){
+                    db.query(insertTagsQuery, [tagValues], (err) => {
+                      if (err) {
+                        console.error('Error inserting tags:', err);
+                        res.status(500).json({ error: 'Internal server error' });
+                      } else {
+                        res.status(200).json({ message: 'Recipe updated successfully ' + recipeId });
+                      }
+                    })
+                  } else {
+                    console.log(tagValues, "*******");
+                    db.query(insertTagsQuery, [[]], (err) => {
+                      if (err) {
+                        console.error('Error inserting tags:', err);
+                        res.status(500).json({ error: 'Internal server error' });
+                      } else {
+                        res.status(200).json({ message: 'Recipe updated successfully ' + recipeId });
+                      }
+                    })
+                  }
                 }
               })
             }
