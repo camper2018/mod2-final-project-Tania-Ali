@@ -8,7 +8,7 @@ const db = require('./database');
 app.use(cors());
 app.use(express.json());
 
-// create database recipedia;
+// create database;
 app.get("/createdb", (req, res) => {
   let sql = "CREATE DATABASE IF NOT EXISTS recipedia";
   db.query(sql, (err) => {
@@ -77,27 +77,7 @@ app.get("/createTableRecipes", (req, res) => {
   });
 
 });
-
-// get random recipes of the requested count or limit
-
-// app.get('/recipes/:limit', async function (req, res) {
-//   try {
-//     const recipes = JSON.parse(fs.readFileSync('recipes.json', 'utf-8'));
-//     const limit = parseInt(req.params.limit);
-//     const randomIndices = new Set();
-//     while (randomIndices.size < limit && randomIndices.size < recipes.length) {
-//       let randomIndex = Math.floor(Math.random() * recipes.length);
-//       randomIndices.add(randomIndex);
-//     }
-//     const randomlySelectedRecipes = [...randomIndices].map(index => recipes[index]);
-//     res.status(200).json(randomlySelectedRecipes);
-//   } catch (err) {
-//     console.error('Error fetching recipes!', err);
-//     res.status(500).json({ message: 'Error fetching recipes' })
-//   }
-// });
-
-// get random recipes of the requested count or limit
+// get random recipes of the requested count or limit from database
 
 app.get('/recipes/:limit?', async function (req, res) {
   try {
@@ -131,30 +111,9 @@ app.get('/recipes/:limit?', async function (req, res) {
   }
 });
 
-// get a requested recipe based on search text from json file
+// get a requested recipe based on search text from database
 // the text should either partially match recipe name or any of the recipe tag.
 
-// app.get('/search/:searchTerm', async function (req, res) {
-//   try {
-//     const recipes = JSON.parse(fs.readFileSync('recipes.json', 'utf-8'));
-//     const searchTerm = (req.params.searchTerm).toLowerCase().trim();
-//     const filteredList = recipes.filter(recipe => {
-//       let nameString = '';
-//       nameString += recipe.name.toLowerCase().trim() + ' ';
-//       // Tags are arrays
-//       recipe.tags.forEach(tag => {
-//         nameString += tag.toLowerCase().trim() + ' '
-//       })
-//       return nameString.match(searchTerm);
-//     });
-//     res.status(200).json(filteredList);
-//   } catch (err) {
-//     console.error('Error fetching recipes!', err);
-//     res.status(500).json({ message: 'Error fetching recipes' })
-//   }
-// });
-
-// get a requested recipe based on search text from database
 app.get('/search/:searchTerm', async function (req, res) {
   try {
     const searchTerm = (req.params.searchTerm).toLowerCase().trim();
@@ -187,7 +146,7 @@ app.get('/search/:searchTerm', async function (req, res) {
   }
 });
 
-// get recipe by id 
+// get recipe by id
 app.get('/recipe/:id', async function (req, res) {
   const recipeId = req.params.id;
   const sql = `SELECT
@@ -217,168 +176,78 @@ app.get('/recipe/:id', async function (req, res) {
     }
   })
 });
-// save a recipe to recipes.json file
 
-// app.post('/recipes', async function (req, res) {
-//   // adding a recipe to recipes.json file
-//   try {
-//     const recipes = JSON.parse(fs.readFileSync('recipes.json', 'utf-8'));
-//     const newRecipe = req.body;
-//     recipes.push(newRecipe);
-//     fs.writeFileSync('recipes.json', JSON.stringify(recipes, null, 2))
-//     res.status(201).json({ message: `Recipe with the name ${newRecipe.name} added successfully`, data: null });
-//   } catch (err) {
-//     console.error('Error adding recipe:', err.message);
-//     res.status(500).json({ message: `Error adding recipe with the name ${newRecipe}` })
-//   }
-// });
 // save a recipe to database
-
-// Insert recipe into the recipes table
 app.post('/recipes', async function (req, res) {
   const recipe = req.body;
   const { name, favorite, method, ingredients, tags } = recipe;
-  const sql = "INSERT INTO recipes SET ?";
-  db.query(sql, { name, favorite, method }, (err, result) => {
-    if (err) {
-      throw err;
+  const recipesQuery = "INSERT INTO recipes SET ?";
+  const ingredientsQuery = "INSERT INTO ingredients SET ?";
+  const tagsQuery = "INSERT INTO tags SET ? ";
+  try {
+    db.beginTransaction();
+    try {
+      let recipeId;
+      db.query(recipesQuery, { name, favorite, method }, (err, result) => {
+        if (err) {
+          throw new Error(err);
+        }
+        recipeId = result.insertId;
+        ingredients.forEach(ingredient => {
+          const { name, amount, unit, type, category } = ingredient;
+          db.query(ingredientsQuery, { recipe_id: recipeId, ingredient_name: name, amount: amount, unit: unit, type: type, category: category });
+        });
+        tags.forEach(tag => {
+          db.query(tagsQuery, { recipe_id: recipeId, tag_name: tag.trim() });     
+        });
+      });
+      db.commit();
+      res.status(201).json({ message: "Successfully added recipe with id = " + recipeId });
+    } catch(err){
+      db.rollback();
+      res.status(500).json({ message: "Internal Server! Failed to save recipe with id = " + recipeId });
     }
-    const recipeId = result.insertId;
-    console.log("recipeId:", recipeId)
-    ingredients.forEach(ingredient => {
-      const { name, amount, unit, type, category } = ingredient;
-      db.query("INSERT INTO ingredients SET ?", { recipe_id: recipeId, ingredient_name: name, amount: amount, unit: unit, type: type, category: category }, (err) => {
-        if (err) {
-          throw err;
-        }
-
-      })
-
-    })
-    console.log("Successfully inserted ingredients")
-    tags.forEach(tag => {
-      db.query("INSERT INTO tags SET ? ", { recipe_id: recipeId, tag_name: tag.trim() }, (err) => {
-        if (err) {
-          throw err;
-        }
-      })
-    })
-    res.status(201).json({ message: "Successfully added recipe with id = " + recipeId });
-  })
-
+  }catch(err){
+    res.status(500).json({ error: 'Database connection error'});
+  }
 });
 // Edit a recipe
+
 app.put('/recipes/:id', async (req, res) => {
   const recipeId = req.params.id;
   const { name, favorite, method, ingredients, tags } = req.body;
-  console.log(tags, "tags")
-
   const updateRecipeQuery = `UPDATE recipes SET name = ?, favorite = ?, method = ? WHERE id = ?`;
-  db.query(updateRecipeQuery, [name, favorite, method, recipeId], (err, result) => {
-    if (err) {
-      console.error('Error updating recipe:', err);
-      res.status(500).json({ error: 'Internal server error' });
-    } else {
-      // update ingredients
-      const deleteIngredientsQuery = `DELETE FROM ingredients WHERE recipe_id = ?`;
-      db.query(deleteIngredientsQuery, [recipeId], (err) => {
-        if (err) {
-          console.error('Error deleting ingredients:', err);
-          res.status(500).json({ error: 'Internal server error' });
-        } else {
-          const insertIngredientsQuery = `INSERT INTO ingredients (ingredient_name, amount, unit, type, category, recipe_id) VALUES ?`;
-          const ingredientValues = ingredients.map(ingredient => [ingredient.name, ingredient.amount, ingredient.unit, ingredient.type, ingredient.category, recipeId]);
-          db.query(insertIngredientsQuery, [ingredientValues], (err) => {
-            if (err) {
-              console.error('Error inserting ingredients:', err);
-              res.status(500).json({ error: 'Internal server error' });
-            } else {
-              // update tags
-              const deleteTagsQuery = `DELETE FROM tags WHERE recipe_id=?`;
-              db.query(deleteTagsQuery, [recipeId], (err) => {
-                if (err) {
-                  console.error('Error deleting tags:', err);
-                  res.status(500).json({ error: 'Internal server error' });
-                } else {
-                  const insertTagsQuery = `INSERT INTO tags (tag_name, recipe_id) VALUES ?`;
-
-                  const tagValues = tags?.map(tag => [tag, recipeId]);
-                  if (tagValues){
-                    db.query(insertTagsQuery, [tagValues], (err) => {
-                      if (err) {
-                        console.error('Error inserting tags:', err);
-                        res.status(500).json({ error: 'Internal server error' });
-                      } else {
-                        res.status(200).json({ message: 'Recipe updated successfully ' + recipeId });
-                      }
-                    })
-                  } else {
-                    console.log(tagValues, "*******");
-                    db.query(insertTagsQuery, [[]], (err) => {
-                      if (err) {
-                        console.error('Error inserting tags:', err);
-                        res.status(500).json({ error: 'Internal server error' });
-                      } else {
-                        res.status(200).json({ message: 'Recipe updated successfully ' + recipeId });
-                      }
-                    })
-                  }
-                }
-              })
-            }
-          })
-        }
-      })
+  const deleteIngredientsQuery = `DELETE FROM ingredients WHERE recipe_id = ?`;
+  const insertIngredientsQuery = `INSERT INTO ingredients (ingredient_name, amount, unit, type, category, recipe_id) VALUES ?`;
+  const deleteTagsQuery = `DELETE FROM tags WHERE recipe_id=?`;
+  const insertTagsQuery = `INSERT INTO tags (tag_name, recipe_id) VALUES ?`;
+  try {
+    db.beginTransaction();
+    try { 
+      db.query(updateRecipeQuery, [name, favorite, method, recipeId]);
+      db.query(deleteIngredientsQuery, [recipeId]);
+      const ingredientValues = ingredients.map(ingredient => [ingredient.name, ingredient.amount, ingredient.unit, ingredient.type, ingredient.category, recipeId]);
+      db.query(insertIngredientsQuery, [ingredientValues]);
+      db.query(deleteTagsQuery, [recipeId]);
+      const tagValues = tags.map(tag => [tag , recipeId]);
+      db.query(insertTagsQuery, [tagValues]);
+      db.commit();
+      res.status(200).json({ message: 'Update successful' });
+    } catch(err){
+        // Rollback transaction if any update fails
+        db.rollback();
+        // Send error response
+        console.error(err);
+        res.status(500).json({ error: 'Error updating recipe: '+ err });
     }
-  });
+  } catch(err){
+    // Send error response if unable to start transaction or get connection
+    res.status(500).json({ error: 'Database connection error' });
+  }
 });
-// app.put('/recipes/:id', async (req, res) => {
-//   const recipeId = req.params.id;
-//   const { name, favorite, method, ingredients, tags } = req.body;
-//   const updateRecipeQuery = `UPDATE recipes SET name = ?, favorite = ?, method = ? WHERE id = ?`;
-//   db.query(updateRecipeQuery, [name, favorite, method, recipeId], (err, result) => {
-//     if (err) {
-//       console.error('Error updating recipe:', err);
-//       res.status(500).json({ error: 'Internal server error' });
-//     } else {
-//       const updateIngredientsQuery = `
-//       UPDATE ingredients 
-//       SET 
-//         ingredient_name = ?, 
-//         amount = ?,
-//         unit = ?, 
-//         type = ?, 
-//         category = ? 
-//         WHERE recipe_id = ?
-//       `;
-//       ingredients.forEach(ingredient => {
-//         const ingredientValues = [ingredient.name, ingredient.amount, ingredient.unit.split(" ")[0], ingredient.type, ingredient.category, recipeId]
-//         console.log(ingredientValues, "*****************")
-//         db.query(updateIngredientsQuery, ingredientValues, (err) => {
-//           if (err) {
-//             console.error('Error inserting ingredients:', err);
-//             res.status(500).json({ error: 'Internal server error' });
-//           }
-//         })
-//       })
-//       const updateTagsQuery = `UPDATE tags SET tag_name = ? WHERE recipe_id = ?`
-//       tags.forEach(tag => {
-//         const tagValues = [tag, recipeId];
-//         db.query(updateTagsQuery, tagValues, (err) => {
-//           if (err) {
-//             console.error('Error inserting tags:', err);
-//             res.status(500).json({ error: 'Internal server error' });
-//           } else {
-//             res.status(200).json({ message: 'Recipe updated successfully ' + recipeId });
-//           }
-//         })
-
-//       })
-//     }
-//   });
-// });
 
 // Delete a recipe
+
 app.delete('/recipes/:id', async (req, res) => {
   const recipeId = req.params.id;
   const deleteRecipeQuery = 'DELETE FROM recipes WHERE id = ?';
@@ -399,4 +268,3 @@ app.delete('/recipes/:id', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
