@@ -63,7 +63,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     return (
         <div className="h-100 pt-5 overflow-scroll">
             <div className="d-flex justify-content-between">
-                <Button variant="success" onClick={()=> {Navigate(-1); location.reload();}}>
+                <Button variant="success" onClick={()=> { Navigate('/'); location.reload();}}>
                     <IoIosArrowBack/>
                 </Button>
                 <Button variant="success" onClick={() => { Navigate('/add-recipe') }}>
