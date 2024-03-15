@@ -203,7 +203,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                                     placeholder="vegan, gluten-free, dairy-free, seafood,egg-free"
                                     name="tags"
                                     value={currentRecipe.tags}
-                                    onChange={(e) => setCurrentRecipe({ ...currentRecipe, tags: e.target.value })}
+                                    onChange={(e) => setCurrentRecipe({ ...currentRecipe, tags: [e.target.value] })}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="recipeForm.ControlInput3">
