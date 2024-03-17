@@ -23,8 +23,10 @@
 }
 .card {
   display: flex;
+  border-radius: 0;
   align-items: center;
-  min-height: 100vh;
+  min-height: 80vh;
+  border: 1px solid black;
 }
 
 .page {

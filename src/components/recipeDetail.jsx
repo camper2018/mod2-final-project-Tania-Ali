@@ -5,14 +5,12 @@ import { FaBookOpen } from "react-icons/fa";
 import styles from './recipeDetail.module.css';
 const RecipeDetail = ({recipe})=>  {
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
   return (
     <>
       <FaBookOpen  size={30} onClick={handleShow} className={styles.bookIcon}/>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title className={styles.title}>{recipe.name}</Modal.Title>
         </Modal.Header>
@@ -23,17 +21,14 @@ const RecipeDetail = ({recipe})=>  {
                     <li key={i}>
                         <div className={styles.list}>
                         <span>{item.name}</span>
-                        <span>{item.amount}&nbsp;&nbsp;&nbsp; {item.unit === 'none'? item.name: item.unit}</span>
+                        <span>{item.amount }&nbsp;&nbsp;&nbsp; {item.unit === 'none'? item.name: item.unit}</span>
                         </div>
                     </li>
                 ))
                 }
             </ol>
             <h6 className={styles.subTitle}>Method</h6>
-            {recipe.method?.split("\n").map((sentence, i) => 
-               <p key={i}>{sentence}</p>
-            )}
-           
+            {recipe.method?.split('\n').map((sentence, i) => (<p key={i}>{sentence}</p>))}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

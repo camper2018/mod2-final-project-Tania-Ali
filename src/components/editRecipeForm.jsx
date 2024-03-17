@@ -26,8 +26,9 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
             try {
                 const response = await fetch(`http://localhost:5000/recipe/${id}`);
                 if (response.ok) {
-                    const data = await response.json();
-                    setCurrentRecipe(data);
+                    const data = await response.json();  
+                    const updatedData  = {...data, tags: data.tags|| []};
+                    setCurrentRecipe(updatedData);
                     setFavorite(data.favorite ? true : false);
 
                 } else {

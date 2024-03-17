@@ -1,9 +1,6 @@
-
-// uncomment the line below temporarily to populate local storage with data from data.js
-// import data from './data';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { numericQuantity } from 'numeric-quantity';
 import { getUnitSystemForWet } from './utilities/addWetIngredients';
@@ -24,40 +21,39 @@ import MyRecipes from './components/renderMyRecipes';
 import EditRecipeForm from './components/editRecipeForm';
 
 const App = () => {
-  const data = JSON.parse(localStorage.getItem("data"));
-  const [recipes, setRecipes] = useState(data ? data : []);
+  const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [unitSystem, setUnitSystem] = useState('customary');
   const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
   const [searchedRecipes, setSearchedRecipes] = useState([]);
   useEffect(() => {
-    if (data) {
-      convertUnitSystemOfRecipes(unitSystem, data);
-      setFavorites(data.filter(item => item.favorite));
-
+    if (recipes.length) {
+      convertUnitSystemOfRecipes(unitSystem, recipes);
     }
+    const myFavorites = getFavoritesFromStore();
+    setFavorites(myFavorites);
   }, [unitSystem]);
-
+  
   /********* Local Storage functions **********/
-  const addToStorage = (obj) => {
-    // add new item to the local storage data array 
-    // if local storage is empty, the data would be undefined
-    const dataCopy = data ? data : [];
-    dataCopy.push(obj);
-    localStorage.setItem("data", JSON.stringify(dataCopy));
+  const getFavoritesFromStore = () => {
+    const myFavorites = localStorage.getItem("favorites")? JSON.parse(localStorage.getItem("favorites")) :[];
+    return myFavorites;
   }
-  const updateLocalStorage = (obj) => {
-    const dataCopy = data ? data : [];
-    const updatedData = dataCopy.filter(item => item.id !== obj.id);
-    updatedData.push(obj);
-    localStorage.setItem("data", JSON.stringify(updatedData));
+  const addFavoritesToStore = (recipe)=> {
+    const myFavorites  = getFavoritesFromStore();
+    myFavorites.push(recipe);
+    localStorage.setItem("favorites", JSON.stringify(myFavorites));
   }
+  const checkFavoritesStore = (id) => {
+    const myFavorites  = getFavoritesFromStore();
+    const isFavorite = myFavorites.some(recipe => recipe.id === id);
+    return isFavorite;
+  }
+  
   /************ Event handlers ***********/
 
   const handleDeleteRecipes = (id) => {
-    let filteredSearchedRecipes = searchedRecipes.filter(recipe => recipe.id !== id);
-    setSearchedRecipes(filteredSearchedRecipes);
-    let filteredRecipes = recipes.filter(recipe => recipe.id !== id);
+    const filteredRecipes = recipes.filter(recipe => recipe.id !== id);
     setRecipes(filteredRecipes);
   };
 
@@ -68,47 +64,42 @@ const App = () => {
 
   const convertUnitSystemOfRecipes = (selectedSystem, dataArray) => {
     setUnitSystem(selectedSystem);
-    let convertUnitSystem = selectedSystem === 'customary' ? convertMetricToCustomary : convertCustomaryToMetric;
-    let dataInOneUnitSystem = dataArray.map(data => {
-      if (findUnitSystem(data) !== selectedSystem) {
-        data.ingredients = convertUnitSystem(data.ingredients);
-      }
-      return data;
-    })
-    setRecipes(dataInOneUnitSystem);
+    if (dataArray.length){
+      let convertUnitSystem = selectedSystem === 'customary' ? convertMetricToCustomary : convertCustomaryToMetric;
+      let dataInOneUnitSystem = dataArray.map(data => {
+        if (findUnitSystem(data) !== selectedSystem) {
+          data.ingredients = convertUnitSystem(data.ingredients);
+        }
+        return data;
+      })
+      setRecipes(dataInOneUnitSystem);
+    }
   };
 
   const handleAddToFavorites = (recipe) => {
-    recipe.favorite = true;
     setFavorites([...favorites, recipe]);
-    // update local storage
-    updateLocalStorage(recipe);
-
+    addFavoritesToStore(recipe);
   };
   const handleRemoveFromFavorites = (recipe) => {
-    recipe.favorite = false;
     let updatedFavorites = favorites.filter(item => item.id !== recipe.id)
     setFavorites(updatedFavorites);
-    updateLocalStorage(recipe);
+    localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
   };
 
   const handleUnitSystemToggle = (e) => {
     let selectedSystem = e.target.checked ? 'metric' : 'customary';
-    if (searchedRecipes.length !== 0) {
-      convertUnitSystemOfRecipes(selectedSystem, searchedRecipes);
-    } else {
-      convertUnitSystemOfRecipes(selectedSystem, recipes);
-    }
+    convertUnitSystemOfRecipes(selectedSystem, recipes);
+   
   }
   const handleSelectMenu = async (eventKey) => {
     if (eventKey === 'favorites') {
-      setSearchedRecipes([...favorites]);
+      setRecipes([...favorites]);
     } else {
       try {
         const response = await fetch(`http://localhost:5000/recipes/${eventKey}`)
         if (response.ok) {
           const data = await response.json();
-          setSearchedRecipes(data);
+          setRecipes(data);
         } else {
           console.log("Error:", response.status);
         }
@@ -287,46 +278,11 @@ const App = () => {
 
   };
 
-  const handleAddRecipe = async (e, isFavorite, errors) => {
-    e.preventDefault();
-    if (errors.name || errors.itemName || errors.ItemAmount) {
-      alert("Error Saving Recipe!")
-      return;
-    }
-    let form = e.target;
+  const handleAddRecipe = async (recipe) => {
     const recipeId = uuidv4();
-    let ingredients;
-    if (form.ingredientName[0] === undefined) {
-      ingredients = [
-        {
-          name: ((form.ingredientName.value).trim()).toLowerCase(),
-          unit: (form.ingredientUnit.value).split(" ")[0].trim(),
-          amount: (form.ingredientAmount.value) ? form.ingredientAmount.value.trim() : '0',
-          type: (form.ingredientUnit.value).split(" ")[1].trim(),
-          category: form.ingredientCategory.value
-        }
-      ]
+    recipe.favorite = false;
+    recipe.id = recipeId;
 
-    } else {
-      ingredients = [...form.ingredientName].map((item, i) => (
-        {
-          name: ((item.value).trim()).toLowerCase(),
-          unit: ([...form.ingredientUnit][i].value.split(" ")[0]).trim(),
-          amount: ([...form.ingredientAmount][i].value) ? [...form.ingredientAmount][i].value.trim() : '0',
-          type: ([...form.ingredientUnit][i].value.split(" ")[1]).trim(),
-          category: [...form.ingredientCategory][i].value
-
-        }
-      ));
-    }
-    const recipe = {
-      id: recipeId,
-      name: (form.name.value).trim(),
-      method: (form.method.value).trim(),
-      tags: (form.tags.value).split(","),
-      ingredients: ingredients,
-      favorite: isFavorite
-    }
     // save recipe
     try {
       const response = await fetch('http://localhost:5000/recipes', {
@@ -338,10 +294,7 @@ const App = () => {
       })
       if (response.ok) {
         const data = await response.json();
-        if (recipe.favorite) {
-          setFavorites([...favorites, recipe]);
-        }
-        setRecipes([...recipes, recipe]);
+        setRecipes(prevRecipes => [...prevRecipes, recipe]);
       }
     } catch (error) {
       console.error(error.message);
@@ -379,6 +332,7 @@ const App = () => {
         const data = await response.json();
         e.target.elements['search'].value = "";
         setSearchedRecipes([...searchedRecipes, ...data]);
+        setRecipes([...recipes, ...data]);
       }
     } catch (error) {
       console.log("Error: ", error.message)
@@ -410,16 +364,17 @@ const App = () => {
             path="/recipes"
             element={
               (<div className="card background">
-                <center className={"my-3"}> <h1><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center>
+                <Link to=".."><center className={"my-3"}> <h1><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center></Link>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <RenderRecipes
-                    recipes={searchedRecipes}
+                    recipes={recipes}
                     createIngredientsList={createIngredientsList}
                     handleDeleteRecipes={handleDeleteRecipes}
                     handleAddToFavorites={handleAddToFavorites}
                     handleRemoveFromFavorites={handleRemoveFromFavorites}
                     handleSavedLists={handleSavedLists}
+                    isFavorite={checkFavoritesStore}
                   />
                 </div>
               </div>)}
@@ -446,24 +401,24 @@ const App = () => {
             path="/search"
             element={
               <div className="card background">
-                <center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center>
+                <Link to='..'><center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center></Link>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <br />
                   <RenderRecipes
-                    recipes={searchedRecipes}
+                    recipes={recipes}
                     createIngredientsList={createIngredientsList}
                     handleDeleteRecipes={handleDeleteRecipes}
                     handleAddToFavorites={handleAddToFavorites}
                     handleRemoveFromFavorites={handleRemoveFromFavorites}
                     handleSavedLists={handleSavedLists}
+                    isFavorite={checkFavoritesStore}
                   />
                 </div>
               </div>}
           ></Route>
           <Route path="/add-recipe" element={
             <div>
-             {/* <div className="d-flex justify-content-center"> */}
               <RecipeForm
                 unitSystem={unitSystem}
                 toggleUnitSystem={handleUnitSystemToggle}
@@ -477,11 +432,9 @@ const App = () => {
           </Route>
           <Route path="/my-recipes" element={
             <div className="card background">
-              <center><h1 className="py-4 fw-bold"><span className="heading1">My Recipes</span></h1></center>
+              <Link to=".."><center><h1 className="py-4 fw-bold"><span className="heading1">My Recipes</span></h1></center></Link>
               <div className="page">
-                <MyRecipes
-                  handleAddToFavorites={handleAddToFavorites}
-                  handleRemoveFromFavorites={handleRemoveFromFavorites} />
+                <MyRecipes/>
               </div>
             </div>
           }>
@@ -492,12 +445,9 @@ const App = () => {
                 unitSystem={unitSystem}
                 toggleUnitSystem={handleUnitSystemToggle}
                 categories={categories}
-                addRecipe={handleAddRecipe}
               />
             </div>
-
           }>
-
           </Route>
         </Routes>
       </div>

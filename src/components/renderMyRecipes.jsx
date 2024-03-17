@@ -15,7 +15,6 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
             if (response.ok) {
                 const data = await response.json();
                 setRecipes(data);
-                console.log("my recipes:", data)
             }
         } catch (err) {
             console.error("Error retrieving recipes:", err);
@@ -52,7 +51,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
         Navigate(`/edit-recipe/${id}`);
     }
     useEffect(() => {
-        // fetch recipes created by user (i.e recipes with user_id)
+        // fetch recipes created by user in alphabetical order(i.e recipes with user_id)
         // http://localhost:5000/myrecipes'
         fetchRecipes();
     }, []);
@@ -72,9 +71,8 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
                 </Button>
             </div>
             {recipes.map((recipe, i) => (
-                <RenderListItem key={i} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDelete} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} handleEdit={() => handleEdit(recipe.id)} />
+                <RenderListItem key={i} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDelete} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} handleEdit={() => handleEdit(recipe.id)}/>
             )
-
             )}
         </div>)
 

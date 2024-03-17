@@ -19,7 +19,6 @@ const SearchComponent = ({handleSearch}) => {
             />
             <Button variant="success" type="submit" >
                 <MdFormatListBulletedAdd size={30}/>
-
             </Button>
     </Form>
   )
