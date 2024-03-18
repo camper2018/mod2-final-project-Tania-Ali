@@ -1,26 +1,62 @@
 const express = require('express');
+const mysql = require('mysql2/promise');
 const cors = require('cors');
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT;
-const fs = require('fs');
-const db = require('./database');
-app.use(cors());
-app.use(express.json());
+const corsOptions = {
+  origin: '*', 
+  credentials: true,  
+  'access-control-allow-credentials': true,
+  optionSuccessStatus: 200,
+}
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+});
+app.use(cors(corsOptions));
+// to connect to mysql first type in the terminal
+// brew services start mysql
+// following code will start a db connection and attach it to the request object
+app.use(async (req, res, next) => {
+  try {
+    // Connecting to our SQL db. req gets modified and is available down the line in other middleware and endpoint functions
+    req.db = await pool.getConnection();
+    // req.db.connection.config.namedPlaceholders = true;
+    // Traditional mode ensures not null is respected for un supplied fields, ensures valid JavaScript dates, etc.
+    await req.db.query('SET SESSION sql_mode = "TRADITIONAL"');
+    await req.db.query(`SET time_zone = '-8:00'`);
 
+    // Moves the request on down the line to the next middleware functions and/or the endpoint it's headed for
+    await next();
+    // After the endpoint has been reached and resolved, disconnects from the database
+    req.db.release();
+  } catch (err) {
+    // If anything downstream throw an error, we must release the connection allocated for the request
+    console.log(err)
+    // If an error occurs, disconnects from the database
+    if (req.db) req.db.release();
+    throw err;
+  }
+});
+app.use(express.json());
 // create database;
-app.get("/createdb", (req, res) => {
-  let sql = "CREATE DATABASE IF NOT EXISTS recipedia";
-  db.query(sql, (err) => {
-    if (err) {
-      throw err;
-    }
+app.get("/createdb",async (req, res) => {
+  const sql = "CREATE DATABASE IF NOT EXISTS recipedia";
+  try {
+    await req.db.query(sql);
     res.json("Database created");
-  });
+  } catch(err){
+    console.error(err);
+    res.status(500).json({ message: 'Error creating database'})
+  }
 });
 // Create tables
-app.get("/createTableIngredients", (req, res) => {
-  let sql =
+app.get("/createTableIngredients",async (req, res) => {
+  const sql =
     `CREATE TABLE IF NOT EXISTS ingredients (
     id INT AUTO_INCREMENT PRIMARY KEY,
     recipe_id INT,
@@ -31,36 +67,34 @@ app.get("/createTableIngredients", (req, res) => {
     category VARCHAR(50),
     FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
   )`
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      throw err;
-    }
+  try {
+    await req.db.query(sql);
     res.send("Ingredients table created");
-
-  });
+  } catch (err){
+    console.error(err);
+    res.status(500).json({ message: 'Error creating table "ingredients"'})
+  }
 
 });
-app.get("/createTableTags", (req, res) => {
-  let sql =
+app.get("/createTableTags", async (req, res) => {
+  const sql =
     `CREATE TABLE IF NOT EXISTS tags(
     id INT AUTO_INCREMENT PRIMARY KEY,
     recipe_id INT,
     name VARCHAR(255) NOT NULL,
     FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
   )`
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      throw err;
-    }
+  try {
+    await req.db.query(sql);
     res.send("Tags table created");
-
-  });
+  } catch (err){
+    console.error(err);
+    res.status(500).json({ message: 'Error creating table "tags"'})
+  }
 
 });
-app.get("/createTableRecipes", (req, res) => {
-  let sql =
+app.get("/createTableRecipes", async (req, res) => {
+  const sql =
     `CREATE TABLE IF NOT EXISTS recipes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -68,14 +102,13 @@ app.get("/createTableRecipes", (req, res) => {
     tags JSON,
     method TEXT
   )`
-  db.query(sql, (err, results) => {
-    if (err) {
-      throw err;
-    }
+  try {
+    await req.db.query(sql);
     res.send("Recipes table created");
-
-  });
-
+  } catch (err){
+    console.error(err);
+    res.status(500).json({ message: 'Error creating table "recipes"'})
+  }
 });
 // get random recipes of the requested count or limit from database
 
@@ -99,12 +132,9 @@ app.get('/recipes/:limit?', async function (req, res) {
     ORDER BY RAND()
     LIMIT ${limit};
     `
-    db.query(sql, (err, result) => {
-      if (err) {
-        throw err;
-      }
-      res.status(200).json(result);
-    })
+    const [result] = await req.db.query(sql);
+    res.status(200).json(result);
+    
   } catch (err) {
     console.error('Error fetching recipes!', err);
     res.status(500).json({ message: 'Error fetching recipes' })
@@ -133,13 +163,8 @@ app.get('/search/:searchTerm', async function (req, res) {
     `
     const searchText = `%${searchTerm}%`;
 
-    db.query(sql, [searchText, searchTerm], (err, result) => {
-      if (err) {
-        throw err;
-      }
-      res.status(200).json(result);
-    })
-
+    const [result] = await req.db.query(sql, [searchText, searchTerm]);
+    res.status(200).json(result);
   } catch (err) {
     console.error('Error searching recipes!', err);
     res.status(500).json({ message: 'Error searching recipes' })
@@ -163,18 +188,12 @@ app.get('/recipe/:id', async function (req, res) {
     GROUP BY r.id, r.name, r.favorite, r.method
     ;`;
 
-  db.query(sql, [recipeId], (err, result) => {
-    if (err) {
-      console.error(`Error fetching recipe:`, err.message);
-      res.status(500).json({ message: 'Server Error' });
-    } else {
-      if (result.length === 0) {
+    const [result] = await req.db.query(sql, [recipeId]);
+    if (result.length === 0) {
         res.status(404).json({ message: 'Recipe not found' });
-      } else {
-        res.json(result[0]);
-      }
+    } else {
+      res.json(result[0]);
     }
-  })
 });
 
 // save a recipe to database
@@ -184,33 +203,32 @@ app.post('/recipes', async function (req, res) {
   const recipesQuery = "INSERT INTO recipes SET ?";
   const ingredientsQuery = "INSERT INTO ingredients SET ?";
   const tagsQuery = "INSERT INTO tags SET ? ";
+  let recipeId;
   try {
-    db.beginTransaction();
+    await req.db.beginTransaction();
     try {
-      let recipeId;
-      db.query(recipesQuery, { name, favorite, method }, (err, result) => {
-        if (err) {
-          throw new Error(err);
-        }
-        recipeId = result.insertId;
-        ingredients.forEach(ingredient => {
-          const { name, amount, unit, type, category } = ingredient;
-          db.query(ingredientsQuery, { recipe_id: recipeId, ingredient_name: name, amount: amount, unit: unit, type: type, category: category });
-        });
-        tags.forEach(tag => {
-          db.query(tagsQuery, { recipe_id: recipeId, tag_name: tag.trim() });     
-        });
-      });
-      db.commit();
+      const [result] = await req.db.query(recipesQuery, { name, favorite, method });
+      recipeId = result.insertId;
+      console.log("recipeId:", recipeId);
+      await Promise.all(ingredients.map(async (ingredient) => {
+        const { name, amount, unit, type, category } = ingredient;
+        await req.db.query(ingredientsQuery, { recipe_id: recipeId, ingredient_name: name, amount: amount, unit: unit, type: type, category: category });
+      }))
+      await Promise.all(tags.map(async (tag)=> {
+        await req.db.query(tagsQuery, { recipe_id: recipeId, tag_name: tag?.trim() });
+      }));
+      await req.db.commit();
       res.status(201).json({ message: "Successfully added recipe with id = " + recipeId });
     } catch(err){
-      db.rollback();
+      await req.db.rollback();
       res.status(500).json({ message: "Internal Server! Failed to save recipe with id = " + recipeId });
     }
-  }catch(err){
-    res.status(500).json({ error: 'Database connection error'});
+  } catch(err){
+    console.log(recipeId);
+    res.status(500).json({ error: 'Database connection error' + err});
   }
 });
+
 // Edit a recipe
 
 app.put('/recipes/:id', async (req, res) => {
@@ -222,20 +240,20 @@ app.put('/recipes/:id', async (req, res) => {
   const deleteTagsQuery = `DELETE FROM tags WHERE recipe_id=?`;
   const insertTagsQuery = `INSERT INTO tags (tag_name, recipe_id) VALUES ?`;
   try {
-    db.beginTransaction();
+    await req.db.beginTransaction();
     try { 
-      db.query(updateRecipeQuery, [name, favorite, method, recipeId]);
-      db.query(deleteIngredientsQuery, [recipeId]);
+      await req.db.query(updateRecipeQuery, [name, favorite, method, recipeId]);
+      await req.db.query(deleteIngredientsQuery, [recipeId]);
       const ingredientValues = ingredients.map(ingredient => [ingredient.name, ingredient.amount, ingredient.unit, ingredient.type, ingredient.category, recipeId]);
-      db.query(insertIngredientsQuery, [ingredientValues]);
-      db.query(deleteTagsQuery, [recipeId]);
+      await req.db.query(insertIngredientsQuery, [ingredientValues]);
+      await req.db.query(deleteTagsQuery, [recipeId]);
       const tagValues = tags.map(tag => [tag , recipeId]);
-      db.query(insertTagsQuery, [tagValues]);
-      db.commit();
+      await req.db.query(insertTagsQuery, [tagValues]);
+      await req.db.commit();
       res.status(200).json({ message: 'Update successful' });
     } catch(err){
         // Rollback transaction if any update fails
-        db.rollback();
+        await req.db.rollback();
         // Send error response
         console.error(err);
         res.status(500).json({ error: 'Error updating recipe: '+ err });
@@ -251,18 +269,17 @@ app.put('/recipes/:id', async (req, res) => {
 app.delete('/recipes/:id', async (req, res) => {
   const recipeId = req.params.id;
   const deleteRecipeQuery = 'DELETE FROM recipes WHERE id = ?';
-  db.query(deleteRecipeQuery, [recipeId], (err, result) => {
-    if (err) {
-      console.error('Error deleting recipe:', err);
-      res.status(500).json({ error: 'Internal server error' });
+  try{
+    const [result] = await req.db.query(deleteRecipeQuery, [recipeId]);
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Recipe not found!' });
     } else {
-      if (result.affectedRows === 0) {
-        res.status(404).json({ error: 'Recipe not found!' });
-      } else {
-        res.status(200).json({ message: 'Recipe deleted successfully. ', recipeId })
-      }
+      res.status(200).json({ message: 'Recipe deleted successfully. ', recipeId })
     }
-  })
+  } catch(err){
+    console.error('Error deleting recipe:', error);
+    res.status(500).json({error:'Internal Server Error'})
+  }
 });
 // Start the server
 app.listen(port, () => {
