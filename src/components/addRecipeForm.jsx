@@ -23,7 +23,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
     const [recipeName, setRecipeName] = useState('');
     const [method, setMethod] = useState('');
     const [tags, setTags] = useState('');
-    const [ingredients, setIngredients] = useState([{ id: uuid, ingredientName: '', ingredientAmount: '', ingredientUnit: '', ingredientCategory: '' }]);
+    const [ingredients, setIngredients] = useState([{ id: uuid, ingredientName: '', ingredientAmount: '', ingredientUnit: 'none', ingredientCategory: '', ingredientType: 'dry' }]);
     const navigate = useNavigate();
     const createOptionHTMLForUnits = (unitSystem) => {
         const html = [];
@@ -52,7 +52,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
     const optionsHTMLForCategory = createOptionHTMLForCategory();
     const handleAddFormEl = () => {
         const id = uuidv4();
-        setIngredients([...ingredients, { id: id, ingredientName: '', ingredientAmount: '', ingredientUnit: '', ingredientCategory: '' }]);
+        setIngredients([...ingredients, { id: id, ingredientName: '', ingredientAmount: '', ingredientUnit: 'none', ingredientCategory: '', ingredientType:'dry' }]);
       }
     
       const handleRemoveFormEl = (id) => {
@@ -112,7 +112,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
             const formData = {
                 name: recipeName,
                 method: method,
-                tags: tags? tags.split(",") : [],
+                tags: tags? tags.split(",") : [''],
                 ingredients: ingredients.map(({ id, ingredientName, ingredientAmount, ingredientUnit, ingredientCategory, ingredientType }) => ({
                     name: ingredientName,
                     amount: ingredientAmount,

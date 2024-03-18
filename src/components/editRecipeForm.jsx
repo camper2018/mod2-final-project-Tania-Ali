@@ -27,7 +27,8 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                 const response = await fetch(`http://localhost:5000/recipe/${id}`);
                 if (response.ok) {
                     const data = await response.json();  
-                    const updatedData  = {...data, tags: data.tags|| []};
+                    const updatedData  = {...data, tags: data.tags|| ['']};
+                    console.log("fetched data:", updatedData);
                     setCurrentRecipe(updatedData);
                     setFavorite(data.favorite ? true : false);
 
@@ -77,7 +78,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
         // adds a form field for adding an ingredient to the recipe.
         setCurrentRecipe(prevRecipe => {
             const updatedIngredients = [...prevRecipe.ingredients]
-            const newIngredient = { id: uuidv4(), name: '', amount: '0', unit: 'none', category: 'Fresh Produce', type: 'dry' };
+            const newIngredient = { id: uuidv4(), name: '', amount: '0', unit: 'none', category: '', type: 'dry' };
             return { ...prevRecipe, ingredients: [...updatedIngredients,newIngredient ] };
         }) 
         
@@ -89,47 +90,57 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
             return { ...prevRecipe, ingredients: updatedIngredients };
         })
     }
-    // form validation handlers
-    const handleItemName = (e) => {
-        let name = e.target.value;
-        if (isPlural(name)) {
-            setErrors({ ...errors, itemName: 'Please enter ingredient name in singular form!' });
-        } else if (name === '') {
-            setErrors({ ...errors, itemName: 'Please enter ingredient name!' });
-        } else {
-            setErrors({ ...errors, itemName: null })
-        }
-    }
-    const handleItemAmount = (e) => {
-        if (isNaN(numericQuantity(e.target.value))) {
-            setErrors({ ...errors, itemAmount: 'Please enter a valid numeric amount!' });
-        } else {
-            setErrors({ ...errors, itemAmount: null });
-        }
-    }
-    const handleName = (e) => {
-        if (!e.target.value) {
-            setErrors({ ...errors, name: 'Recipe name is required!' });
-        } else {
-            setErrors({ ...errors, name: null });
-        }
-    }
-
+    
     const handleChangeIngredient = (e, type, ingredient, index) => {
-        // updates an ingredient on change in input
-        const updatedIngredient = { ...ingredient, [type]: e.target.value };
-        const updatedIngredients = currentRecipe.ingredients.filter(ing => ing.id !== ingredient.id)
-        const mergedIngredients = [...(updatedIngredients.slice(0, index)), updatedIngredient, ...updatedIngredients.slice(index)]
-        const updatedRecipe = { ...currentRecipe, ingredients: mergedIngredients};
-        setCurrentRecipe(updatedRecipe)
+        const value = e.target.value;
+         // updates an ingredient on change in input
+        let updatedIngredient;
+        if (type === 'unit'){
+            const ingredientUnit = value.split(" ")[0];
+            const ingredientType = value.split(" ")[1];
+            updatedIngredient  = { ...ingredient, unit: ingredientUnit, type: ingredientType };
+        } else {
+           updatedIngredient = { ...ingredient, [type]: e.target.value };
+        }
+        const updatedIngredients = currentRecipe.ingredients.map((ingredient, i) => i === index ? updatedIngredient : ingredient);
+        setCurrentRecipe({ ...currentRecipe, ingredients: updatedIngredients });
     }
+    
     const handleSubmit = async (e) => {
-        // saves updated recipe in the database
         e.preventDefault();
+        // form validation
         if (currentRecipe.ingredients.length === 0){
             alert('Recipe must have ingredients!');
             return;
         }
+        if (!currentRecipe.name.trim()) {
+            setErrors({ ...errors, name: 'Recipe name is required!' });
+            return;
+        }
+
+        const ingredientErrors = currentRecipe.ingredients.map(ingredient => {
+            const errors = {};
+            if (!ingredient.name.trim()) {
+                errors.name = 'Ingredient name is required';
+            } else if (isPlural(ingredient.name)) {
+                errors.name = 'Please enter ingredient name in singular form.';
+            }
+            if (!ingredient.amount.trim()) {
+                errors.amount = 'Amount is required';
+            } else if (isNaN(numericQuantity(ingredient.amount))) {
+                errors.amount = 'Amount must be a number';
+            }
+            if (! ingredient.category || ingredient.category === 'none'){
+                errors.category = 'Category is required';
+            }
+            return errors;
+        });
+
+        if (ingredientErrors.some(error => Object.keys(error).length !== 0)) {
+            setErrors({ ...errors, ingredientErrors });
+            return;
+        }
+         // saves updated recipe in the database
         try {
             const response = await fetch(`http://localhost:5000/recipes/${id}`, {
                 method: "PUT",
@@ -139,6 +150,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                 body: JSON.stringify(currentRecipe),
             })
             if (response.ok) {
+                console.log("currentRecipe:", currentRecipe);
                 alert(`Successfully updated ${currentRecipe.name} recipe.`);
                 console.log("currentRecipe in submit:", currentRecipe)
                 navigate('/my-recipes');
@@ -184,7 +196,6 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                                     value={currentRecipe.name}
                                     onChange={(e) => setCurrentRecipe({ ...currentRecipe, name: e.target.value })}
                                     isInvalid={!!errors.name}
-                                    onBlur={handleName}
 
                                 />
                                 <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
@@ -219,20 +230,18 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                                             className='m-1'
                                             value={ingredient.name}
                                             onChange={(e)=> handleChangeIngredient(e, 'name', ingredient, i)}
-                                            isInvalid={!!errors.itemName}
-                                            onBlur={handleItemName}
+                                            isInvalid={!!errors.ingredientErrors?.[i]?.name}
                                         />
-                                        <Form.Control.Feedback type="invalid">{errors.itemName}</Form.Control.Feedback>
+                                        <Form.Control.Feedback type="invalid">{errors.ingredientErrors?.[i]?.name}</Form.Control.Feedback>
                                         <Form.Control
                                             type="text"
                                             placeholder="Amount"
                                             className='m-1'
                                             value={ingredient.amount}
                                             onChange={(e)=> handleChangeIngredient(e, 'amount', ingredient, i)}
-                                            isInvalid={!!errors.itemAmount}
-                                            onBlur={handleItemAmount}
+                                            isInvalid={!!errors.ingredientErrors?.[i]?.amount}
                                         />
-                                        <Form.Control.Feedback type="invalid">{errors.itemAmount}</Form.Control.Feedback>
+                                        <Form.Control.Feedback type="invalid">{errors.ingredientErrors?.[i]?.amount}</Form.Control.Feedback>
                                         <Form.Select
                                             value={ingredient.unit}
                                             onChange={(e)=> handleChangeIngredient(e, 'unit', ingredient, i)}
@@ -245,10 +254,14 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                                             value={ingredient.category}
                                             onChange={(e)=> handleChangeIngredient(e, 'category', ingredient, i)}
                                             aria-label="select category for ingredient"
-                                            className='m-1'>
+                                            className='m-1'
+                                            isInvalid={!!errors.ingredientErrors?.[i]?.category}
+                                            >
                                             <option key="none" value="none">Category</option>
                                             {optionsHTMLForCategory}
+                                            
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">{errors.ingredientErrors?.[i]?.category}</Form.Control.Feedback>
 
                                         {currentRecipe.ingredients.length &&
                                             <div className="text-center m-3 px-1 border border-danger rounded " onClick={() => handleRemoveFormEl(ingredient.id)} >
