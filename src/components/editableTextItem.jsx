@@ -9,7 +9,11 @@ const EditableTextItem = ({ initialText , className, handleEdit, id}) => {
   };
   const handleChange = (event) => {
     setText(event.target.value);
-    handleEdit(initialText, event.target.value, id);
+    // Debounce effect
+    setTimeout(()=> {
+      handleEdit(initialText, event.target.value, id);
+    },2000)
+   
   };
 
   const handleBlur = () => {

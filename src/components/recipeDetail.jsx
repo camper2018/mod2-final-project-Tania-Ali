@@ -28,7 +28,7 @@ const RecipeDetail = ({recipe})=>  {
                 }
             </ol>
             <h6 className={styles.subTitle}>Method</h6>
-            {recipe.method?.split('\n').map((sentence, i) => (<p key={i}>{sentence}</p>))}
+            {recipe.method?.split('\\n').map((sentence, i) => (<p key={i}>{sentence}</p>))}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
