@@ -25,7 +25,7 @@ app.use(async (req, res, next) => {
   try {
     // Connecting to our SQL db. req gets modified and is available down the line in other middleware and endpoint functions
     req.db = await pool.getConnection();
-    // req.db.connection.config.namedPlaceholders = true;
+    req.db.connection.config.namedPlaceholders = true;
     // Traditional mode ensures not null is respected for un supplied fields, ensures valid JavaScript dates, etc.
     await req.db.query('SET SESSION sql_mode = "TRADITIONAL"');
     await req.db.query(`SET time_zone = '-8:00'`);
@@ -197,25 +197,63 @@ app.get('/recipe/:id', async function (req, res) {
 });
 
 // save a recipe to database
+
+// ** using positional parameters **
+
+// app.post('/recipes', async function (req, res) {
+//   const recipe = req.body;
+//   const { name, favorite, method, ingredients, tags } = recipe;
+//   const recipesQuery = "INSERT INTO recipes SET ?";
+//   const ingredientsQuery = "INSERT INTO ingredients SET ?";
+//   const tagsQuery = "INSERT INTO tags SET ? ";
+//   let recipeId;
+//   try {
+//     await req.db.beginTransaction();
+//     try {
+//       const [result] = await req.db.query(recipesQuery, { name, favorite, method });
+//       recipeId = result.insertId;
+//       console.log("recipeId:", recipeId);
+//       await Promise.all(ingredients.map(async (ingredient) => {
+//         const { name, amount, unit, type, category } = ingredient;
+//         await req.db.query(ingredientsQuery, { recipe_id: recipeId, ingredient_name: name, amount: amount, unit: unit, type: type, category: category });
+//       }))
+//       await Promise.all(tags.map(async (tag)=> {
+//         await req.db.query(tagsQuery, { recipe_id: recipeId, tag_name: tag?.trim() });
+//       }));
+//       await req.db.commit();
+//       res.status(201).json({ message: "Successfully added recipe with id = " + recipeId });
+//     } catch(err){
+//       await req.db.rollback();
+//       res.status(500).json({ message: "Internal Server! Failed to save recipe with id = " + recipeId });
+//     }
+//   } catch(err){
+//     console.log(recipeId);
+//     res.status(500).json({ error: 'Database connection error' + err});
+//   }
+// });
+
+// ** using named parameters **
+
 app.post('/recipes', async function (req, res) {
   const recipe = req.body;
   const { name, favorite, method, ingredients, tags } = recipe;
-  const recipesQuery = "INSERT INTO recipes SET ?";
-  const ingredientsQuery = "INSERT INTO ingredients SET ?";
-  const tagsQuery = "INSERT INTO tags SET ? ";
+  const recipesQuery = "INSERT INTO recipes SET :recipe";
+  const ingredientsQuery = "INSERT INTO ingredients SET :ingredient";
+  const tagsQuery = "INSERT INTO tags SET :tag ";
+  console.log("I am inside POST")
   let recipeId;
   try {
     await req.db.beginTransaction();
     try {
-      const [result] = await req.db.query(recipesQuery, { name, favorite, method });
+      const [result] = await req.db.query(recipesQuery, {recipe: { name, favorite, method }});
       recipeId = result.insertId;
       console.log("recipeId:", recipeId);
       await Promise.all(ingredients.map(async (ingredient) => {
         const { name, amount, unit, type, category } = ingredient;
-        await req.db.query(ingredientsQuery, { recipe_id: recipeId, ingredient_name: name, amount: amount, unit: unit, type: type, category: category });
+        await req.db.query(ingredientsQuery, {ingredient:{ recipe_id: recipeId, ingredient_name: name, amount: amount, unit: unit, type: type, category: category }});
       }))
       await Promise.all(tags.map(async (tag)=> {
-        await req.db.query(tagsQuery, { recipe_id: recipeId, tag_name: tag?.trim() });
+        await req.db.query(tagsQuery, {tag:{ recipe_id: recipeId, tag_name: tag?.trim() }});
       }));
       await req.db.commit();
       res.status(201).json({ message: "Successfully added recipe with id = " + recipeId });
@@ -231,24 +269,61 @@ app.post('/recipes', async function (req, res) {
 
 // Edit a recipe
 
+// ** using positional parameters
+
+// app.put('/recipes/:id', async (req, res) => {
+//   const recipeId = req.params.id;
+//   const { name, favorite, method, ingredients, tags } = req.body;
+//   const updateRecipeQuery = `UPDATE recipes SET name = ?, favorite = ?, method = ? WHERE id = ?`;
+//   const deleteIngredientsQuery = `DELETE FROM ingredients WHERE recipe_id = ?`;
+//   const insertIngredientsQuery = `INSERT INTO ingredients (ingredient_name, amount, unit, type, category, recipe_id) VALUES ?`;
+//   const deleteTagsQuery = `DELETE FROM tags WHERE recipe_id=?`;
+//   const insertTagsQuery = `INSERT INTO tags (tag_name, recipe_id) VALUES ?`;
+//   try {
+//     await req.db.beginTransaction();
+//     try { 
+//       await req.db.query(updateRecipeQuery, [name, favorite, method, recipeId]);
+//       await req.db.query(deleteIngredientsQuery, [recipeId]);
+//       const ingredientValues = ingredients.map(ingredient => [ingredient.name, ingredient.amount, ingredient.unit, ingredient.type, ingredient.category, recipeId]);
+//       await req.db.query(insertIngredientsQuery, [ingredientValues]);
+//       await req.db.query(deleteTagsQuery, [recipeId]);
+//       const tagValues = tags.map(tag => [tag , recipeId]);
+//       await req.db.query(insertTagsQuery, [tagValues]);
+//       await req.db.commit();
+//       res.status(200).json({ message: 'Update successful' });
+//     } catch(err){
+//         // Rollback transaction if any update fails
+//         await req.db.rollback();
+//         // Send error response
+//         console.error(err);
+//         res.status(500).json({ error: 'Error updating recipe: '+ err });
+//     }
+//   } catch(err){
+//     // Send error response if unable to start transaction or get connection
+//     res.status(500).json({ error: 'Database connection error' });
+//   }
+// });
+
+// ** using named parameters **
+
 app.put('/recipes/:id', async (req, res) => {
   const recipeId = req.params.id;
   const { name, favorite, method, ingredients, tags } = req.body;
-  const updateRecipeQuery = `UPDATE recipes SET name = ?, favorite = ?, method = ? WHERE id = ?`;
-  const deleteIngredientsQuery = `DELETE FROM ingredients WHERE recipe_id = ?`;
-  const insertIngredientsQuery = `INSERT INTO ingredients (ingredient_name, amount, unit, type, category, recipe_id) VALUES ?`;
-  const deleteTagsQuery = `DELETE FROM tags WHERE recipe_id=?`;
-  const insertTagsQuery = `INSERT INTO tags (tag_name, recipe_id) VALUES ?`;
+  const updateRecipeQuery = `UPDATE recipes SET name = :name, favorite = :favorite, method = :method WHERE id = :id`;
+  const deleteIngredientsQuery = `DELETE FROM ingredients WHERE recipe_id = :recipeId`;
+  const insertIngredientsQuery = `INSERT INTO ingredients (ingredient_name, amount, unit, type, category, recipe_id) VALUES :ingredientValues`;
+  const deleteTagsQuery = `DELETE FROM tags WHERE recipe_id=:recipeId`;
+  const insertTagsQuery = `INSERT INTO tags (tag_name, recipe_id) VALUES :tagValues`;
   try {
     await req.db.beginTransaction();
     try { 
-      await req.db.query(updateRecipeQuery, [name, favorite, method, recipeId]);
-      await req.db.query(deleteIngredientsQuery, [recipeId]);
+      await req.db.query(updateRecipeQuery, {name, favorite, method, id: recipeId});
+      await req.db.query(deleteIngredientsQuery, {recipeId});
       const ingredientValues = ingredients.map(ingredient => [ingredient.name, ingredient.amount, ingredient.unit, ingredient.type, ingredient.category, recipeId]);
-      await req.db.query(insertIngredientsQuery, [ingredientValues]);
-      await req.db.query(deleteTagsQuery, [recipeId]);
+      await req.db.query(insertIngredientsQuery, {ingredientValues});
+      await req.db.query(deleteTagsQuery, {recipeId});
       const tagValues = tags.map(tag => [tag , recipeId]);
-      await req.db.query(insertTagsQuery, [tagValues]);
+      await req.db.query(insertTagsQuery, {tagValues});
       await req.db.commit();
       res.status(200).json({ message: 'Update successful' });
     } catch(err){
@@ -263,14 +338,33 @@ app.put('/recipes/:id', async (req, res) => {
     res.status(500).json({ error: 'Database connection error' });
   }
 });
-
 // Delete a recipe
+
+// ** using positional parameters
+
+// app.delete('/recipes/:id', async (req, res) => {
+//   const recipeId = req.params.id;
+//   const deleteRecipeQuery = 'DELETE FROM recipes WHERE id = ?';
+//   try{
+//     const [result] = await req.db.query(deleteRecipeQuery, [recipeId]);
+//     if (result.affectedRows === 0) {
+//       res.status(404).json({ error: 'Recipe not found!' });
+//     } else {
+//       res.status(200).json({ message: 'Recipe deleted successfully. ', recipeId })
+//     }
+//   } catch(err){
+//     console.error('Error deleting recipe:', error);
+//     res.status(500).json({error:'Internal Server Error'})
+//   }
+// });
+
+// ** using named parameters **
 
 app.delete('/recipes/:id', async (req, res) => {
   const recipeId = req.params.id;
-  const deleteRecipeQuery = 'DELETE FROM recipes WHERE id = ?';
+  const deleteRecipeQuery = 'DELETE FROM recipes WHERE id = :recipeId';
   try{
-    const [result] = await req.db.query(deleteRecipeQuery, [recipeId]);
+    const [result] = await req.db.query(deleteRecipeQuery, {recipeId});
     if (result.affectedRows === 0) {
       res.status(404).json({ error: 'Recipe not found!' });
     } else {
