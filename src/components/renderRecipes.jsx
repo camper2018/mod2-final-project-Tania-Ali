@@ -68,8 +68,8 @@ const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, ha
             </div>
             <div className="mt-2 d-flex justify-content-evenly w-100 mx-auto">
                 <Button variant="success" onClick={() => {
-                    createIngredientsList(recipes);
                     navigate('/ingredients-list')
+                    createIngredientsList(recipes);
                 }}>Generate List</Button>
                 <Button variant="warning" onClick={() => {
                     handleShow();

@@ -103,7 +103,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
            updatedIngredient = { ...ingredient, [type]: e.target.value };
         }
         const updatedIngredients = currentRecipe.ingredients.map((ingredient, i) => i === index ? updatedIngredient : ingredient);
-        setCurrentRecipe({ ...currentRecipe, ingredients: updatedIngredients });
+        setCurrentRecipe(prevRecipe => ({...prevRecipe, ingredients: updatedIngredients}));
     }
     
     const handleSubmit = async (e) => {
@@ -194,7 +194,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                                     placeholder='Name'
                                     name="name"
                                     value={currentRecipe.name}
-                                    onChange={(e) => setCurrentRecipe({ ...currentRecipe, name: e.target.value })}
+                                    onChange={(e) => setCurrentRecipe(prevRecipe => ({ ...prevRecipe, name: e.target.value }))}
                                     isInvalid={!!errors.name}
 
                                 />
@@ -215,7 +215,8 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                                     placeholder="vegan, gluten-free, dairy-free, seafood,egg-free"
                                     name="tags"
                                     value={currentRecipe.tags}
-                                    onChange={(e) => setCurrentRecipe({ ...currentRecipe, tags: [e.target.value] })}
+                                    onChange={(e) => setCurrentRecipe(prevRecipe => ({ ...prevRecipe, tags: e.target.value? e.target.value.split(","): [e.target.value ] }))
+                                    }
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="recipeForm.ControlInput3">

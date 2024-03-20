@@ -52,7 +52,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
     const optionsHTMLForCategory = createOptionHTMLForCategory();
     const handleAddFormEl = () => {
         const id = uuidv4();
-        setIngredients([...ingredients, { id: id, ingredientName: '', ingredientAmount: '', ingredientUnit: 'none', ingredientCategory: '', ingredientType:'dry' }]);
+        setIngredients(prevIngredients => ([...prevIngredients, { id: id, ingredientName: '', ingredientAmount: '', ingredientUnit: 'none', ingredientCategory: '', ingredientType:'dry' }]))
       }
     
       const handleRemoveFormEl = (id) => {
@@ -69,8 +69,9 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
               let unit = value.split(" ")[0];
              
               return {...ingredient, ingredientType: type, ingredientUnit: unit }
+            } else {
+              return { ...ingredient, [name]: value };
             }
-            return { ...ingredient, [name]: value };
           }
           return ingredient;
         });
@@ -122,8 +123,8 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                 }))
             };
             console.log(formData);
+            navigate('/')
             addRecipe(formData);
-            navigate("..")
         } else {
             console.log("Errors:", errors);
             setErrors(errors);

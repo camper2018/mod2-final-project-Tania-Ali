@@ -401,7 +401,7 @@ const App = () => {
             path="/search"
             element={
               <div className="card background">
-                <Link to='..'><center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center></Link>
+                <Link to='/'><center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center></Link>
                 <div className="page">
                   <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={handleUnitSystemToggle} />
                   <br />
@@ -432,7 +432,7 @@ const App = () => {
           </Route>
           <Route path="/my-recipes" element={
             <div className="card background">
-              <Link to=".."><center><h1 className="py-4 fw-bold"><span className="heading1">My Recipes</span></h1></center></Link>
+              <Link to="/"><center><h1 className="py-4 fw-bold"><span className="heading1">My Recipes</span></h1></center></Link>
               <div className="page">
                 <MyRecipes/>
               </div>
