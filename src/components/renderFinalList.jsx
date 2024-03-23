@@ -161,7 +161,7 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
             </Form>
 
             <br />
-            <div style={showAddButton ? { height: "80vh", overflowY: "scroll" } : { overflowY: "visible" }}>
+            <div style={showAddButton ? { height: "60vh", overflowY: "scroll" } : { overflowY: "visible" }}>
                 {
                     Object?.keys(categories)?.map((category, i) =>
                         categories[category].length > 0 ?
