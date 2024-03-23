@@ -11,7 +11,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     console.log("Mounted!")
     const fetchRecipes = async () => {
         try {
-            const response = await fetch('http://localhost:5000/recipes');
+            const response = await fetch('http://localhost:5000/api/recipes/random-recipes/');
             if (response.ok) {
                 const data = await response.json();
                 setRecipes(data);
@@ -29,7 +29,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
 
         if (confirm(text) == true) {
             try {
-                const response = await fetch(`http://localhost:5000/recipes/${id}`, {
+                const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
                     method: 'DELETE'
                 });
                 if (response.ok) {

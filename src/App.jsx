@@ -96,7 +96,7 @@ const App = () => {
       setRecipes([...favorites]);
     } else {
       try {
-        const response = await fetch(`http://localhost:5000/recipes/${eventKey}`)
+        const response = await fetch(`http://localhost:5000/api/recipes/random-recipes/${eventKey}`)
         if (response.ok) {
           const data = await response.json();
           setRecipes(data);
@@ -285,7 +285,7 @@ const App = () => {
 
     // save recipe
     try {
-      const response = await fetch('http://localhost:5000/recipes', {
+      const response = await fetch('http://localhost:5000/api/recipes', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -327,7 +327,7 @@ const App = () => {
     e.preventDefault();
     const searchTerm = e.target.elements['search'].value;
     try {
-      const response = await fetch(`http://localhost:5000/search/${searchTerm.trim()}`)
+      const response = await fetch(`http://localhost:5000/api/recipes/search/${searchTerm.trim()}`)
       if (response.ok) {
         const data = await response.json();
         e.target.elements['search'].value = "";

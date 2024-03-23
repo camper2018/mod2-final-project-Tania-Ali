@@ -24,7 +24,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/recipe/${id}`);
+                const response = await fetch(`http://localhost:5000/api/recipes/${id}`);
                 if (response.ok) {
                     const data = await response.json();  
                     const updatedData  = {...data, tags: data.tags|| ['']};
@@ -142,7 +142,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
         }
          // saves updated recipe in the database
         try {
-            const response = await fetch(`http://localhost:5000/recipes/${id}`, {
+            const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
