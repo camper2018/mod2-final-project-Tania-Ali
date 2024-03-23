@@ -19,7 +19,7 @@ import Navbar from './components/Navbar';
 import logo from './assets/recipedia-logo.png';
 import MyRecipes from './components/renderMyRecipes';
 import EditRecipeForm from './components/editRecipeForm';
-
+import localStore from './utilities/localStorage';
 const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -30,25 +30,9 @@ const App = () => {
     if (recipes.length) {
       convertUnitSystemOfRecipes(unitSystem, recipes);
     }
-    const myFavorites = getFavoritesFromStore();
+    const myFavorites = localStore.getFavoritesFromStore();
     setFavorites(myFavorites);
   }, [unitSystem]);
-  
-  /********* Local Storage functions **********/
-  const getFavoritesFromStore = () => {
-    const myFavorites = localStorage.getItem("favorites")? JSON.parse(localStorage.getItem("favorites")) :[];
-    return myFavorites;
-  }
-  const addFavoritesToStore = (recipe)=> {
-    const myFavorites  = getFavoritesFromStore();
-    myFavorites.push(recipe);
-    localStorage.setItem("favorites", JSON.stringify(myFavorites));
-  }
-  const checkFavoritesStore = (id) => {
-    const myFavorites  = getFavoritesFromStore();
-    const isFavorite = myFavorites.some(recipe => recipe.id === id);
-    return isFavorite;
-  }
   
   /************ Event handlers ***********/
 
@@ -78,12 +62,13 @@ const App = () => {
 
   const handleAddToFavorites = (recipe) => {
     setFavorites([...favorites, recipe]);
-    addFavoritesToStore(recipe);
+    localStore.addFavoritesToStore(recipe);
   };
   const handleRemoveFromFavorites = (recipe) => {
     let updatedFavorites = favorites.filter(item => item.id !== recipe.id)
     setFavorites(updatedFavorites);
-    localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+    localStore.removeFavoritesFromStore(updatedFavorites);
+    // localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
   };
 
   const handleUnitSystemToggle = (e) => {
@@ -374,7 +359,7 @@ const App = () => {
                     handleAddToFavorites={handleAddToFavorites}
                     handleRemoveFromFavorites={handleRemoveFromFavorites}
                     handleSavedLists={handleSavedLists}
-                    isFavorite={checkFavoritesStore}
+                    isFavorite={localStore.checkFavoritesStore}
                   />
                 </div>
               </div>)}
@@ -412,7 +397,7 @@ const App = () => {
                     handleAddToFavorites={handleAddToFavorites}
                     handleRemoveFromFavorites={handleRemoveFromFavorites}
                     handleSavedLists={handleSavedLists}
-                    isFavorite={checkFavoritesStore}
+                    isFavorite={localStore.checkFavoritesStore}
                   />
                 </div>
               </div>}

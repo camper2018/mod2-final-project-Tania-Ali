@@ -8,6 +8,8 @@ import { IoHome } from "react-icons/io5";
 import Modal from 'react-bootstrap/Modal';
 import EditableTextItem from './editableTextItem';
 import { FaTrash } from "react-icons/fa";
+import localStore from '../utilities/localStorage';
+
 const FinalList = ({ categories, addItem, handleSavedLists}) => {
     const [showForm, setShowForm] = useState(false);
     const [showAddButton, setShowButton] = useState(true);
@@ -43,11 +45,11 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
     // saves a grocery list
     const handleSaveList = (e) => {
         e.preventDefault();
-        const myLists = localStorage.getItem("myLists")? JSON.parse(localStorage.getItem("myLists")) : [];
+        const myLists = localStore.getSavedListsFromStore();
         const isDuplicate = myLists.some(list => list.title === e.target[0].value);
         if (!isDuplicate) {
-            myLists.push({ title: e.target[0].value, categories: categories });
-            localStorage.setItem('myLists', JSON.stringify(myLists));
+            const newList = { title: e.target[0].value, categories: categories };
+            localStore.saveListToStore(newList);
             setErrors({ ...errors, duplicate: null });
             handleClose();
             navigate("/")

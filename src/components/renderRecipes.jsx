@@ -7,19 +7,18 @@ import Modal from 'react-bootstrap/Modal';
 import Styles from './renderListItem.module.css';
 import { FaTrash } from "react-icons/fa";
 import { FaEnvelopeOpenText } from "react-icons/fa";
+import localStore from '../utilities/localStorage';
 const RenderRecipes = ({ recipes, createIngredientsList, handleDeleteRecipes, handleAddToFavorites, handleRemoveFromFavorites, handleSavedLists , isFavorite}) => {
     const navigate = useNavigate();
     const [show, setShow] = useState(false);
-    const lists = localStorage.getItem("myLists")? JSON.parse(localStorage.getItem("myLists")): null;
-    const [savedLists, setSavedLists] = useState(lists || []);
+    const lists = localStore.getSavedListsFromStore();
+    const [savedLists, setSavedLists] = useState(lists);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const handleDeleteSavedList = (e)  => {
       const title = e.currentTarget.getAttribute("data-attr");
-      const filteredLists = savedLists.filter(list => list.title !== title);
-      localStorage.setItem("myLists", JSON.stringify(filteredLists));
+      const filteredLists = localStore.deleteListFromStore(title);
       setSavedLists(filteredLists);
-      
     };
     const handleSelectSavedList = (e)=> {
         const value = e.currentTarget.getAttribute("data-attr");
