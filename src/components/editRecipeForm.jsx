@@ -15,27 +15,31 @@ import styles from './addRecipeForm.module.css';
 import '../App.css';
 import UnitSystemToggle from './toggleSwitch';
 import { v4 as uuidv4 } from 'uuid';
+import Loading from './loading';
 const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => {
     const [isFavorite, setFavorite] = useState(false);
     const [errors, setErrors] = useState({});
     const [currentRecipe, setCurrentRecipe] = useState({id: uuidv4(), name: '', favorite: false, method: '', ingredients: [], tags: []});
+    const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams();
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const response = await fetch(`http://localhost:5000/api/recipes/${id}`);
                 if (response.ok) {
                     const data = await response.json();  
                     const updatedData  = {...data, tags: data.tags|| ['']};
-                    console.log("fetched data:", updatedData);
                     setCurrentRecipe(updatedData);
                     setFavorite(data.favorite ? true : false);
+                    setLoading(false);
 
                 } else {
-                    throw Error(response.statusText);
+                    throw Error(`${response.statusText}: ${response.status}`);
                 }
             } catch (err) {
+                setLoading(false);
                 console.error('Error fetching recipe!', err.message);
                 setErrors({ ...errors, fetchError: err.message });
             }
@@ -150,19 +154,21 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                 body: JSON.stringify(currentRecipe),
             })
             if (response.ok) {
-                console.log("currentRecipe:", currentRecipe);
                 alert(`Successfully updated ${currentRecipe.name} recipe.`);
-                console.log("currentRecipe in submit:", currentRecipe)
                 navigate('/my-recipes');
             } else {
-                throw Error(response.statusText);
+                throw Error(`${response.statusText}: ${response.status}`);
             }
         } catch (err) {
             console.error(err.message);
             setErrors({ ...errors, updateError: err.message })
         }
     }
-
+    if (isLoading){
+        return(<div className="page">
+               <Loading/>
+              </div>)
+    }
     if (errors.fetchError) {
         return <h3 className="mt-5 text-center text-danger">{errors.fetchError}</h3>
     } else if (errors.updateError) {

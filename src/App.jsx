@@ -20,12 +20,16 @@ import logo from './assets/recipedia-logo.png';
 import MyRecipes from './components/renderMyRecipes';
 import EditRecipeForm from './components/editRecipeForm';
 import localStore from './utilities/localStorage';
+import  Loading  from "./components/loading";
 const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [unitSystem, setUnitSystem] = useState('customary');
   const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
   const [searchedRecipes, setSearchedRecipes] = useState([]);
+  const [error, setError] = useState(null);
+  const [isLoading, setLoading] = useState(false);
+  
   useEffect(() => {
     if (recipes.length) {
       convertUnitSystemOfRecipes(unitSystem, recipes);
@@ -68,7 +72,7 @@ const App = () => {
     let updatedFavorites = favorites.filter(item => item.id !== recipe.id)
     setFavorites(updatedFavorites);
     localStore.removeFavoritesFromStore(updatedFavorites);
-    // localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+
   };
 
   const handleUnitSystemToggle = (e) => {
@@ -81,15 +85,19 @@ const App = () => {
       setRecipes([...favorites]);
     } else {
       try {
+        setLoading(true);
         const response = await fetch(`http://localhost:5000/api/recipes/random-recipes/${eventKey}`)
         if (response.ok) {
           const data = await response.json();
           setRecipes(data);
+          setLoading(false);
         } else {
-          console.log("Error:", response.status);
+          throw Error(`${response.status} (${response.statusText})`)
         }
       } catch (error) {
-        console.log("Error: ", error.message)
+        setLoading(false);
+        console.log("Error: ", error.message);
+        setError(error.message);
       }
     }
   }
@@ -278,11 +286,15 @@ const App = () => {
         body: JSON.stringify(recipe)
       })
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
         setRecipes(prevRecipes => [...prevRecipes, recipe]);
+        alert(`Your recipe ${recipe.name} was saved successfully`);
+      } else {
+        throw Error(`${response.status} (${response.statusText})`);
       }
     } catch (error) {
-      console.error(error.message);
+      console.error(error);
+      setError(error.message);
     }
   }
   const handleAddItem = (e) => {
@@ -312,22 +324,36 @@ const App = () => {
     e.preventDefault();
     const searchTerm = e.target.elements['search'].value;
     try {
+      setLoading(true);
       const response = await fetch(`http://localhost:5000/api/recipes/search/${searchTerm.trim()}`)
       if (response.ok) {
         const data = await response.json();
         e.target.elements['search'].value = "";
         setSearchedRecipes([...searchedRecipes, ...data]);
         setRecipes([...recipes, ...data]);
+        setLoading(false);
+      } else {
+        throw Error(`${response.status} (${response.statusText})`)
       }
     } catch (error) {
-      console.log("Error: ", error.message)
+      setLoading(false);
+      console.log("Error: ", error.message);
+      setError(error.message);
     }
   }
-
+  if (isLoading) {
+    return (<div className="page mx-auto">
+         < Loading />
+         </div>) 
+  } 
+  if (error) {
+    return (<h1 className="text-center text-danger my-5">{error}</h1>)
+  } 
   return (
     <BrowserRouter>
       <div className="App">
         <Routes>
+
           <Route path="/" element={
             <React.Fragment>
               <Navbar

@@ -4,19 +4,27 @@ import RenderListItem from './renderListItem';
 import Button from 'react-bootstrap/Button';
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
+import  Loading  from "./loading";
 const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     const [recipes, setRecipes] = useState([]);
     const [error, setError] = useState(null);
+    const [isLoading, setLoading] = useState(false);
     const Navigate = useNavigate();
     console.log("Mounted!")
+    
     const fetchRecipes = async () => {
         try {
+            setLoading(true);
             const response = await fetch('http://localhost:5000/api/recipes/random-recipes/');
             if (response.ok) {
                 const data = await response.json();
                 setRecipes(data);
+                setLoading(false);
+            } else {
+                throw Error(`${response.statusText}: ${response.status}`)
             }
         } catch (err) {
+            setLoading(false);
             console.error("Error retrieving recipes:", err);
             setError(err.message);
         }
@@ -37,7 +45,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
                     const filteredRecipes = recipes.filter(recipe => recipe.id !== id);
                     setRecipes(filteredRecipes);
                 } else {
-                    throw Error(response.statusText);
+                    throw Error(`${response.statusText}: ${response.status}`);
                 }
             } catch (err) {
                 console.error('Error deleting a recipe with id of ' + id, err);
@@ -55,10 +63,12 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
         // http://localhost:5000/myrecipes'
         fetchRecipes();
     }, []);
-
+    if (isLoading) {
+        return <Loading />;
+    } 
     if (error) {
-        return <h3 className="m-auto text-danger">{error}</h3>
-    }
+       return <h3 className="m-auto text-danger">{error}</h3>
+    } 
     return (
         <div className="h-100 pt-5 overflow-scroll">
             <div className="d-flex justify-content-between">
