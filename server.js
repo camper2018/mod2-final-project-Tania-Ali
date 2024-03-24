@@ -19,6 +19,11 @@ const pool = mysql.createPool({
   waitForConnections: true,
 });
 app.use(cors(corsOptions));
+
+//to parse JSON bodies in POST and PUT requests
+// built-in body parser.
+app.use(express.json());
+
 // To connect to mysql db, first type in the terminal: 'brew services start mysql'
 // Following code will start a db pool connection and attach it to the request object as it's property.
 app.use(async (req, res, next) => {
@@ -42,9 +47,6 @@ app.use(async (req, res, next) => {
     throw err;
   }
 });
-//to parse JSON bodies in POST and PUT requests
-// built-in body parser.
-app.use(express.json());
 
 // api routes
 app.use('/api/init', require('./routes/tables'));

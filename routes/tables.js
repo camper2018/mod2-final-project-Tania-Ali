@@ -39,7 +39,7 @@ router.get("/tables", async (req, res) => {
         res.json({ message: "Database initialized with tables successfully" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Failed to initialize database with tables" });
+        res.status(500).json({ message: `Failed to initialize database with tables: ${err.message}` });
     }
 });
 module.exports = router;

@@ -51,12 +51,13 @@ router.get('/random-recipes/:count?', async function (req, res) {
     LIMIT :count;
   `
         const [result] = await req.db.query(sql, { count });
-        console.log(result)
         res.status(200).json(result);
+      
+        
 
     } catch (err) {
         console.error('Error fetching recipes!', err);
-        res.status(500).json({ message: 'Error fetching recipes' })
+        res.status(500).json({ message: `Error fetching recipes: ${err.message}` })
     }
 });
 
@@ -94,7 +95,7 @@ router.get('/search/:searchTerm', async function (req, res) {
         res.status(200).json(result);
     } catch (err) {
         console.error('Error searching recipes!', err);
-        res.status(500).json({ message: 'Error searching recipes' })
+        res.status(500).json({ message: `Error searching recipes: ${err.message}` })
     }
 });
 
@@ -115,12 +116,16 @@ router.get('/:id', async function (req, res) {
       WHERE r.id = :recipeId
       GROUP BY r.id, r.name, r.favorite, r.method
       ;`;
-
-    const [result] = await req.db.query(sql, { recipeId });
-    if (result.length === 0) {
+    try {
+      const [result] = await req.db.query(sql, { recipeId });
+      if (result.length === 0) {
         res.status(404).json({ message: 'Recipe not found' });
-    } else {
-        res.json(result[0]);
+      } else {
+        res.status(200).json(result[0]);
+      }
+    } catch(err){
+        console.error('Error retrieving recipe!', err);
+        res.status(500).json({ message: `Error retrieving recipes: ${err.message}` })
     }
 });
 
@@ -148,11 +153,11 @@ router.post('/', async function (req, res) {
             res.status(201).json({ message: "Successfully added recipe with id = " + recipeId });
         } catch (err) {
             await req.db.rollback();
-            res.status(500).json({ message: "Internal Server! Failed to save recipe with id = " + recipeId });
+            res.status(500).json({ message: `Internal Server! Failed to save recipe with id = ${recipeId}: ${err.message} ` });
         }
     } catch (err) {
         console.log(recipeId);
-        res.status(500).json({ error: 'Database connection error' + err });
+        res.status(500).json({ error: `Database connection error:  ${err.message}` });
     }
 });
 
@@ -182,11 +187,11 @@ router.put('/:id', async (req, res) => {
             await req.db.rollback();
             // Send error response
             console.error(err);
-            res.status(500).json({ error: 'Error updating recipe: ' + err });
+            res.status(500).json({ error: `Error updating recipe: ${err.message}` });
         }
     } catch (err) {
         // Send error response if unable to start transaction or get connection
-        res.status(500).json({ error: 'Database connection error' });
+        res.status(500).json({ error: `Database connection error: ${err.message}` });
     }
 });
 
@@ -203,7 +208,7 @@ router.delete('/:id', async (req, res) => {
         }
     } catch (err) {
         console.error('Error deleting recipe:', error);
-        res.status(500).json({ error: 'Internal Server Error' })
+        res.status(500).json({ error: `Internal Server Error: ${err.message}` })
     }
 });
 
