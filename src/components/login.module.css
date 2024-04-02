@@ -1,0 +1,161 @@
+.img {
+    background-image: url('../assets/bg-login.jpg');
+    background-size: cover;
+    background-position: center;
+    position: absolute; 
+}
+  
+  .rightContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+  
+  .rightInnerContainer {
+    border-radius: 6px;
+    padding: 1.5rem 2rem;
+    background: #FFE8C7;
+    opacity: .97;
+    width: 100%;
+  }
+  
+  .emailInput {
+      width: 100%;
+      border-radius: 2rem;
+      background: #E4D2B7;
+      outline: none;
+      border: none;
+      padding: 11px 23px;
+      margin-bottom: 1rem;
+    }
+    
+    .emailInput::placeholder {
+      color: #757575;
+    }
+    
+    .passwordInput {
+      width: 100%;
+      border-radius: 2rem;
+      background: #E4D2B7;
+      outline: none;
+      border: none;
+      padding: 11px 23px;
+    }
+    
+    .passwordInput::placeholder {
+      color: #757575
+    }
+  
+    .passwordVisibility {
+      position: absolute;
+      top: 50%;
+      right: 30px;
+      transform: translateY(-50%);
+      outline: none;
+    }
+  
+    .loginBtn {
+      border: none;
+      border-radius: 2rem;
+      background-color: #ED6300;
+      color: white;
+      text-align: center;
+      padding: 12px;
+      margin-bottom: 1rem;
+      transition: background-color 150ms ease;
+    }
+  
+    .loginBtn:hover {
+      background-color: #d45800;
+    }
+  
+    .loginBtn:active {
+      background-color: #ad4800;
+    }
+  
+    .disabledLoginBtn {
+      cursor: not-allowed;
+    }
+  
+    .disabledLoginBtn:hover {
+      background-color: #ED6300;
+    }
+    
+    .divider {
+      position: relative;
+      padding: 4px 8px;
+      font-size: 14px;
+      color: #757575;
+    }
+    
+    .divider {
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: visible;
+    }
+    
+    .divider::before {
+      content: '';
+      display: block;
+      height: 1px;
+      width: calc(50% - 70px);
+      margin-right: 1rem;
+      background-color: #E4D2B7;
+    }
+    
+    .divider::after {
+      content: '';
+      display: block;
+      height: 1px;
+      width: calc(50% - 70px);
+      margin-left: 1rem;
+      background-color: #E4D2B7;
+    }
+    
+    .googleBtn {
+      background: inherit;
+      outline: none;
+      border: 1px solid #E2D0B6;
+      color: #4E4E4E;
+      width: 100%;
+      text-align: center;
+      border-radius: 32px;
+      padding: 6px 5px;
+      margin-bottom: .5rem;
+    }
+  
+    .googleBtn:hover {
+      background: #f2dcbd;
+      border-color: rgb(182, 182, 182);
+    }
+  
+    .googleBtn:active {
+      background: #e5d0b2;
+      border-color: rgb(140, 140, 140);
+    }
+    
+    .noAccountText {
+      color: #757575;
+      font-size: 12px;
+    }
+    
+    .signupAnchor {
+      color: #ED6300;
+    }
+    
+    @media screen and (min-width: 768px) {
+      .img {
+        position: relative;
+      }
+    
+      .rightContainer {
+        background: #FFE8C7;
+        justify-content: center;
+      }
+    
+      .rightInnerContainer {
+        max-width: 480px;
+      }
+    }

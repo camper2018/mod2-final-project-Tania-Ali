@@ -65,27 +65,27 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     }, []);
     if (isLoading) {
         return <Loading />;
-    } 
+    } else
     if (error) {
-       return <h3 className="m-auto text-danger">{error}</h3>
-    } 
-    return (
-        <div className="h-100 pt-5 overflow-scroll">
-            <div className="d-flex justify-content-between">
-                <Button variant="success" onClick={()=> { Navigate('/'); location.reload();}}>
-                    <IoIosArrowBack/>
-                </Button>
-                <Button variant="success" onClick={() => { Navigate('/add-recipe') }}>
-                    Add Recipe&nbsp;
-                    <FaPlus />
-                </Button>
-            </div>
-            {recipes.map((recipe, i) => (
-                <RenderListItem key={i} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDelete} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} handleEdit={() => handleEdit(recipe.id)}/>
-            )
-            )}
-        </div>)
-
+       return <h2 className="m-auto text-danger">{error}</h2>
+    } else {
+        return (
+            <div className="h-100 pt-5 overflow-scroll">
+                <div className="d-flex justify-content-between">
+                    <Button variant="success" onClick={()=> { Navigate('/'); location.reload();}}>
+                        <IoIosArrowBack/>
+                    </Button>
+                    <Button variant="success" onClick={() => { Navigate('/add-recipe') }}>
+                        Add Recipe&nbsp;
+                        <FaPlus />
+                    </Button>
+                </div>
+                {recipes.map((recipe, i) => (
+                    <RenderListItem key={i} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDelete} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} handleEdit={() => handleEdit(recipe.id)}/>
+                )
+                )}
+            </div>)
+    }
 };
 
 export default MyRecipes;

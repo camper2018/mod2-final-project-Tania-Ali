@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link} from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { numericQuantity } from 'numeric-quantity';
 import { getUnitSystemForWet } from './utilities/addWetIngredients';
@@ -20,7 +20,10 @@ import logo from './assets/recipedia-logo.png';
 import MyRecipes from './components/renderMyRecipes';
 import EditRecipeForm from './components/editRecipeForm';
 import localStore from './utilities/localStorage';
-import  Loading  from "./components/loading";
+import Loading from "./components/loading";
+import ErrorComponent from './components/displayError';
+import Register from './components/register';
+import Login from './components/login';
 const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -29,7 +32,6 @@ const App = () => {
   const [searchedRecipes, setSearchedRecipes] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
-  
   useEffect(() => {
     if (recipes.length) {
       convertUnitSystemOfRecipes(unitSystem, recipes);
@@ -37,7 +39,7 @@ const App = () => {
     const myFavorites = localStore.getFavoritesFromStore();
     setFavorites(myFavorites);
   }, [unitSystem]);
-  
+
   /************ Event handlers ***********/
 
   const handleDeleteRecipes = (id) => {
@@ -52,7 +54,7 @@ const App = () => {
 
   const convertUnitSystemOfRecipes = (selectedSystem, dataArray) => {
     setUnitSystem(selectedSystem);
-    if (dataArray.length){
+    if (dataArray.length) {
       let convertUnitSystem = selectedSystem === 'customary' ? convertMetricToCustomary : convertCustomaryToMetric;
       let dataInOneUnitSystem = dataArray.map(data => {
         if (findUnitSystem(data) !== selectedSystem) {
@@ -78,7 +80,7 @@ const App = () => {
   const handleUnitSystemToggle = (e) => {
     let selectedSystem = e.target.checked ? 'metric' : 'customary';
     convertUnitSystemOfRecipes(selectedSystem, recipes);
-   
+
   }
   const handleSelectMenu = async (eventKey) => {
     if (eventKey === 'favorites') {
@@ -343,12 +345,12 @@ const App = () => {
   }
   if (isLoading) {
     return (<div className="page mx-auto">
-         < Loading />
-         </div>) 
-  } 
+      < Loading />
+    </div>)
+  }
   if (error) {
-    return (<h1 className="text-center text-danger my-5">{error}</h1>)
-  } 
+    return  <ErrorComponent error={error} /> 
+  }
   return (
     <BrowserRouter>
       <div className="App">
@@ -371,8 +373,7 @@ const App = () => {
               </div>
             </React.Fragment>}>
           </Route>
-          <Route
-            path="/recipes"
+          <Route path="/recipes"
             element={
               (<div className="card background">
                 <Link to=".."><center className={"my-3"}> <h1><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1></center></Link>
@@ -390,8 +391,7 @@ const App = () => {
                 </div>
               </div>)}
           ></Route>
-          <Route
-            path="/ingredients-list"
+          <Route path="/ingredients-list"
             element={
               (<React.Fragment>
                 <div className="background">
@@ -408,8 +408,7 @@ const App = () => {
               </React.Fragment>)
             }
           ></Route>
-          <Route
-            path="/search"
+          <Route path="/search"
             element={
               <div className="card background">
                 <Link to='/'><center><h1 className="py-4"><span className="heading1">Reci</span><span className="heading2">pe</span><span className="heading3">dia</span></h1></center></Link>
@@ -444,8 +443,8 @@ const App = () => {
           <Route path="/my-recipes" element={
             <div className="card background">
               <Link to="/"><center><h1 className="py-4 fw-bold"><span className="heading1">My Recipes</span></h1></center></Link>
-              <div className="page">
-                <MyRecipes/>
+              <div className="page mb-5">
+                <MyRecipes />
               </div>
             </div>
           }>
@@ -460,6 +459,14 @@ const App = () => {
             </div>
           }>
           </Route>
+          <Route path="/register" element={
+              <Register/>
+          }>
+          </Route>
+          <Route path="/login" element={
+              <Login/>
+          }>
+            </Route>
         </Routes>
       </div>
     </BrowserRouter>

@@ -17,6 +17,8 @@
     width: 130px;
     height: 80px;
     background-color: black;
+    
+
 }
 .icon {
   color: darkgreen;
@@ -33,18 +35,36 @@
     margin-right: 0;
     margin-top: 5px;
 }
+.login{
+   color: white;
+   font-weight: bold;
+   text-decoration: none;
+   float: right; 
+   margin-left: 10px;
+}
 @media only screen and (max-width: 840px) {
     .searchContainer {
-        width: 80%;
     }
 }
 @media only screen and (max-width: 280px) {
     .searchContainer {
-        width: 80%;
+    }
+    .logo{
+        margin-bottom: 70px;
+        margin-left: 40px;
+    }
+    .login{
+        float: none;
+        margin-left: 65px
     }
     .container {
         flex-direction: column;
         align-items: center;
         padding: 10px 0;
     }
+}
+
+.profileImage:hover{
+   cursor: pointer;
+   opacity: 0.5
 }

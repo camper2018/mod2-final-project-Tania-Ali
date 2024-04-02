@@ -1,1 +1,9 @@
-
+body {
+    margin: 0;
+    box-sizing: border-box;
+    background-image: url('./assets/grocery-background-image.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat; 
+    height: 100vh;
+}
