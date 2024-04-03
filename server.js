@@ -1,10 +1,11 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
-
+const cookieParser = require('cookie-parser');
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT;
+
 const corsOptions = {
   origin: '*',
   credentials: true,
@@ -19,7 +20,7 @@ const pool = mysql.createPool({
   waitForConnections: true,
 });
 app.use(cors(corsOptions));
-
+app.use(cookieParser());
 //to parse JSON bodies in POST and PUT requests
 // built-in body parser.
 app.use(express.json());
@@ -41,7 +42,6 @@ app.use(async (req, res, next) => {
     req.db.release();
   } catch (err) {
     // If anything downstream throw an error, we must release the connection allocated for the request
-    console.log(err)
     // If an error occurs, disconnects from the database
     if (req.db) req.db.release();
     throw err;
@@ -49,6 +49,11 @@ app.use(async (req, res, next) => {
 });
 
 // api routes
+app.use('/api/auth', require('./routes/auth'))
+
+// Jwt verification checks to see if there is an authorization header with a valid jwt in it.
+// app.use(verifyJwt);
+
 app.use('/api/init', require('./routes/tables'));
 app.use('/api/recipes', require('./routes/recipes'));
 
