@@ -32,6 +32,7 @@ const App = () => {
   const [searchedRecipes, setSearchedRecipes] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
+  const jwt = localStorage.getItem('recipediajwt');
   useEffect(() => {
     if (recipes.length) {
       convertUnitSystemOfRecipes(unitSystem, recipes);
@@ -280,10 +281,13 @@ const App = () => {
 
     // save recipe
     try {
-      const response = await fetch('http://localhost:5000/api/recipes', {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const response = await fetch(`http://localhost:5000/api/recipes/${user.id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+           "Authorization": `Bearer ${jwt}`
+          
         },
         body: JSON.stringify(recipe)
       })

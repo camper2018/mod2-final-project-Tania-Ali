@@ -22,6 +22,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
     const [currentRecipe, setCurrentRecipe] = useState({id: uuidv4(), name: '', favorite: false, method: '', ingredients: [], tags: []});
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const jwt = localStorage.getItem('recipediajwt');
     const { id } = useParams();
     useEffect(() => {
         const fetchData = async () => {
@@ -150,6 +151,7 @@ const RecipeForm = ({ unitSystem, toggleUnitSystem, addRecipe, categories }) => 
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${jwt}`
                 },
                 body: JSON.stringify(currentRecipe),
             })

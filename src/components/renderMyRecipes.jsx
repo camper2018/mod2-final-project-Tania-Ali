@@ -4,30 +4,42 @@ import RenderListItem from './renderListItem';
 import Button from 'react-bootstrap/Button';
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
-import  Loading  from "./loading";
+import Loading from "./loading";
 const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     const [recipes, setRecipes] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setLoading] = useState(false);
     const Navigate = useNavigate();
     console.log("Mounted!")
-    
+    const jwt = localStorage.getItem('recipediajwt');
+    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
     const fetchRecipes = async () => {
+
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:5000/api/recipes/random-recipes/');
-            if (response.ok) {
-                const data = await response.json();
-                setRecipes(data);
-                setLoading(false);
+            if (user) {
+                const response = await fetch(`http://localhost:5000/api/recipes/myrecipes/${user.id}`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${jwt}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setRecipes(data);
+                    setLoading(false);
+                } else {
+                    throw Error(`${response.statusText}: ${response.status}`)
+                }
             } else {
-                throw Error(`${response.statusText}: ${response.status}`)
+                throw Error(`Sign in required.`)
             }
         } catch (err) {
             setLoading(false);
             console.error("Error retrieving recipes:", err);
             setError(err.message);
         }
+
     }
     const handleDelete = async (id) => {
         let text = `
@@ -38,7 +50,11 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
         if (confirm(text) == true) {
             try {
                 const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${jwt}`
+                    }
+
                 });
                 if (response.ok) {
                     const result = await response.json();
@@ -66,26 +82,26 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     if (isLoading) {
         return <Loading />;
     } else
-    if (error) {
-       return <h2 className="m-auto text-danger">{error}</h2>
-    } else {
-        return (
-            <div className="h-100 pt-5 overflow-scroll">
-                <div className="d-flex justify-content-between">
-                    <Button variant="success" onClick={()=> { Navigate('/'); location.reload();}}>
-                        <IoIosArrowBack/>
-                    </Button>
-                    <Button variant="success" onClick={() => { Navigate('/add-recipe') }}>
-                        Add Recipe&nbsp;
-                        <FaPlus />
-                    </Button>
-                </div>
-                {recipes.map((recipe, i) => (
-                    <RenderListItem key={i} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDelete} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} handleEdit={() => handleEdit(recipe.id)}/>
-                )
-                )}
-            </div>)
-    }
+        if (error) {
+            return <h2 className="m-auto text-danger">{error}</h2>
+        } else {
+            return (
+                <div className="h-100 pt-5 overflow-scroll">
+                    <div className="d-flex justify-content-between">
+                        <Button variant="success" onClick={() => { Navigate('/'); location.reload(); }}>
+                            <IoIosArrowBack />
+                        </Button>
+                        <Button variant="success" onClick={() => { Navigate('/add-recipe') }}>
+                            Add Recipe&nbsp;
+                            <FaPlus />
+                        </Button>
+                    </div>
+                    {recipes.map((recipe, i) => (
+                        <RenderListItem key={i} item={recipe} isFavorite={recipe.favorite} deleteItem={handleDelete} addToFavorites={handleAddToFavorites} removeFromFavorites={handleRemoveFromFavorites} handleEdit={() => handleEdit(recipe.id)} />
+                    )
+                    )}
+                </div>)
+        }
 };
 
 export default MyRecipes;

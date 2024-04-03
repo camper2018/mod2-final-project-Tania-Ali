@@ -62,6 +62,7 @@ const Login = () => {
             const data = await logIn(credentials.email, credentials.password);
             if (data.success){
                 localStorage.setItem('recipediajwt', data.jwt);
+                localStorage.setItem('user', JSON.stringify(data.user));
                 navigate('/');
             } else {
               throw Error(data.error);

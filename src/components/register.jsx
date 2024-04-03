@@ -45,6 +45,7 @@ const Register = () => {
                 const data = await register(email, password);
                 if (data.success){
                     localStorage.setItem('recipediajwt', data.jwt);
+                    localStorage.setItem('user', JSON.stringify(data.user));
                     navigate('/');
                 } else {
                     console.error("Error: ", data.error)

@@ -6,9 +6,16 @@ import styles from './Navbar.module.css';
 import Button from 'react-bootstrap/Button';
 import logo from '../assets/recipedia-icon.png';
 
-const Navbar = ({ handleSearch, handleSelectMenu }) => {
+const Navbar = ({ handleSearch, handleSelectMenu}) => {
     const navigate = useNavigate();
     const [file, setFile] = useState(logo);
+    const user = JSON.parse(localStorage.getItem('user')) || null;
+    const [email, setEmail] = useState(user);
+    const handleLogout = ()=> {
+        localStorage.removeItem("user");
+        localStorage.removeItem("recipediajwt");
+        setEmail(null);
+    }
     function handleChange(e) {
         setFile(URL.createObjectURL(e.target.files[0]));
     }
@@ -21,7 +28,7 @@ const Navbar = ({ handleSearch, handleSelectMenu }) => {
                         <div>
                             <button style={{ padding: 0, position: 'relative', border: "none", backgroundColor: "black", marginTop: 0 }} type="button">
                                 <input type="file" onChange={handleChange} style={{ position: "absolute", opacity: 0, height: "100px", width: '100px' }} />
-                                <img src={file} alt="App Logo" width={90} />
+                                <img src={file} alt="profile picture" width={90} />
                             </button>
                             <h6 className="text-white fw-bold me-4">Upload Image</h6>
                         </div>
@@ -32,7 +39,11 @@ const Navbar = ({ handleSearch, handleSelectMenu }) => {
 
                 <div className="col-7 col-sm-7 offset-sm-3 col-md-3 offset-md-2">
                     <div>
-                        <Link to="/login" className={styles.login}>Login</Link>
+                        {
+                            email ?
+                                <Link to="/" className={styles.login} onClick={handleLogout}>Logout</Link> :
+                                <Link to="/login" className={styles.login}>Login</Link>
+                        }
                     </div>
                     <div className={"d-flex flex-column align-items-stretch justify-contents-between " + `${styles.btnContainer}`} >
                         <RecipesDropdown handleSelectMenu={handleSelectMenu} />
