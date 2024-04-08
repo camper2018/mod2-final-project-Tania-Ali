@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
-import { BrowserRouter, Routes, Route, Link} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate} from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { numericQuantity } from 'numeric-quantity';
 import { getUnitSystemForWet } from './utilities/addWetIngredients';
@@ -24,6 +24,9 @@ import Loading from "./components/loading";
 import ErrorComponent from './components/displayError';
 import Register from './components/register';
 import Login from './components/login';
+import AddFormComponent from './components/addFormComponent';
+import EditFormComponent from './components/editFormComponent';
+// import EditRecipe from './components/editRecipes';
 const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -33,6 +36,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const jwt = localStorage.getItem('recipediajwt');
+  // const navigate = useNavigate();
   useEffect(() => {
     if (recipes.length) {
       convertUnitSystemOfRecipes(unitSystem, recipes);
@@ -282,7 +286,8 @@ const App = () => {
     // save recipe
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      const response = await fetch(`http://localhost:5000/api/recipes/${user.id}`, {
+      // const response = await fetch(`http://localhost:5000/api/recipes/${user.id}`, {
+      const response = await fetch(`http://localhost:5000/api/recipes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -302,6 +307,28 @@ const App = () => {
       console.error(error);
       setError(error.message);
     }
+  }
+  const handleEditRecipe = async (updatedRecipe, id)=> {
+    try {
+      const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
+          method: "PUT",
+          headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${jwt}`
+          },
+          body: JSON.stringify(updatedRecipe),
+      })
+      if (response.ok) {
+          alert(`Successfully updated ${updatedRecipe.name} recipe.`);
+          // navigate('/my-recipes');
+      } else {
+          throw Error(`${response.statusText}: ${response.status}`);
+      }
+  } catch (err) {
+      console.error(err.message);
+      setError({ ...error, updateError: err.message })
+      setError(err.message)
+  }
   }
   const handleAddItem = (e) => {
     e.preventDefault();
@@ -432,17 +459,21 @@ const App = () => {
               </div>}
           ></Route>
           <Route path="/add-recipe" element={
-            <div>
-              <RecipeForm
-                unitSystem={unitSystem}
-                toggleUnitSystem={handleUnitSystemToggle}
-                categories={categories}
-                addRecipe={handleAddRecipe}
-              />
-            </div>
-
-          }>
-
+            // <div>
+            //   <RecipeForm
+            //     unitSystem={unitSystem}
+            //     toggleUnitSystem={handleUnitSystemToggle}
+            //     categories={categories}
+            //     addRecipe={handleAddRecipe}
+            //   />
+            // </div>
+            <AddFormComponent
+              unitSystem={unitSystem}
+              toggleUnitSystem={handleUnitSystemToggle}
+              categories={categories}
+              handleSubmitForm={handleAddRecipe}
+            />}
+          >
           </Route>
           <Route path="/my-recipes" element={
             <div className="card background">
@@ -454,14 +485,19 @@ const App = () => {
           }>
           </Route>
           <Route path="/edit-recipe/:id" element={
-            <div>
-              <EditRecipeForm
-                unitSystem={unitSystem}
-                toggleUnitSystem={handleUnitSystemToggle}
-                categories={categories}
-              />
-            </div>
-          }>
+            // <div>
+            //   <EditRecipeForm
+            //     unitSystem={unitSystem}
+            //     toggleUnitSystem={handleUnitSystemToggle}
+            //     categories={categories}
+            //   />
+            // </div>
+            <EditFormComponent
+              unitSystem={unitSystem}
+              toggleUnitSystem={handleUnitSystemToggle}
+              categories={categories}
+              handleSubmitForm={handleEditRecipe}
+            />}>
           </Route>
           <Route path="/register" element={
               <Register/>
@@ -471,6 +507,23 @@ const App = () => {
               <Login/>
           }>
             </Route>
+          {/* <Route path="/form" element={
+          <AddFormComponent
+            unitSystem={unitSystem}
+            toggleUnitSystem={handleUnitSystemToggle}
+            categories={categories}
+            handleSubmitForm={handleAddRecipe}
+          />}>
+          </Route> */}
+          {/* <Route path="/editform/:id" element={
+            <EditFormComponent
+              unitSystem={unitSystem}
+              toggleUnitSystem={handleUnitSystemToggle}
+              categories={categories}
+              handleSubmitForm={handleEditRecipe}
+            />}>
+          </Route> */}
+          
         </Routes>
       </div>
     </BrowserRouter>

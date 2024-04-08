@@ -82,7 +82,7 @@ const Login = () => {
         <Col md={6} className={styles.rightContainer}>
           <Col className={styles.rightInnerContainer}>
             <form>
-              <h2 className='mb-4'>Welcome to your Recipedia</h2>
+              <h2 className='mb-4'>Welcome to Recipedia</h2>
               {formErrors.length > 0 && (
                     <ul className="list-group my-4">
                         {formErrors.map((err, idx) => (
@@ -125,10 +125,10 @@ const Login = () => {
                   onClick={togglePasswordVisibility}
                 >
                   {showPassword ? (
-                    <FaEye size={25} />
+                    <FaEye className="mt-4" size={25} />
 
                   ) : (
-                    <FaEyeSlash size={25} />
+                    <FaEyeSlash className="mt-4" size={25} />
                   )}
                 </span>
               </div>

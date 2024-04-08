@@ -1,38 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import SearchComponent from './searchBar';
 import RecipesDropdown from './dropdownForRecipes';
 import styles from './Navbar.module.css';
 import Button from 'react-bootstrap/Button';
-import logo from '../assets/recipedia-icon.png';
-
-const Navbar = ({ handleSearch, handleSelectMenu}) => {
+import UserSettings from './userSetting';
+import logo from '../assets/profile-picture-icon.jpg';
+const Navbar = ({ handleSearch, handleSelectMenu }) => {
     const navigate = useNavigate();
-    const [file, setFile] = useState(logo);
-    const user = JSON.parse(localStorage.getItem('user')) || null;
-    const [email, setEmail] = useState(user);
-    const handleLogout = ()=> {
+    const [userSettings, setUserSettings] = useState({
+        username: null,
+        avatar: logo
+    });
+
+    const handleLogout = () => {
         localStorage.removeItem("user");
         localStorage.removeItem("recipediajwt");
-        setEmail(null);
+        localStorage.removeItem("profile-picture")
+        setUserSettings({
+            avatar: logo,
+            username: null
+        })
     }
-    function handleChange(e) {
-        setFile(URL.createObjectURL(e.target.files[0]));
-    }
-
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("user"))?.email;
+        const storedAvatar = localStorage.getItem("profile-picture") || logo;
+        setUserSettings({ username: storedUser, avatar: storedAvatar })
+    }, []);
     return (
         <div className="container-fluid">
             <div className={"row  " + styles.container} >
                 <div className="col-5 col-sm-2 col-md-3">
-                    <div className={styles.logo}>
-                        <div>
-                            <button style={{ padding: 0, position: 'relative', border: "none", backgroundColor: "black", marginTop: 0 }} type="button">
-                                <input type="file" onChange={handleChange} style={{ position: "absolute", opacity: 0, height: "100px", width: '100px' }} />
-                                <img src={file} alt="profile picture" width={90} />
-                            </button>
-                            <h6 className="text-white fw-bold me-4">Upload Image</h6>
-                        </div>
-                    </div>
+                    < UserSettings userSettings={userSettings} handleChange={setUserSettings} />
                 </div>
 
                 <h1 className="d-none d-md-block offset-md-2 col-md-2"><span className="heading1">Reci</span><span className="heading2" >pe</span><span className="heading3">dia</span></h1>
@@ -40,7 +39,7 @@ const Navbar = ({ handleSearch, handleSelectMenu}) => {
                 <div className="col-7 col-sm-7 offset-sm-3 col-md-3 offset-md-2">
                     <div>
                         {
-                            email ?
+                            userSettings.username ?
                                 <Link to="/" className={styles.login} onClick={handleLogout}>Logout</Link> :
                                 <Link to="/login" className={styles.login}>Login</Link>
                         }

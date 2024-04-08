@@ -24,15 +24,15 @@ const RecipeDetail = ({ recipe }) => {
           </div>
           <h6 className={styles.subTitle}>Ingredients</h6>
           <ol>
-            {recipe.ingredients.map((item, i) => (
+            {
+            recipe.ingredients.map((item, i) => (
               <li key={i}>
                 <div className={styles.list}>
                   <span>{item.name}</span>
                   <span>{parseInt(item.amount)}&nbsp;&nbsp;&nbsp; {item.unit === 'none' ? item.name : item.unit}</span>
                 </div>
               </li>
-            ))
-            }
+            ))}
           </ol>
           <h6 className={styles.subTitle}>Method</h6>
           {recipe.method?.split('\\n').map((sentence, i) => (<p key={i}>{sentence}</p>))}

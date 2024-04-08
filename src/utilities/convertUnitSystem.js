@@ -4,18 +4,19 @@ import { numericQuantity } from 'numeric-quantity';
 const metricDryConversionFactors = {
     'tsp': { unit: 'g', factor: 5.69 },
     'tbsp': { unit: 'g', factor: 14.175 },
-    'oz': { unit: 'g', factor: 28.35 },
-    'cup': { unit: 'g', factor: 240 },
+    'oz': { unit: 'g', factor: 28.3495 },
+    'cup': { unit: 'g', factor:  200 },
     'lb': { unit: 'g', factor: 453.592 },
 };
 const metricWetConversionFactors = {
     'tsp': { unit: 'mL', factor: 4.929 },
-    'tbsp': { unit: 'mL', factor: 14.78 },
-    'fl oz': { unit: 'mL', factor: 29.574 },
+    'tbsp': { unit: 'mL', factor: 14.7868 },
+    'fl oz': { unit: 'mL', factor: 29.5735 },
     'cup': { unit: 'mL', factor: 236.588 },
     'pt': { unit: 'mL', factor: 568.261 },
     'qt': { unit: 'mL', factor: 946.353 },
     'gal': { unit: 'L', factor: 3.78541 },
+    // 'gal': { unit: 'mL', factor: 3785.41 },
 };
 
 const customaryDryConversionFactors = {

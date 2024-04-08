@@ -18,10 +18,12 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
         try {
             setLoading(true);
             if (user) {
+            // if (jwt) {
                 const response = await fetch(`http://localhost:5000/api/recipes/myrecipes/${user.id}`, {
+                // const response = await fetch("http://localhost:5000/api/recipes/myrecipes", {
                     method: 'GET',
                     headers: {
-                        Authorization: `Bearer ${jwt}`
+                        Authorization : `Bearer ${jwt}`
                     }
                 });
                 if (response.ok) {
@@ -29,6 +31,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
                     setRecipes(data);
                     setLoading(false);
                 } else {
+                    console.log("Error fetching recipes" )
                     throw Error(`${response.statusText}: ${response.status}`)
                 }
             } else {

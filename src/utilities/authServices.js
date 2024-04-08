@@ -11,7 +11,7 @@ export const register = async (email, password) => {
     return data;
   }
 export const logIn = async (email, password) => {
-    const fetchResponse = await fetch('http://localhost:5000/api/auth/log-in', {
+    const fetchResponse = await fetch('http://localhost:5000/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -24,5 +24,5 @@ export const logIn = async (email, password) => {
   }
   
   export const logOut = () => {
-    localStorage.removeItem('recipediajwt');
+    window.localStorage.clear();
 }
