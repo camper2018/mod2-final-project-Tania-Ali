@@ -21,18 +21,16 @@ router.post('/register', async function (req, res) {
         { userId: user.insertId, ...req.body, userIsAdmin: isAdmin },
         process.env.JWT_KEY
       );
-      res.json({ jwt: jwtEncodedUser, success: true, user: {id: user.insertId, email: email} });
+      res.json({ jwt: jwtEncodedUser, success: true, user: { email: email} });
     } catch (error) {
       res.json({ error: error.message, success: false });
     }
   });
 
-router.post('/log-in', async function (req, res) {
+router.post('/login', async function (req, res) {
     try {
       const { email, password: userEnteredPassword } = req.body;
-  
       const [[user]] = await req.db.query(`SELECT * FROM users WHERE email = :email`, { email });
-
       if (!user){
         throw Error('Email not found');
       }
@@ -45,8 +43,8 @@ router.post('/log-in', async function (req, res) {
           email: user.email,
           userIsAdmin: user.userIsAdmin
       }
-      const jwtEncodedUser = jwt.sign(payload, process.env.JWT_KEY);
-      res.json({ jwt: jwtEncodedUser, success: true, user: { id: user.id, email: email}});
+      const jwtEncodedUser = await jwt.sign(payload, process.env.JWT_KEY);
+      res.json({ jwt: jwtEncodedUser, success: true, user: { email: email}});
       } else {
          throw Error('Password is wrong');
       }
@@ -57,4 +55,3 @@ router.post('/log-in', async function (req, res) {
   });
 
 module.exports = router;
-  

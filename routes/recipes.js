@@ -1,6 +1,64 @@
 const express = require('express');
 const router = express.Router();
 const verifyJwt = require('../middleware/verifyJwt');
+
+// retrieve recipes created by user 
+router.get('/myrecipes', verifyJwt, async function (req, res) {
+    const {userId} = req.user;
+    try {
+        const count = 20;
+        const sql = `
+      SELECT
+      r.id,
+      r.name,
+      CASE r.favorite
+          WHEN 0 THEN false
+          WHEN 1 THEN true
+      END AS favorite,
+      r.method,
+      JSON_ARRAYAGG(
+          JSON_OBJECT(
+              'id', i.ingredient_id,
+              'name', i.ingredient_name,
+              'amount', i.amount,
+              'unit', i.unit,
+              'type', i.type,
+              'category', i.category
+          )
+      ) AS ingredients,
+      (
+          SELECT JSON_ARRAYAGG(tag_name)
+          FROM tags t
+          WHERE t.recipe_id = r.id AND t.tag_name IS NOT NULL
+      ) AS tags
+    FROM
+        recipes r
+    LEFT JOIN
+        (
+            SELECT DISTINCT
+                recipe_id,
+                ingredient_id,
+                ingredient_name,
+                amount,
+                unit,
+                type,
+                category
+            FROM
+                ingredients
+        ) i ON r.id = i.recipe_id
+        WHERE r.user_id=:userId
+    GROUP BY
+        r.id, r.name, r.favorite, r.method
+    LIMIT :count;
+  `
+        const [result] = await req.db.query(sql, { count, userId: userId });
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Error fetching recipes!', err);
+        res.status(500).json({ message: `Error fetching recipes: ${err.message}` })
+    }
+});
+
 // get random recipes of the requested count or limit from database
 router.get('/random-recipes/:count?', async function (req, res) {
     try {
@@ -100,7 +158,7 @@ router.get('/search/:searchTerm', async function (req, res) {
 });
 
 // get recipe by id
-router.get('/:id', async function (req, res) {
+router.get('/myrecipes/:id', async function (req, res) {
     const recipeId = req.params.id;
 
     const sql = `SELECT
@@ -129,66 +187,12 @@ router.get('/:id', async function (req, res) {
     }
 });
 
-// retrieve recipes created by user id
-router.get('/myrecipes/:userId?', verifyJwt, async function (req, res) {
-    const userId = parseInt(req.params.userId);
-    try {
-        const count = 20;
-        const sql = `
-      SELECT
-      r.id,
-      r.name,
-      CASE r.favorite
-          WHEN 0 THEN false
-          WHEN 1 THEN true
-      END AS favorite,
-      r.method,
-      JSON_ARRAYAGG(
-          JSON_OBJECT(
-              'id', i.ingredient_id,
-              'name', i.ingredient_name,
-              'amount', i.amount,
-              'unit', i.unit,
-              'type', i.type,
-              'category', i.category
-          )
-      ) AS ingredients,
-      (
-          SELECT JSON_ARRAYAGG(tag_name)
-          FROM tags t
-          WHERE t.recipe_id = r.id AND t.tag_name IS NOT NULL
-      ) AS tags
-    FROM
-        recipes r
-    LEFT JOIN
-        (
-            SELECT DISTINCT
-                recipe_id,
-                ingredient_id,
-                ingredient_name,
-                amount,
-                unit,
-                type,
-                category
-            FROM
-                ingredients
-        ) i ON r.id = i.recipe_id
-        WHERE r.user_id=:userId
-    GROUP BY
-        r.id, r.name, r.favorite, r.method
-    LIMIT :count;
-  `
-        const [result] = await req.db.query(sql, { count, userId });
-        res.status(200).json(result);
-    } catch (err) {
-        console.error('Error fetching recipes!', err);
-        res.status(500).json({ message: `Error fetching recipes: ${err.message}` })
-    }
-});
+
 // save a recipe
-router.post('/:userId', verifyJwt, async function (req, res) {
+
+router.post('/myrecipes', verifyJwt, async function (req, res) {
     const recipe = req.body;
-    const {userId} = req.params;
+    const {userId} = req.user;
     const { name, favorite, method, ingredients, tags } = recipe;
     const recipesQuery = "INSERT INTO recipes SET :recipe;";
     const ingredientsQuery = "INSERT INTO ingredients SET :ingredient;";
@@ -218,7 +222,7 @@ router.post('/:userId', verifyJwt, async function (req, res) {
 });
 
 // Edit a recipe
-router.put('/:id', verifyJwt, async (req, res) => {
+router.put('/myrecipes/:id', verifyJwt, async (req, res) => {
     const recipeId = req.params.id;
     const { name, favorite, method, ingredients, tags } = req.body;
     const updateRecipeQuery = `UPDATE recipes SET name = :name, favorite = :favorite, method = :method, updatedAt = :updatedAt WHERE id = :id;`;
@@ -252,7 +256,7 @@ router.put('/:id', verifyJwt, async (req, res) => {
 });
 
 // Delete a recipe
-router.delete('/:id',verifyJwt, async (req, res) => {
+router.delete('/myrecipes/:id',verifyJwt, async (req, res) => {
     const recipeId = req.params.id;
     const deleteRecipeQuery = 'DELETE FROM recipes WHERE id = :recipeId';
     try {

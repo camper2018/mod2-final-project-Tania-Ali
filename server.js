@@ -59,5 +59,5 @@ app.use('/api/recipes', require('./routes/recipes'));
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on ${process.env.BASE_URL}:${port}`);
 });
