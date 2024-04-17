@@ -6,6 +6,7 @@ import styles from './Navbar.module.css';
 import Button from 'react-bootstrap/Button';
 import UserSettings from './userSetting';
 import logo from '../assets/profile-picture-icon.jpg';
+import authServices from '../utilities/authServices';
 const Navbar = ({ handleSearch, handleSelectMenu }) => {
     const navigate = useNavigate();
     const [userSettings, setUserSettings] = useState({
@@ -14,9 +15,7 @@ const Navbar = ({ handleSearch, handleSelectMenu }) => {
     });
 
     const handleLogout = () => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("recipediajwt");
-        localStorage.removeItem("profile-picture")
+        authServices.logOut();
         setUserSettings({
             avatar: logo,
             username: null

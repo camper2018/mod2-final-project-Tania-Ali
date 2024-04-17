@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './register.module.css';
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
-import { register } from '../utilities/authServices';
+import authServices from '../utilities/authServices';
 import ErrorComponent from './displayError';
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -42,7 +42,7 @@ const Register = () => {
         ) {
             try {
                 setIsLoading(true);
-                const data = await register(email, password);
+                const data = await authServices.register(email, password);
                 if (data.success){
                     localStorage.setItem('recipediajwt', data.jwt);
                     localStorage.setItem('user', JSON.stringify(data.user));

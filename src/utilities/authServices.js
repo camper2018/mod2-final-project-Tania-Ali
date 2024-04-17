@@ -1,6 +1,6 @@
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-export const register = async (email, password) => {
+const register = async (email, password) => {
     const fetchResponse = await fetch(`${baseUrl}/api/auth/register`, {
       method: 'POST',
       headers: {
@@ -11,8 +11,8 @@ export const register = async (email, password) => {
     const data = await fetchResponse.json();
   
     return data;
-  }
-export const logIn = async (email, password) => {
+}
+const logIn = async (email, password) => {
     const fetchResponse = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -25,6 +25,15 @@ export const logIn = async (email, password) => {
     return data;
   }
   
-  export const logOut = () => {
-    window.localStorage.clear();
+const logOut = () => {
+    try {
+        localStorage.clear();
+      } catch (error) {
+        console.error("Error removing item from local storage:", error);
+      }
+}
+export default {
+    register,
+    logIn,
+    logOut
 }

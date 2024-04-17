@@ -5,7 +5,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import styles from './login.module.css';
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
-import {logIn} from '../utilities/authServices';
+import authServices from '../utilities/authServices';
 import ErrorComponent from './displayError';
 import localStore from '../utilities/localStorage';
 
@@ -60,7 +60,7 @@ const Login = () => {
         try {
             setIsLoading(true);
             // authenticate at backend using api
-            const data = await logIn(credentials.email, credentials.password);
+            const data = await authServices.logIn(credentials.email, credentials.password);
             if (data.success){
                 localStore.setJwt(data.jwt);
                 localStore.setUser(JSON.stringify(data.user));
