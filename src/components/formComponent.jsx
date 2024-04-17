@@ -14,6 +14,8 @@ import '../App.css';
 import UnitSystemToggle from './toggleSwitch';
 import { v4 as uuidv4 } from 'uuid';
 import Loading from './loading';
+import ErrorComponent from './displayError';
+import dataServices from '../utilities/apiServices/dataServices';
 
 const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitForm, param }) => {
     const [recipeName, setRecipeName] = useState('');
@@ -27,23 +29,19 @@ const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitF
     });
     const navigate = useNavigate();
     const [isLoading, setLoading] = useState(false);
-    const baseUrl = import.meta.env.VITE_BASE_URL;
     const fetchData = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${baseUrl}/api/recipes/myrecipes/${param}`);
-            if (response.ok) {
-                const data = await response.json();
-                const updatedData = { ...data, tags: data.tags || [''] };
-                setRecipeName(updatedData.name);
-                setMethod(updatedData.method);
-                setTags(updatedData.tags || ['']);
-                setIngredients(updatedData.ingredients);
-                setLoading(false);
-
-            } else {
-                throw Error(`${response.statusText}: ${response.status}`);
+            const {data, error} = await dataServices.getRecipes(`api/recipes/myrecipes/${param}`);
+            if (error) {
+                throw error;
             }
+            const updatedData = { ...data, tags: data.tags || [''] };
+            setRecipeName(updatedData.name);
+            setMethod(updatedData.method);
+            setTags(updatedData.tags || ['']);
+            setIngredients(updatedData.ingredients);
+            setLoading(false);
         } catch (err) {
             setLoading(false);
             console.error('Error fetching recipe!', err.message);
@@ -52,7 +50,7 @@ const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitF
     }
     useEffect(() => {
         if (param) {
-            fetchData();
+           fetchData();
         }
     }, [param])
 
@@ -174,9 +172,9 @@ const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitF
         </div>)
     }
     if (errors.fetchError) {
-        return <h3 className="mt-5 text-center text-danger">{errors.fetchError}</h3>
+        return (<ErrorComponent error={errors.fetchError}/>)
     } else if (errors.updateError) {
-        return <h3 className="mt-5 text-center text-danger">{errors.updateError}</h3>
+        return (<ErrorComponent error={errors.updateError}/>)
     } else {
         return (
             <div className={styles.container + " background"}>

@@ -6,7 +6,7 @@ import styles from './Navbar.module.css';
 import Button from 'react-bootstrap/Button';
 import UserSettings from './userSetting';
 import logo from '../assets/profile-picture-icon.jpg';
-import authServices from '../utilities/authServices';
+import authServices from '../utilities/apiServices/authServices';
 const Navbar = ({ handleSearch, handleSelectMenu }) => {
     const navigate = useNavigate();
     const [userSettings, setUserSettings] = useState({

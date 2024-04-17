@@ -24,6 +24,7 @@ import Register from './components/register';
 import Login from './components/login';
 import AddFormComponent from './components/addFormComponent';
 import EditFormComponent from './components/editFormComponent';
+import dataServices from './utilities/apiServices/dataServices';
 const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -32,7 +33,6 @@ const App = () => {
   const [searchedRecipes, setSearchedRecipes] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
-  const baseUrl = import.meta.env.VITE_BASE_URL;
   useEffect(() => {
     if (recipes.length) {
       convertUnitSystemOfRecipes(unitSystem, recipes);
@@ -89,18 +89,16 @@ const App = () => {
     } else {
       try {
         setLoading(true);
-        const response = await fetch(`${baseUrl}/api/recipes/random-recipes/${eventKey}`)
-        if (response.ok) {
-          const data = await response.json();
-          setRecipes(data);
-          setLoading(false);
-        } else {
-          throw Error(`${response.status} (${response.statusText})`)
+        const {data, error} = await dataServices.getRecipes(`api/recipes/random-recipes/${eventKey}`)
+        if (error) {
+          throw error;
         }
-      } catch (error) {
+        setRecipes(data);
         setLoading(false);
-        console.log("Error: ", error.message);
-        setError(error.message);
+      } catch (err) {
+        setLoading(false);
+        console.log("Error: ", err.message);
+        setError(err.message);
       }
     }
   }
@@ -281,48 +279,30 @@ const App = () => {
     const jwt = localStore.getJwt();
     // save recipe
     try {
-      const response = await fetch(`${baseUrl}/api/recipes/myrecipes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-           "Authorization": `Bearer ${jwt}`
-          
-        },
-        body: JSON.stringify(recipe)
-      })
-      if (response.ok) {
-        await response.json();
-        setRecipes(prevRecipes => [...prevRecipes, recipe]);
-        alert(`Your recipe ${recipe.name} was saved successfully`);
-      } else {
-        throw Error(`${response.status} (${response.statusText})`);
+      const {data, error} = await dataServices.postRecipe(`api/recipes/myrecipes`, 'POST', jwt, recipe);
+      if (error) {
+        throw error;
       }
-    } catch (error) {
-      console.error(error);
-      setError(error.message);
+      setRecipes(prevRecipes => [...prevRecipes, recipe]);
+      alert(`Your recipe ${recipe.name} was saved successfully`);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
     }
   }
   const handleEditRecipe = async (updatedRecipe, id)=> {
     const jwt = localStore.getJwt();
     try {
-      const response = await fetch(`${baseUrl}/api/recipes/myrecipes/${id}`, {
-          method: "PUT",
-          headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${jwt}`
-          },
-          body: JSON.stringify(updatedRecipe),
-      })
-      if (response.ok) {
-          alert(`Successfully updated ${updatedRecipe.name} recipe.`);
-      } else {
-          throw Error(`${response.statusText}: ${response.status}`);
+      const {data, error} = await dataServices.postRecipe(`api/recipes/myrecipes/${id}`, 'PUT', jwt, updatedRecipe);
+      if (error) {
+        throw error;
       }
-  } catch (err) {
-      console.error(err.message);
-      setError({ ...error, updateError: err.message })
-      setError(err.message)
-  }
+      alert(`Successfully updated ${updatedRecipe.name} recipe.`);
+    
+    } catch (err) {
+        console.error(err.message);
+        setError(err.message)
+    }
   }
   const handleAddItem = (e) => {
     e.preventDefault();
@@ -352,20 +332,19 @@ const App = () => {
     const searchTerm = e.target.elements['search'].value;
     try {
       setLoading(true);
-      const response = await fetch(`${baseUrl}/api/recipes/search/${searchTerm.trim()}`)
-      if (response.ok) {
-        const data = await response.json();
-        e.target.elements['search'].value = "";
-        setSearchedRecipes([...searchedRecipes, ...data]);
-        setRecipes([...recipes, ...data]);
-        setLoading(false);
-      } else {
-        throw Error(`${response.status} (${response.statusText})`)
+      const {data, error} = await dataServices.getRecipes(`api/recipes/search/${searchTerm.trim()}`)
+      if (error) {
+        throw error;
       }
-    } catch (error) {
+      e.target.elements['search'].value = "";
+      setSearchedRecipes([...searchedRecipes, ...data]);
+      setRecipes([...recipes, ...data]);
       setLoading(false);
-      console.log("Error: ", error.message);
-      setError(error.message);
+
+    } catch (err) {
+      setLoading(false);
+      console.log("Error: ", err.message);
+      setError(err.message);
     }
   }
   if (isLoading) {

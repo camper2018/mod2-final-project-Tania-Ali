@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './register.module.css';
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
-import authServices from '../utilities/authServices';
+import authServices from '../utilities/apiServices/authServices';
 import ErrorComponent from './displayError';
 const Register = () => {
     const [email, setEmail] = useState('');

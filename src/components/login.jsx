@@ -5,7 +5,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import styles from './login.module.css';
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
-import authServices from '../utilities/authServices';
+import authServices from '../utilities/apiServices/authServices';
 import ErrorComponent from './displayError';
 import localStore from '../utilities/localStorage';
 

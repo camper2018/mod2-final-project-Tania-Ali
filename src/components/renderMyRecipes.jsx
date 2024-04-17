@@ -6,32 +6,25 @@ import { FaPlus } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import Loading from "./loading";
 import localStore from '../utilities/localStorage';
+import dataServices from '../utilities/apiServices/dataServices';
+
 const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     const [recipes, setRecipes] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const baseUrl = import.meta.env.VITE_BASE_URL;
 
     const fetchRecipes = async () => {
         const jwt = localStore.getJwt();
         try {
             setLoading(true);
             if (jwt) {
-                const response = await fetch(`${baseUrl}/api/recipes/myrecipes`, {
-                    method: 'GET',
-                    headers: {
-                        Authorization : `Bearer ${jwt}`
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setRecipes(data);
-                    setLoading(false);
-                } else {
-                    console.log("Error fetching recipes" )
-                    throw Error(`${response.statusText}: ${response.status}`)
+                const {data, error} = await dataServices.getRecipes(`api/recipes/myrecipes`, jwt);
+                if (error) {
+                    throw Error(error);
                 }
+                setRecipes(data);
+                setLoading(false);
             } else {
                 throw Error(`Access restricted! Please sign up..`)
             }
@@ -40,46 +33,36 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
             console.error("Error retrieving recipes:", err);
             setError(err.message);
         }
-
     }
-    // useEffect(() => {
-    //     fetchRecipes();
-    // }, [location.pathname]);
+
     useEffect(() => {
         fetchRecipes();
     },[]);
     
     const handleDelete = async (id) => {
         let text = `
-       Warning! 
-       This action this irreversible!.
-       Are you sure you want to delete this recipe?`
+        Warning! 
+        This action this irreversible!.
+        Are you sure you want to delete this recipe?`
 
         if (confirm(text) == true) {
             try {
                 const jwt = localStore.getJwt();
-                const response = await fetch(`${baseUrl}/api/recipes/myrecipes/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Authorization: `Bearer ${jwt}`
-                    }
-
-                });
-                if (response.ok) {
-                    await response.json();
-                    const filteredRecipes = recipes.filter(recipe => recipe.id !== id);
-                    setRecipes(filteredRecipes);
-                } else {
-                    throw Error(`${response.statusText}: ${response.status}`);
+                const {data, error} = await dataServices.deleteRecipe(`api/recipes/myrecipes/${id}`, jwt);
+                if (error) {
+                    throw error;
                 }
+                const filteredRecipes = recipes.filter(recipe => recipe.id !== id);
+                setRecipes(filteredRecipes);
             } catch (err) {
                 console.error('Error deleting a recipe with id of ' + id, err);
                 setError(err.message);
             }
         } else {
-            return;
+           return;
         }
     };
+
     const handleEdit = async (id) => {
         navigate(`/edit-recipe/${id}`);
     }
