@@ -27,7 +27,7 @@ import EditFormComponent from './components/editFormComponent';
 import dataServices from './utilities/apiServices/dataServices';
 const App = () => {
   const [recipes, setRecipes] = useState([]);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState(localStore.getFavoritesFromStore());
   const [unitSystem, setUnitSystem] = useState('customary');
   const [categories, setCategories] = useState({ 'Fresh Produce': [], 'Dairy and Eggs': [], 'Frozen Food': [], 'Oil and Condiments': [], 'Meat and Seafood': [], 'Bakery': [], 'Breakfast': [], 'Pasta Flour and Rice': [], 'Soups and Cans': [], 'Beverages': [], 'Snacks': [], 'Miscellaneous': [] });
   const [searchedRecipes, setSearchedRecipes] = useState([]);
@@ -363,13 +363,9 @@ const App = () => {
           <Route path="/" element={
             <React.Fragment>
               <Navbar
-                unitSystem={unitSystem}
-                toggleUnitSystem={handleUnitSystemToggle}
+                setFavorites={setFavorites}
                 handleSearch={handleSearch}
                 handleSelectMenu={handleSelectMenu}
-                categories={categories}
-                handleAddToFavorites={handleAddToFavorites}
-                handleRemoveFromFavorites={handleRemoveFromFavorites}
               />
 
               <div className="card background">

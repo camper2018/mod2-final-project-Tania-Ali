@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button';
 import UserSettings from './userSetting';
 import logo from '../assets/profile-picture-icon.jpg';
 import authServices from '../utilities/apiServices/authServices';
-const Navbar = ({ handleSearch, handleSelectMenu }) => {
+const Navbar = ({ handleSearch, handleSelectMenu, setFavorites }) => {
     const navigate = useNavigate();
     const [userSettings, setUserSettings] = useState({
         username: null,
@@ -19,7 +19,8 @@ const Navbar = ({ handleSearch, handleSelectMenu }) => {
         setUserSettings({
             avatar: logo,
             username: null
-        })
+        });
+        setFavorites([]);
     }
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("user"))?.email;
