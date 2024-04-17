@@ -7,6 +7,7 @@ import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import {logIn} from '../utilities/authServices';
 import ErrorComponent from './displayError';
+import localStore from '../utilities/localStorage';
 
 const Login = () => {
 
@@ -61,8 +62,8 @@ const Login = () => {
             // authenticate at backend using api
             const data = await logIn(credentials.email, credentials.password);
             if (data.success){
-                localStorage.setItem('recipediajwt', data.jwt);
-                localStorage.setItem('user', JSON.stringify(data.user));
+                localStore.setJwt(data.jwt);
+                localStore.setUser(JSON.stringify(data.user));
                 navigate('/');
             } else {
               throw Error(data.error);

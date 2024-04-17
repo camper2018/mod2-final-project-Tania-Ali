@@ -42,13 +42,8 @@
    float: right; 
    margin-left: 10px;
 }
-@media only screen and (max-width: 840px) {
-    .searchContainer {
-    }
-}
+
 @media only screen and (max-width: 280px) {
-    .searchContainer {
-    }
     .logo{
         margin-bottom: 70px;
         margin-left: 40px;

@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import RenderListItem from './renderListItem';
 import Button from 'react-bootstrap/Button';
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import Loading from "./loading";
+import localStore from '../utilities/localStorage';
 const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
     const [recipes, setRecipes] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setLoading] = useState(false);
-    const Navigate = useNavigate();
-    console.log("Mounted!")
-    const jwt = localStorage.getItem('recipediajwt');
-    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-    const fetchRecipes = async () => {
+    const navigate = useNavigate();
+    const baseUrl = import.meta.env.VITE_BASE_URL;
 
+    const fetchRecipes = async () => {
+        const jwt = localStore.getJwt();
         try {
             setLoading(true);
-            if (user) {
-            // if (jwt) {
-                const response = await fetch(`http://localhost:5000/api/recipes/myrecipes/${user.id}`, {
-                // const response = await fetch("http://localhost:5000/api/recipes/myrecipes", {
+            if (jwt) {
+                const response = await fetch(`${baseUrl}/api/recipes/myrecipes`, {
                     method: 'GET',
                     headers: {
                         Authorization : `Bearer ${jwt}`
@@ -35,7 +33,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
                     throw Error(`${response.statusText}: ${response.status}`)
                 }
             } else {
-                throw Error(`Sign in required.`)
+                throw Error(`Access restricted! Please sign up..`)
             }
         } catch (err) {
             setLoading(false);
@@ -44,6 +42,13 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
         }
 
     }
+    // useEffect(() => {
+    //     fetchRecipes();
+    // }, [location.pathname]);
+    useEffect(() => {
+        fetchRecipes();
+    },[]);
+    
     const handleDelete = async (id) => {
         let text = `
        Warning! 
@@ -52,7 +57,8 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
 
         if (confirm(text) == true) {
             try {
-                const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
+                const jwt = localStore.getJwt();
+                const response = await fetch(`${baseUrl}/api/recipes/myrecipes/${id}`, {
                     method: 'DELETE',
                     headers: {
                         Authorization: `Bearer ${jwt}`
@@ -60,7 +66,7 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
 
                 });
                 if (response.ok) {
-                    const result = await response.json();
+                    await response.json();
                     const filteredRecipes = recipes.filter(recipe => recipe.id !== id);
                     setRecipes(filteredRecipes);
                 } else {
@@ -75,13 +81,8 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
         }
     };
     const handleEdit = async (id) => {
-        Navigate(`/edit-recipe/${id}`);
+        navigate(`/edit-recipe/${id}`);
     }
-    useEffect(() => {
-        // fetch recipes created by user in alphabetical order(i.e recipes with user_id)
-        // http://localhost:5000/myrecipes'
-        fetchRecipes();
-    }, []);
     if (isLoading) {
         return <Loading />;
     } else
@@ -91,10 +92,10 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
             return (
                 <div className="h-100 pt-5 overflow-scroll">
                     <div className="d-flex justify-content-between">
-                        <Button variant="success" onClick={() => { Navigate('/'); location.reload(); }}>
+                        <Button variant="success" onClick={() => { navigate('/'); location.reload(); }}>
                             <IoIosArrowBack />
                         </Button>
-                        <Button variant="success" onClick={() => { Navigate('/add-recipe') }}>
+                        <Button variant="success" onClick={() => { navigate('/add-recipe') }}>
                             Add Recipe&nbsp;
                             <FaPlus />
                         </Button>

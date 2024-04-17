@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
-import { BrowserRouter, Routes, Route, Link, useNavigate} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link} from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { numericQuantity } from 'numeric-quantity';
 import { getUnitSystemForWet } from './utilities/addWetIngredients';
@@ -12,13 +12,11 @@ import { convertMetricToCustomary } from './utilities/convertUnitSystem';
 import { findUnitSystem } from './utilities/convertUnitSystem';
 import UnitSystemToggle from './components/toggleSwitch';
 import FinalList from './components/renderFinalList';
-import RecipeForm from './components/addRecipeForm';
 import { v4 as uuidv4 } from 'uuid';
 import RenderRecipes from './components/renderRecipes';
 import Navbar from './components/Navbar';
 import logo from './assets/recipedia-logo.png';
 import MyRecipes from './components/renderMyRecipes';
-import EditRecipeForm from './components/editRecipeForm';
 import localStore from './utilities/localStorage';
 import Loading from "./components/loading";
 import ErrorComponent from './components/displayError';
@@ -26,7 +24,6 @@ import Register from './components/register';
 import Login from './components/login';
 import AddFormComponent from './components/addFormComponent';
 import EditFormComponent from './components/editFormComponent';
-// import EditRecipe from './components/editRecipes';
 const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -35,8 +32,7 @@ const App = () => {
   const [searchedRecipes, setSearchedRecipes] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
-  const jwt = localStorage.getItem('recipediajwt');
-  // const navigate = useNavigate();
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   useEffect(() => {
     if (recipes.length) {
       convertUnitSystemOfRecipes(unitSystem, recipes);
@@ -93,7 +89,7 @@ const App = () => {
     } else {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/recipes/random-recipes/${eventKey}`)
+        const response = await fetch(`${baseUrl}/api/recipes/random-recipes/${eventKey}`)
         if (response.ok) {
           const data = await response.json();
           setRecipes(data);
@@ -282,12 +278,10 @@ const App = () => {
     const recipeId = uuidv4();
     recipe.favorite = false;
     recipe.id = recipeId;
-
+    const jwt = localStore.getJwt();
     // save recipe
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
-      // const response = await fetch(`http://localhost:5000/api/recipes/${user.id}`, {
-      const response = await fetch(`http://localhost:5000/api/recipes`, {
+      const response = await fetch(`${baseUrl}/api/recipes/myrecipes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -309,18 +303,18 @@ const App = () => {
     }
   }
   const handleEditRecipe = async (updatedRecipe, id)=> {
+    const jwt = localStore.getJwt();
     try {
-      const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
+      const response = await fetch(`${baseUrl}/api/recipes/myrecipes/${id}`, {
           method: "PUT",
           headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${jwt}`
+              "Authorization": `Bearer ${jwt}`
           },
           body: JSON.stringify(updatedRecipe),
       })
       if (response.ok) {
           alert(`Successfully updated ${updatedRecipe.name} recipe.`);
-          // navigate('/my-recipes');
       } else {
           throw Error(`${response.statusText}: ${response.status}`);
       }
@@ -358,7 +352,7 @@ const App = () => {
     const searchTerm = e.target.elements['search'].value;
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/recipes/search/${searchTerm.trim()}`)
+      const response = await fetch(`${baseUrl}/api/recipes/search/${searchTerm.trim()}`)
       if (response.ok) {
         const data = await response.json();
         e.target.elements['search'].value = "";
@@ -459,14 +453,6 @@ const App = () => {
               </div>}
           ></Route>
           <Route path="/add-recipe" element={
-            // <div>
-            //   <RecipeForm
-            //     unitSystem={unitSystem}
-            //     toggleUnitSystem={handleUnitSystemToggle}
-            //     categories={categories}
-            //     addRecipe={handleAddRecipe}
-            //   />
-            // </div>
             <AddFormComponent
               unitSystem={unitSystem}
               toggleUnitSystem={handleUnitSystemToggle}
@@ -485,13 +471,6 @@ const App = () => {
           }>
           </Route>
           <Route path="/edit-recipe/:id" element={
-            // <div>
-            //   <EditRecipeForm
-            //     unitSystem={unitSystem}
-            //     toggleUnitSystem={handleUnitSystemToggle}
-            //     categories={categories}
-            //   />
-            // </div>
             <EditFormComponent
               unitSystem={unitSystem}
               toggleUnitSystem={handleUnitSystemToggle}
@@ -507,23 +486,6 @@ const App = () => {
               <Login/>
           }>
             </Route>
-          {/* <Route path="/form" element={
-          <AddFormComponent
-            unitSystem={unitSystem}
-            toggleUnitSystem={handleUnitSystemToggle}
-            categories={categories}
-            handleSubmitForm={handleAddRecipe}
-          />}>
-          </Route> */}
-          {/* <Route path="/editform/:id" element={
-            <EditFormComponent
-              unitSystem={unitSystem}
-              toggleUnitSystem={handleUnitSystemToggle}
-              categories={categories}
-              handleSubmitForm={handleEditRecipe}
-            />}>
-          </Route> */}
-          
         </Routes>
       </div>
     </BrowserRouter>

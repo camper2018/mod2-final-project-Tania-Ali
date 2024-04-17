@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { dryConversionFactors } from '../utilities/addDryIngredients';
@@ -8,7 +9,7 @@ import { metricWetConversionFactors } from '../utilities/addWetIngredients';
 import { isPlural } from '../utilities/findPlural';
 import { numericQuantity } from 'numeric-quantity';
 import { IoMdClose } from "react-icons/io";
-import styles from './addRecipeForm.module.css';
+import styles from './formComponent.module.css';
 import '../App.css';
 import UnitSystemToggle from './toggleSwitch';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,36 +25,37 @@ const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitF
         ingredients: '',
         ingredientErrors: [],
     });
-    const jwt = localStorage.getItem('recipediajwt');
     const navigate = useNavigate();
     const [isLoading, setLoading] = useState(false);
-    if (param) {
-        useEffect(() => {
-            const fetchData = async () => {
-                try {
-                    setLoading(true);
-                    const response = await fetch(`http://localhost:5000/api/recipes/${param}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        const updatedData = { ...data, tags: data.tags || [''] };
-                        setRecipeName(updatedData.name);
-                        setMethod(updatedData.method);
-                        setTags(updatedData.tags || ['']);
-                        setIngredients(updatedData.ingredients);
-                        setLoading(false);
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${baseUrl}/api/recipes/myrecipes/${param}`);
+            if (response.ok) {
+                const data = await response.json();
+                const updatedData = { ...data, tags: data.tags || [''] };
+                setRecipeName(updatedData.name);
+                setMethod(updatedData.method);
+                setTags(updatedData.tags || ['']);
+                setIngredients(updatedData.ingredients);
+                setLoading(false);
 
-                    } else {
-                        throw Error(`${response.statusText}: ${response.status}`);
-                    }
-                } catch (err) {
-                    setLoading(false);
-                    console.error('Error fetching recipe!', err.message);
-                    setErrors({ ...errors, fetchError: err.message });
-                }
+            } else {
+                throw Error(`${response.statusText}: ${response.status}`);
             }
-            fetchData();
-        }, [param])
+        } catch (err) {
+            setLoading(false);
+            console.error('Error fetching recipe!', err.message);
+            setErrors({ ...errors, fetchError: err.message });
+        }
     }
+    useEffect(() => {
+        if (param) {
+            fetchData();
+        }
+    }, [param])
+
     const createOptionHTMLForUnits = (unitSystem) => {
         const html = [];
         let conversionFactorsForDry;
@@ -110,8 +112,6 @@ const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitF
         if (!recipeName.trim()) {
             errors.recipeName = 'Recipe name is required';
         }
-
-        // Add more validation for other fields if needed
         const ingredientErrors = ingredients.map(ingredient => {
             const ingredientError = {};
             if (!ingredient.name) {
@@ -156,14 +156,13 @@ const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitF
                     type
                 }))
             };
-            navigate('/my-recipes');
-            // if id is passed as param, edit recipe with the id = param
-            // otherwise add recipe
+            // if id is passed as param, edit recipe with the id = param, otherwise add recipe
             if (param){
                handleSubmitForm(formData, param)
             } else {
                handleSubmitForm(formData);
             }
+            navigate('/my-recipes');
         } else {
             console.error("Error:", errors);
             setErrors(errors);
@@ -184,7 +183,7 @@ const FormComponent = ({ unitSystem, toggleUnitSystem, categories, handleSubmitF
                 <div className={styles.subContainer}>
                     <div className={styles.form}>
                         <div className={styles.header}>
-                            <span className="ms-1"><h3>Create Your Recipe Here</h3></span>
+                            <span className="ms-1"><h3>{recipeName? recipeName: 'Create Your Recipe'}</h3></span>
                         </div>
                         <UnitSystemToggle unitSystem={unitSystem} toggleUnitSystem={toggleUnitSystem} />
                         <Form

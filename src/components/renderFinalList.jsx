@@ -61,7 +61,6 @@ const FinalList = ({ categories, addItem, handleSavedLists}) => {
    
     // edits an item in the list 
     const handleEditItem = (prev, current, id)=> {
-        console.log("prev:", prev, "current:", current, "id:", id)
         const categoriesCopy = {...categories};
         const [type, category, index, subIdx] = id.split("-");
         const targetValue = categoriesCopy[category][index];

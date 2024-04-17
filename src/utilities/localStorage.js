@@ -23,8 +23,7 @@ const getSavedListsFromStore = ()=> {
 const saveListToStore = (list)=> {
     const myLists = getSavedListsFromStore();
     myLists.push(list);
-    localStorage.setItem('myLists', JSON.stringify(myLists));
-    // return myLists;    
+    localStorage.setItem('myLists', JSON.stringify(myLists));   
 }
 const deleteListFromStore = (title) => {
     const savedLists = getSavedListsFromStore();
@@ -32,6 +31,15 @@ const deleteListFromStore = (title) => {
     localStorage.setItem("myLists", JSON.stringify(filteredLists));
     return filteredLists;
 };
+const getJwt = () => {
+   return localStorage.getItem('recipediajwt');
+}
+const setJwt = (val)=> {
+    localStorage.setItem('recipediajwt', val);
+}
+const setUser = (val) => {
+    localStorage.setItem('user', val);
+}
 export default {
     getFavoritesFromStore,
     addFavoritesToStore,
@@ -39,5 +47,8 @@ export default {
     removeFavoritesFromStore,
     getSavedListsFromStore,
     deleteListFromStore,
-    saveListToStore 
+    saveListToStore,
+    getJwt,
+    setJwt,
+    setUser
 }

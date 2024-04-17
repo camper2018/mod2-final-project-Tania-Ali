@@ -29,7 +29,7 @@ const RecipeDetail = ({ recipe }) => {
               <li key={i}>
                 <div className={styles.list}>
                   <span>{item.name}</span>
-                  <span>{parseInt(item.amount)}&nbsp;&nbsp;&nbsp; {item.unit === 'none' ? item.name : item.unit}</span>
+                  <span>{Math.round(parseFloat(item.amount))}&nbsp;&nbsp;&nbsp; {item.unit === 'none' ? item.name : item.unit}</span>
                 </div>
               </li>
             ))}
