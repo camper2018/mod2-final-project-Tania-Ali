@@ -14,7 +14,7 @@ const RecipeDetail = ({ recipe }) => {
       <FaBookOpen size={30} onClick={handleShow} className={styles.bookIcon} />
       <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title className={styles.title}>{recipe.name}</Modal.Title>
+          <Modal.Title className={styles.title}>{recipe.name}<span style={{fontSize: '16px', color: "orange", marginLeft: '10px'}}>Contributor: {recipe.writer}</span></Modal.Title>
         </Modal.Header>
         <Modal.Body className={styles.body}>
           <div className="d-flex justify-content-end text-white fw-bold">

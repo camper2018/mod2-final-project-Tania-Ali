@@ -7,6 +7,7 @@ import { FaEyeSlash } from "react-icons/fa";
 import authServices from '../utilities/apiServices/authServices';
 import ErrorComponent from './displayError';
 const Register = () => {
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,6 +22,9 @@ const Register = () => {
     const handleRegistration = async (e) => {
         e.preventDefault();
         setFormErrors([]);
+        if (username === ''){
+            setFormErrors((prevErrors) => [...prevErrors, 'Username is required']);
+        }
         if (email.length > 0 && !emailValid) {
             setFormErrors((prevErrors) => [...prevErrors, 'Email is invalid']);
         }
@@ -34,6 +38,7 @@ const Register = () => {
             setFormErrors((prevErrors) => [...prevErrors, 'Passwords don\'t match']);
         }
         if (
+            username.length > 0 &&
             email.length > 0 &&
             password.length > 0 &&
             confirmPassword.length > 0 &&
@@ -42,7 +47,7 @@ const Register = () => {
         ) {
             try {
                 setIsLoading(true);
-                const data = await authServices.register(email, password);
+                const data = await authServices.register(email, password, username);
                 if (data.success){
                     localStorage.setItem('recipediajwt', data.jwt);
                     localStorage.setItem('user', JSON.stringify(data.user));
@@ -57,6 +62,9 @@ const Register = () => {
 
             }
         }
+    }
+    function handleUsername(value){
+        setUsername(value);
     }
     function validateEmail(email) {
         var re = /\S+@\S+\.\S+/;
@@ -109,6 +117,18 @@ const Register = () => {
                                 ))}
                             </ul>
                         )}
+                        <label htmlFor='username'></label>
+                        <input
+                            id='username'
+                            className={styles.emailInput}
+                            onChange={(e) => {
+                                handleUsername(e.target.value);
+                            }}
+                            type='text'
+                            name='username'
+                            placeholder='username'
+                            required
+                        ></input>
                         <label htmlFor='signupEmail'></label>
                         <input
                             id='signupEmail'
