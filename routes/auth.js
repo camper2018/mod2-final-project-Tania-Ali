@@ -6,22 +6,22 @@ const bcrypt = require('bcrypt');
 // Hashes the password and inserts the info into the `user` table
 router.post('/register', async function (req, res) {
     try {
-      const { password, email, userIsAdmin } = req.body;
+      const { password, email, username, userIsAdmin } = req.body;
   
       const isAdmin = userIsAdmin ? 1 : 0
   
       const hashedPassword = await bcrypt.hash(password, 10);
   
       const [user] = await req.db.query(
-        `INSERT INTO users (email, password, userIsAdmin)
-        VALUES (:email, :hashedPassword, :userIsAdmin);`,
-        { email, hashedPassword, userIsAdmin: isAdmin });
-  
+        `INSERT INTO users (email, password, username, userIsAdmin)
+        VALUES (:email, :hashedPassword, :username, :userIsAdmin);`,
+        { email, hashedPassword, username, userIsAdmin: isAdmin });
+
       const jwtEncodedUser = jwt.sign(
         { userId: user.insertId, ...req.body, userIsAdmin: isAdmin },
         process.env.JWT_KEY
       );
-      res.json({ jwt: jwtEncodedUser, success: true, user: { email: email} });
+      res.json({ jwt: jwtEncodedUser, success: true, user: { email: email, username: username} });
     } catch (error) {
       res.json({ error: error.message, success: false });
     }

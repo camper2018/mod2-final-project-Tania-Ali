@@ -16,6 +16,7 @@ router.get('/myrecipes', verifyJwt, async function (req, res) {
           WHEN 1 THEN true
       END AS favorite,
       r.method,
+      (SELECT username FROM users WHERE id=r.user_id) AS writer,
       JSON_ARRAYAGG(
           JSON_OBJECT(
               'id', i.ingredient_id,
@@ -48,7 +49,7 @@ router.get('/myrecipes', verifyJwt, async function (req, res) {
         ) i ON r.id = i.recipe_id
         WHERE r.user_id=:userId
     GROUP BY
-        r.id, r.name, r.favorite, r.method
+        r.id, r.name, r.favorite, r.method, writer
     LIMIT :count;
   `
         const [result] = await req.db.query(sql, { count, userId: userId });
@@ -72,6 +73,8 @@ router.get('/random-recipes/:count?', async function (req, res) {
           WHEN 1 THEN true
       END AS favorite,
       r.method,
+      (SELECT username FROM users WHERE id=r.user_id) 
+      AS writer,
       JSON_ARRAYAGG(
           JSON_OBJECT(
               'id', i.ingredient_id,
@@ -103,7 +106,7 @@ router.get('/random-recipes/:count?', async function (req, res) {
                 ingredients
         ) i ON r.id = i.recipe_id
     GROUP BY
-        r.id, r.name, r.favorite, r.method
+        r.id, r.name, r.favorite, r.method, writer
     ORDER BY
         RAND()
     LIMIT :count;
@@ -131,6 +134,7 @@ router.get('/search/:searchTerm', async function (req, res) {
           r.name,
           r.favorite,
           r.method,
+          (SELECT username FROM users WHERE id=r.user_id) AS writer,
           JSON_ARRAYAGG(JSON_OBJECT(
               'id', i.ingredient_id,
               'name', i.ingredient_name,
@@ -147,7 +151,7 @@ router.get('/search/:searchTerm', async function (req, res) {
       WHERE
           r.name LIKE :searchText OR r.id IN (SELECT DISTINCT recipe_id FROM tags WHERE tag_name LIKE :searchText)
       GROUP BY
-          r.id, r.name, r.favorite, r.method;
+          r.id, r.name, r.favorite, r.method, writer;
   `;
         const [result] = await req.db.query(sql, { searchText });
         res.status(200).json(result);

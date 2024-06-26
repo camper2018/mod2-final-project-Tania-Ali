@@ -17,9 +17,9 @@ router.get("/tables", verifyJwt, async (req, res) => {
     `
         const createTableIngredientsSQL = `
         CREATE TABLE IF NOT EXISTS ingredients (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            ingredient_id INT AUTO_INCREMENT PRIMARY KEY,
             recipe_id INT,
-            name VARCHAR(255) NOT NULL,
+            ingredient_name VARCHAR(255) NOT NULL,
             amount VARCHAR(50) NOT NULL,
             unit VARCHAR(50),
             type VARCHAR(50),
@@ -29,9 +29,9 @@ router.get("/tables", verifyJwt, async (req, res) => {
       `
         const createTableTagsSQL = `
         CREATE TABLE IF NOT EXISTS tags(
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            tag_id INT AUTO_INCREMENT PRIMARY KEY,
             recipe_id INT,
-            name VARCHAR(255) NOT NULL,
+            tag_name VARCHAR(255) NOT NULL,
             FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
         );
       `
