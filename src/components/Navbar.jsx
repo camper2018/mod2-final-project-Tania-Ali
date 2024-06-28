@@ -23,7 +23,7 @@ const Navbar = ({ handleSearch, handleSelectMenu, setFavorites }) => {
         setFavorites([]);
     }
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem("user"))?.email;
+        const storedUser = JSON.parse(localStorage.getItem("user"))?.username;
         const storedAvatar = localStorage.getItem("profile-picture") || logo;
         setUserSettings({ username: storedUser, avatar: storedAvatar })
     }, []);

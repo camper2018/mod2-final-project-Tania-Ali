@@ -21,14 +21,16 @@ const UserSettings = ({userSettings, handleChange}) => {
   
     return (
       <div>
-          <div className="flex align-items-center">
-            <p className="text-light">{userSettings.username}</p>
+          <div className="d-flex flex-column justify-content-center">
+            <div style={{width: "100px"}}>
+              <p className="text-light text-center">{userSettings.username}</p>
+            </div>
             {userSettings.avatar && (
-                <img src={userSettings.avatar} alt="Selected" accept="image/*" style={{ maxWidth: '100px' }} />
+                 <img src={userSettings.avatar} alt="Selected" accept="image/*" style={{  maxWidth: '100px', maxHeight: '100px'}} />
             )}
             <input
               type="file"
-              style={{ alignText: "center", color: "black"}}
+              style={{ alignText: "center", color: "transparent"}}
               onChange={updateImage}
             />
           </div> 
