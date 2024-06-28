@@ -21,7 +21,7 @@ router.post('/register', async function (req, res) {
         { userId: user.insertId, ...req.body, userIsAdmin: isAdmin },
         process.env.JWT_KEY
       );
-      res.json({ jwt: jwtEncodedUser, success: true, user: { email: email, username: username} });
+      res.json({ jwt: jwtEncodedUser, success: true, user: { username: username} });
     } catch (error) {
       res.json({ error: error.message, success: false });
     }
@@ -36,15 +36,15 @@ router.post('/login', async function (req, res) {
       }
       const hashedPassword = `${user.password}`
       const passwordMatches = await bcrypt.compare(userEnteredPassword, hashedPassword);
-  
       if (passwordMatches) {
         const payload = {
           userId: user.id,
           email: user.email,
+          username: user.username,
           userIsAdmin: user.userIsAdmin
       }
       const jwtEncodedUser = await jwt.sign(payload, process.env.JWT_KEY);
-      res.json({ jwt: jwtEncodedUser, success: true, user: { email: email}});
+      res.json({ jwt: jwtEncodedUser, success: true, user: {username: user.username}});
       } else {
          throw Error('Password is wrong');
       }
