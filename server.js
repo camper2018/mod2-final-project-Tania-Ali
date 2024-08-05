@@ -4,7 +4,13 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const app = express();
 require('dotenv').config();
-const port = process.env.PORT;
+const config = process.env.NODE_ENV === 'production' 
+  ? require('./config/production')
+  : require('./config/development');
+
+const port = process.env.PORT || 3000;
+
+const base_url = config.base_url;
 
 const corsOptions = {
   origin: '*',
@@ -12,16 +18,9 @@ const corsOptions = {
   'access-control-allow-credentials': true,
   optionSuccessStatus: 200,
 }
+console.log("env:", process.env.NODE_ENV)
 
-const urlDB = `mysql://${process.env.MYSQLUSER}:${process.env.MYSQLPASSWORD}@${process.env.MYSQLHOST}:${process.env.MYSQLPORT}/${process.env.MYSQLDATABASE}`
-const pool = mysql.createPool(urlDB);
-// const pool = mysql.createPool({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DB_NAME,
-//   waitForConnections: true,
-// });
+const pool = mysql.createPool(config.poolConfig);
 app.use(cors(corsOptions));
 app.use(cookieParser());
 //to parse JSON bodies in POST and PUT requests
@@ -52,15 +51,18 @@ app.use(async (req, res, next) => {
 });
 
 // api routes
-app.use('/api/auth', require('./routes/auth'))
+app.use(`/api/auth`, require('./routes/auth'))
 
 // Jwt verification checks to see if there is an authorization header with a valid jwt in it.
 // app.use(verifyJwt);
 
-app.use('/api/init', require('./routes/tables'));
-app.use('/api/recipes', require('./routes/recipes'));
+app.use(`/api/init`, require('./routes/tables'));
+app.use(`/api/recipes`, require('./routes/recipes'));
 
 // Start the server
+// app.listen(port, () => {
+//   console.log(`Server is running on ${process.env.BASE_URL}:${port}`);
+// });
 app.listen(port, () => {
-  console.log(`Server is running on ${process.env.BASE_URL}:${port}`);
+  console.log(`Server is running on port: ${port}`);
 });
