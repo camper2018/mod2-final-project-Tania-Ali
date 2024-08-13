@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
+
 // Hashes the password and inserts the info into the `user` table
 router.post('/register', async function (req, res) {
     try {
@@ -11,19 +12,26 @@ router.post('/register', async function (req, res) {
       const isAdmin = userIsAdmin ? 1 : 0
   
       const hashedPassword = await bcrypt.hash(password, 10);
-  
+
+      // Check if username or email already exists
+      const [existingUser] = await req.db.query(`SELECT * FROM users WHERE email = :email OR username = :username`,  { email, username });
+
+      if (existingUser.length > 0) {
+          return res.status(409).json({ message: 'Username or email already exists' });
+      }
       const [user] = await req.db.query(
         `INSERT INTO users (email, password, username, userIsAdmin)
         VALUES (:email, :hashedPassword, :username, :userIsAdmin);`,
         { email, hashedPassword, username, userIsAdmin: isAdmin });
-
       const jwtEncodedUser = jwt.sign(
         { userId: user.insertId, ...req.body, userIsAdmin: isAdmin },
         process.env.JWT_KEY
       );
       res.json({ jwt: jwtEncodedUser, success: true, user: { username: username} });
+     
     } catch (error) {
-      res.json({ error: error.message, success: false });
+      console.error(`Error: ${error.message}` );
+      res.status(500).json({ message: "Registration Error! Please try again."});
     }
   });
 
@@ -49,8 +57,8 @@ router.post('/login', async function (req, res) {
          throw Error('Password is wrong');
       }
     } catch (error) {
-      console.error('Authentication failed', error);
-      res.json({ error: error.message, success: false });
+      console.error('Authentication failed', error.message);
+      res.status(401).json({ error: error.message});
     }
   });
 

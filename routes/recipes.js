@@ -271,7 +271,7 @@ router.delete('/myrecipes/:id',verifyJwt, async (req, res) => {
             res.status(200).json({ message: 'Recipe deleted successfully. ', recipeId })
         }
     } catch (err) {
-        console.error('Error deleting recipe:', error);
+        console.error('Error deleting recipe:', err);
         res.status(500).json({ error: `Internal Server Error: ${err.message}` })
     }
 });
