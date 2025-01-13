@@ -1,6 +1,5 @@
 import { useState} from 'react';
 const baseUrl = import.meta.env.VITE_BASE_URL;
-console.log("baseUrl:", baseUrl)
 
 const useHttp = (endpoint, options={}, callback) => {
     const [errorMessage, setErrorMessage] = useState(null);

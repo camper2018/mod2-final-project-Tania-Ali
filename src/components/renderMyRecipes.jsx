@@ -90,6 +90,10 @@ const MyRecipes = ({ handleAddToFavorites, handleRemoveFromFavorites }) => {
                 <Button variant="success" onClick={() => { navigate('/'); window.location.reload(); }}>
                     <IoIosArrowBack />
                 </Button>
+                <Button variant="warning" onClick={() => { navigate('/add-recipeImage'); }}>
+                    Add Image  &nbsp; 
+                    <FaPlus />
+                </Button>
                 <Button variant="success" onClick={() => { navigate('/add-recipe'); }}>
                     Add Recipe&nbsp;
                     <FaPlus />

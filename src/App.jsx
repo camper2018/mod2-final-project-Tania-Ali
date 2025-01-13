@@ -25,6 +25,7 @@ import Login from './components/login';
 import AddFormComponent from './components/addFormComponent';
 import EditFormComponent from './components/editFormComponent';
 import useHttp from './components/useHttp';
+import AddRecipeImage from './components/addRecipeImage';
 
 const App = () => {
   const [recipes, setRecipes] = useState([]);
@@ -51,14 +52,12 @@ const App = () => {
   const [selectMenuErrorMsg, fetchRecipes] = useHttp('api/recipes/random-recipes', {
     method: 'GET',
   }, (data)=> {
-    console.log(data);
     setRecipes(data);
     setError(null);
   })
   const [searchErrorMsg, searchRecipe] = useHttp('api/recipes/search', {
     method: 'GET',
   }, (data)=> {
-    console.log(data);
     setSearchedRecipes([...searchedRecipes, ...data]);
     setRecipes([...recipes, ...data]);
     setError(null);
@@ -91,7 +90,9 @@ const App = () => {
     const recipeId = uuidv4();
     recipe.favorite = false;
     recipe.id = recipeId;
-    console.log("recipe:", recipe)
+    if (!recipe.tags){
+      recipe.tags = ['']
+    }
     if (token){
         setLoading(true);
         addRecipe(null, recipe);
@@ -480,6 +481,12 @@ const handleEditRecipe = (updatedRecipe, id)=> {
               <Login/>
           }>
             </Route>
+            <Route path="/add-recipeImage" element={
+            <AddRecipeImage
+              handleSubmitForm={handleAddRecipe}
+            />}
+          >
+          </Route>
         </Routes>
       </div>
     </BrowserRouter>

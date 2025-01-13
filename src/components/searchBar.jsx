@@ -28,7 +28,7 @@ const SearchComponent = ({ handleSearch }) => {
           className={`me-2 ps-5 pe-0 relative fw-medium ${styles.searchInput}`}
           aria-label="Search a recipe"
           name="search"
-          placeholder="Recipes"
+          placeholder="Search"
         />
       </OverlayTrigger>
 
