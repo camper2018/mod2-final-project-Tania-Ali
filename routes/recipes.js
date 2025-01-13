@@ -1,6 +1,174 @@
 const express = require('express');
 const router = express.Router();
 const verifyJwt = require('../middleware/verifyJwt');
+const fs = require('fs');
+const multer = require('multer');
+const tesseract = require('tesseract.js');
+const {OpenAI} = require('openai');
+const dotenv = require('dotenv');
+dotenv.config();
+/******** Save a recipe using image *********/
+// Unit abbreviations mapping
+const unitAbbreviations = {
+    pound: "lb",
+    pounds: "lb",
+    ounce: "oz",
+    ounces: "oz",
+    tablespoon: "tbsp",
+    tablespoons: "tbsp",
+    teaspoon: "tsp",
+    teaspoons: "tsp",
+    cup: "cup",
+    cups: "cup",
+    gram: "g",
+    grams: "g",
+    kilogram: "kg",
+    kilograms: "kg",
+    liter: "L",
+    liters: "L",
+    milliliter: "mL",
+    milliliters: "mL",
+    "fluid ounces": "fl oz",
+    "fluid ounce": "fl oz",
+    pint: "pt",
+    pints: "pt",
+    quart: "qt",
+    quarts: "qt",
+    gallon: "gal",
+    gallons: "gal",
+  };
+// Ingredient categories
+const ingredientCategories = [
+    "Fresh Produce",
+    "Dairy and Eggs",
+    "Frozen Food",
+    "Oil and Condiments",
+    "Meat and Seafood",
+    "Bakery",
+    "Breakfast",
+    "Pasta Flour and Rice",
+    "Soups and Cans",
+    "Beverages",
+    "Snacks",
+    "Miscellaneous",
+];
+
+// Set up OpenAI API
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+// Configure multer for file uploads
+const upload = multer({ dest: "uploads/" });
+
+// Function to classify ingredient type based on unit and fallback rules
+function classifyIngredientType(unit, ingredientName) {
+    const dryUnits = ["lb", "kg", "g", "oz"];
+    const wetUnits = ["cup", "fl oz", "mL", "L", "qt", "gal"];
+  
+    if (dryUnits.includes(unit)) return "dry";
+    if (wetUnits.includes(unit)) return "wet";
+  
+    // Fallback for ambiguous units
+    const wetKeywords = ["oil", "milk", "paste", "yogurt", "sauce", "water", "juice", "puree"];
+    return wetKeywords.some((keyword) => ingredientName.includes(keyword))
+      ? "wet"
+      : "dry";
+}
+// post request for uploading a recipe image
+router.post('/upload', upload.single("image"), async (req, res) => {
+    const imagePath = req.file?.path;
+    try {
+      if (!imagePath) {
+        return res.status(400).json({ error: "File upload failed" });
+      }
+  
+      // Process image with Tesseract.js to extract text
+
+      const { data } = await tesseract.recognize(imagePath, "eng");
+  
+      // Create a detailed prompt for OpenAI
+      const recipePrompt = `
+        Extract the recipe in JSON format from the following text. For each ingredient, include the following properties:
+        1. "type": Classify as "dry" for solid ingredients and "wet" for liquid ingredients based on the rules:
+           - Units: "lb", "kg", "g", "oz" → "dry".
+           - Units: "cup", "fl oz", "mL", "L", "qt", "gal" → "wet".
+           - Units: "tbsp", "tsp", "pt" → Use ingredient nature ("dry" for solids, "wet" for liquids/pastes).
+        2. "category": Select one category from the following list: ${ingredientCategories.join(", ")}.
+        3. Separate "amount" and "unit" as distinct properties from the quantity.
+  
+        Here is the recipe text:
+  
+        ${data.text}
+  
+        Recipe JSON format:
+        {
+          "recipe": {
+            "name": "Recipe Name",
+            "ingredients": [
+              {
+                "item": "Ingredient name",
+                "amount": "Amount as a number",
+                "unit": "Unit abbreviation (e.g., 'tbsp', 'g')",
+                "type": "dry or wet",
+                "category": "One of the provided categories"
+              }
+            ],
+            "instructions": [
+              "Step 1 description",
+              "Step 2 description",
+            ]
+          }
+        }
+      `;
+  
+      const openaiResponse = await openai.chat.completions.create({
+        messages: [{ role: "user", content: recipePrompt }],
+        model: "gpt-4o-mini",
+        max_tokens: 1000,
+      });
+  
+      // Clean up response from OpenAI to ensure it's valid JSON
+      let responseText = openaiResponse?.choices?.[0]?.message?.content?.trim();
+      if(!responseText) {
+         throw new Error("Invalid response from OpenAI: " + JSON.stringify(openaiResponse));
+      }
+      responseText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+      const recipeJson = JSON.parse(responseText);
+      
+      // Transform the recipe to the final format
+      const transformedRecipe = {
+        name: recipeJson.recipe.name,
+        ingredients: recipeJson.recipe.ingredients.map((ingredient) => {
+        const [amount, unit] = [ingredient.amount, ingredient.unit];
+        const type = classifyIngredientType(unit, ingredient.item.toLowerCase());
+          return {
+            name: ingredient.item.toLowerCase(),
+            amount,
+            unit,
+            type, // "dry" or "wet"
+            category: ingredient.category || "Miscellaneous", // Ingredient category
+          };
+        }),
+        method: recipeJson.recipe.instructions
+          .map((instruction, index) => `${index + 1}. ${instruction}`)
+          .join("\n"), // Add newline after each instruction
+      };
+
+      // Send the transformed recipe to the frontend
+      console.log("transformedRecipe: ", transformedRecipe);
+      res.json(transformedRecipe);
+    } catch (error) {
+      console.error("Error processing the image:", error.message);
+      res.status(500).json({ error: "Failed to process the image" });
+    } finally {
+      // Clean up the uploaded file
+      if (imagePath) {
+        fs.unlinkSync(imagePath);
+        console.log(`Deleted file: ${imagePath}`);
+      }
+    }
+});
+/************************************/
 
 // retrieve recipes created by user 
 router.get('/myrecipes', verifyJwt, async function (req, res) {
